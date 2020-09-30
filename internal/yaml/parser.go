@@ -50,5 +50,7 @@ func Parse(config *config.Instance, filename, defaultFileName string) error {
 		return fmt.Errorf("error while validating YAML %v: %v", filename, err)
 	}
 
+	config.PreconfigureFields()
+
 	return nil
 }

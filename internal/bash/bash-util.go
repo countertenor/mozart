@@ -61,8 +61,8 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	fmt.Printf("\nRunning file : %v\n\n", fullDirPath+"/"+filename)
 	//precautionary step so that scripts don't run locally
 	osRunning := runtime.GOOS
-	if osRunning != i.OS { //scripts run only on OS defined
-		fmt.Printf("(Skipping execution since OS is %v. Scripts only run on %v)\n", osRunning, i.OS)
+	if osRunning != i.Config.Metadata.OS { //scripts run only on OS defined
+		fmt.Printf("(Skipping execution since OS is %v. Scripts only run on %v)\n", osRunning, i.Config.Metadata.OS)
 		return nil
 	}
 	if i.DirExecStatusMap[fullDirPath][filename].State == runningState {
@@ -88,9 +88,9 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	defer cancelFunc()
 	cancelRunningCommandFunc = cancelFunc
 
-	command := exec.CommandContext(ctx, "/bin/bash", args...)
+	command := exec.CommandContext(ctx, i.Config.Metadata.ExecutionCommand, args...)
 
-	logFile, err := createLogFile(filename, i.LogDir)
+	logFile, err := createLogFile(filename, i.LogDir, i.Config.Metadata.Extension)
 	if err != nil {
 		i.updateErrorState(fullDirPath, filename, logFile.Name())
 		return err
@@ -133,7 +133,7 @@ func (i *Instance) StopRunningCmd() {
 	return
 }
 
-func createLogFile(filename, logDir string) (*os.File, error) {
+func createLogFile(filename, logDir, fileExt string) (*os.File, error) {
 
 	//check if log dir exists
 	if _, err := os.Stat(logDir); os.IsNotExist(err) {
@@ -145,7 +145,7 @@ func createLogFile(filename, logDir string) (*os.File, error) {
 
 	//create log file
 	timeNow := time.Now().Format("2006-01-02--15-04-05.000")
-	logFile, err := os.Create(logDir + timeNow + "-" + strings.TrimSuffix(filename, ".sh") + ".log")
+	logFile, err := os.Create(logDir + timeNow + "-" + strings.TrimSuffix(filename, fileExt) + ".log")
 	if err != nil {
 		return nil, fmt.Errorf("cannot write to logfile, err : %v", err)
 	}

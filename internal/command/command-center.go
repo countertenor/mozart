@@ -105,6 +105,7 @@ func (i *Instance) ParseYaml(confFile string) *Instance {
 	if getBoolFlagValue(i.Flags, flag.Verbose) {
 		i.Config.Print()
 	}
+	i.Instance.Config = *i.Config
 	fmt.Printf("\nConfiguration is valid in file : %v\n", confFile)
 	return i
 }
@@ -146,7 +147,7 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 	if !noGenerate {
 		//cleaning up all scripts in dir if it exists
 		if _, err := os.Stat(generatedDir + configDir); !os.IsNotExist(err) {
-			filesDeleted, err := cleanupFilesInDir(generatedDir+configDir, ".sh")
+			filesDeleted, err := cleanupFilesInDir(generatedDir+configDir, i.Config.Metadata.Extension)
 			if err != nil {
 				i.Error = fmt.Errorf("could not delete files in %v directory, err: %v", generatedDir+configDir, err)
 				return i
@@ -176,7 +177,6 @@ func (i *Instance) RunBashScripts() *Instance {
 	}
 	fullPath := generatedDir + i.ConfigDir
 	// fmt.Println("fullPath : ", fullPath)
-	i.OS = i.Config.Metadata.OS
 	if i.DryRunEnabled {
 		i.RunScriptsInDir(fullPath)
 	} else {

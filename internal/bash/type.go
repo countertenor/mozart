@@ -2,6 +2,8 @@ package bash
 
 import (
 	"time"
+
+	"github.com/prashantgupta24/mozart/internal/config"
 )
 
 type stateType string
@@ -38,7 +40,7 @@ type Instance struct {
 	GeneratedDir    string
 	TemplateDir     string
 	Error           error
-	OS              string
+	Config          config.Instance
 	TimeoutInterval time.Duration
 	State
 }

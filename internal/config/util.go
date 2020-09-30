@@ -70,3 +70,22 @@ func printPretty(c interface{}) error {
 	fmt.Printf("\nParsed configuration: %s\n", string(json))
 	return nil
 }
+
+//PreconfigureFields preconfigures some fields for config struct
+func (config *Instance) PreconfigureFields() {
+
+	var executionCommand string
+	var extension string
+
+	switch config.Metadata.Execution {
+	case "bash":
+		executionCommand = "/bin/bash"
+		extension = ".sh"
+	case "python":
+		executionCommand = "python"
+		extension = ".py"
+	}
+
+	config.Metadata.ExecutionCommand = executionCommand
+	config.Metadata.Extension = extension
+}

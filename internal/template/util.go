@@ -26,7 +26,7 @@ type templateInstance struct {
 func Generate(conf *config.Instance, dirToGenerate, templateDir, templateFileExt, generatedDir string) error {
 	fmt.Println("")
 
-	templatesToGenerate, err := getTemplatesToGenerate(dirToGenerate, templateDir, templateFileExt)
+	templatesToGenerate, err := getTemplatesToGenerate(dirToGenerate, templateDir, templateFileExt, conf.Metadata.Extension)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func Generate(conf *config.Instance, dirToGenerate, templateDir, templateFileExt
 	return nil
 }
 
-func getTemplatesToGenerate(dirToGenerate, templateDir, templateFileExt string) ([]templateInstance, error) {
+func getTemplatesToGenerate(dirToGenerate, templateDir, templateFileExt, scriptFileExt string) ([]templateInstance, error) {
 	var templates []templateInstance
 
 	statikFS, err := statik.GetStaticFS()
@@ -72,7 +72,7 @@ func getTemplatesToGenerate(dirToGenerate, templateDir, templateFileExt string) 
 			scriptFileName := strings.TrimPrefix(path, templateDir)
 			templateInstance := templateInstance{
 				scriptName:       strings.TrimSuffix(fileName, templateFileExt),
-				scriptFileName:   strings.TrimSuffix(scriptFileName, templateFileExt) + ".sh",
+				scriptFileName:   strings.TrimSuffix(scriptFileName, templateFileExt) + scriptFileExt,
 				templateFileName: path,
 			}
 			templates = append(templates, templateInstance)
