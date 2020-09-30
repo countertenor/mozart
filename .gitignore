@@ -1,0 +1,22 @@
+#binary
+bin/
+
+#logs
+logs/
+*.log
+
+#DS Store
+.DS_Store
+
+#statik
+statik/statik.go
+
+# generated files
+generated/*
+!generated/*.md
+
+# db
+*.db
+
+# Releases
+dist/
