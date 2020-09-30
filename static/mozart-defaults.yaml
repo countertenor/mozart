@@ -1,1 +1,9 @@
 #default values
+metadata:
+  os: 
+  execution: 
+values:
+  required:
+    value1: 
+  optional:
+    value1: world

@@ -10,12 +10,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-//Parse function first parses the default configuration file, which loads the
-//default values. After that, it parses the file passed in as a param,
-//thereby preserving default values if they are not over-written.
-func Parse(config *config.Instance, filename, defaultFileName string) error {
-
-	//Read default file
+//ParseDefault parses default file into config
+func ParseDefault(config *config.Instance, defaultFileName string) error {
 	defaultFile, err := statik.OpenFile("/" + defaultFileName)
 	if err != nil {
 		return err
@@ -30,9 +26,12 @@ func Parse(config *config.Instance, filename, defaultFileName string) error {
 	if err != nil {
 		return fmt.Errorf("error while unmarshalling yaml %v: %v", defaultFileName, err)
 	}
+	return nil
+}
 
-	//Read file passed as param
-	fileData, err = ioutil.ReadFile(filename)
+//ParseFile parses file into config
+func ParseFile(config *config.Instance, filename string) error {
+	fileData, err := ioutil.ReadFile(filename)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return fmt.Errorf("no yaml file called %v found. Run 'init' to generate the sample config yaml file", filename)
@@ -44,13 +43,16 @@ func Parse(config *config.Instance, filename, defaultFileName string) error {
 	if err != nil {
 		return fmt.Errorf("error while unmarshalling yaml %v: %v", filename, err)
 	}
+	return nil
+}
 
-	err = config.Validate()
+//PreCheck handles validation and pre-configuration
+func PreCheck(config *config.Instance) error {
+	err := config.Validate()
 	if err != nil {
-		return fmt.Errorf("error while validating YAML %v: %v", filename, err)
+		return err
 	}
 
 	config.PreconfigureFields()
-
 	return nil
 }

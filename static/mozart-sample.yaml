@@ -3,5 +3,5 @@ metadata:
   os: darwin
   execution: python
 values:
-    required:
-        value1: world
+  required:
+    value1: hello

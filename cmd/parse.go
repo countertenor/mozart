@@ -19,7 +19,7 @@ For example:
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		err := command.New(cmd.Flags()).
-			ParseYaml(confFile).
+			ParseAll(confFile).
 			TimeTaken().
 			Error
 		if err != nil {

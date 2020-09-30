@@ -91,26 +91,69 @@ func (i *Instance) CreateSampleConfigFile() *Instance {
 	return i
 }
 
-//ParseYaml parses yaml and puts configuration into config struct
-func (i *Instance) ParseYaml(confFile string) *Instance {
+//ParseAll function first parses the default configuration file, which loads the
+//default values. After that, it parses the file passed in as a param,
+//thereby preserving default values if they are not over-written.
+func (i *Instance) ParseAll(confFile string) *Instance {
 	if i.Error != nil {
 		return i
 	}
-	err := yaml.Parse(i.Config, confFile, defaultConfigFileName)
-	if err != nil {
-		i.Error = fmt.Errorf("error while parsing YAML file: %v", err)
+	i.ParseDefault()
+	i.ParseFile(confFile)
+	i.PreCheck()
+	if i.Error != nil {
 		return i
 	}
-
 	if getBoolFlagValue(i.Flags, flag.Verbose) {
 		i.Config.Print()
 	}
-	i.Instance.Config = *i.Config
 	fmt.Printf("\nConfiguration is valid in file : %v\n", confFile)
 	return i
 }
 
-//CreateFromConfig creates yaml config
+//ParseDefault parses default yaml file and puts configuration into config struct
+func (i *Instance) ParseDefault() *Instance {
+	if i.Error != nil {
+		return i
+	}
+	err := yaml.ParseDefault(i.Config, defaultConfigFileName)
+	if err != nil {
+		i.Error = fmt.Errorf("error while parsing default YAML file: %v", err)
+		return i
+	}
+	i.Instance.Config = *i.Config
+	return i
+}
+
+//ParseFile parses yaml file passed in and puts configuration into config struct
+func (i *Instance) ParseFile(confFile string) *Instance {
+	if i.Error != nil {
+		return i
+	}
+	err := yaml.ParseFile(i.Config, confFile)
+	if err != nil {
+		i.Error = fmt.Errorf("error while parsing YAML file: %v", err)
+		return i
+	}
+	i.Instance.Config = *i.Config
+	return i
+}
+
+//PreCheck handles validation and pre-configuration
+func (i *Instance) PreCheck() *Instance {
+	if i.Error != nil {
+		return i
+	}
+	err := yaml.PreCheck(i.Config)
+	if err != nil {
+		i.Error = err
+		return i
+	}
+	i.Instance.Config = *i.Config
+	return i
+}
+
+//CreateFromConfig writes config struct to file
 func (i *Instance) CreateFromConfig(confFile string) *Instance {
 	if i.Error != nil {
 		return i

@@ -30,29 +30,21 @@ func WebSocket(w http.ResponseWriter, r *http.Request) {
 func Configuration(w http.ResponseWriter, r *http.Request) {
 
 	flags := getFlags(r.URL.Query())
-	commandCenter := command.New(flags)
-	commandCenter.CreateSampleConfigFile().
-		ParseYaml(command.SampleConfigFileName)
+	commandCenter := command.New(flags).ParseDefault()
 
-		//make changes
 	reqBody, _ := ioutil.ReadAll(r.Body)
-	var newConfigurationRequest configurationRequest
-	json.Unmarshal(reqBody, &newConfigurationRequest)
+	json.Unmarshal(reqBody, &commandCenter.Config)
 
-	config := commandCenter.Config
-	//make changes
-
-	err := config.Validate()
+	err := commandCenter.PreCheck().Error
 	if err != nil {
-		http.Error(w, "error while validating values, err: "+err.Error(), http.StatusBadRequest)
-		return
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
 	confFile, _ := flags.GetString(flag.ConfigurationFile)
 	commandCenter.CreateFromConfig(confFile)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(config)
+	json.NewEncoder(w).Encode(commandCenter.Config)
 
 }
 
@@ -60,17 +52,29 @@ func Configuration(w http.ResponseWriter, r *http.Request) {
 func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 
 	commandCenter := command.New(getFlags(r.URL.Query()))
-	err := commandCenter.ParseYaml(command.SampleConfigFileName).Error
+	err := commandCenter.ParseAll(command.SampleConfigFileName).Error
 
 	if err != nil {
 		http.Error(w, "error with configuration, err: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	var moduleRequest moduleRequest
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	json.Unmarshal(reqBody, &moduleRequest)
+	if moduleRequest.ModuleName == "" {
+		http.Error(w, "invalid module", http.StatusBadRequest)
+		return
+	}
+
+	err = commandCenter.GenerateConfigFilesFromDir(moduleRequest.ModuleName).Error
+	if err != nil {
+		http.Error(w, "invalid module", http.StatusBadRequest)
+		return
+	}
+
 	go func() {
-		commandCenter.
-			GenerateConfigFilesFromDir("test"). //TODO replace with actual module
-			RunBashScripts()
+		commandCenter.RunBashScripts()
 	}()
 
 	fmt.Fprint(w, "Success!")
