@@ -176,6 +176,7 @@ func (i *Instance) RunBashScripts() *Instance {
 	}
 	fullPath := generatedDir + i.ConfigDir
 	// fmt.Println("fullPath : ", fullPath)
+	i.OS = i.Config.Metadata.OS
 	if i.DryRunEnabled {
 		i.RunScriptsInDir(fullPath)
 	} else {

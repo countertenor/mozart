@@ -1,2 +1,6 @@
 #sample values
-value1: "test"
+metadata:
+  os: darwin
+values:
+    required:
+        value1: "test"

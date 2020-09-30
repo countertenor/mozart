@@ -61,8 +61,8 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	fmt.Printf("\nRunning file : %v\n\n", fullDirPath+"/"+filename)
 	//precautionary step so that scripts don't run locally
 	osRunning := runtime.GOOS
-	if !i.RunOnLocal && osRunning != "linux" { //scripts run only on linux
-		fmt.Printf("(Skipping execution since OS is %v. Scripts only run on linux)\n", osRunning)
+	if osRunning != i.OS { //scripts run only on OS defined
+		fmt.Printf("(Skipping execution since OS is %v. Scripts only run on %v)\n", osRunning, i.OS)
 		return nil
 	}
 	if i.DirExecStatusMap[fullDirPath][filename].State == runningState {
@@ -83,12 +83,7 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		return nil
 	}
 
-	var args []string
-	if i.AutoYesEnabled {
-		args = []string{"-c", "yes yes | ./" + fullDirPath + "/" + filename}
-	} else {
-		args = []string{fullDirPath + "/" + filename}
-	}
+	args := []string{fullDirPath + "/" + filename}
 	ctx, cancelFunc := context.WithTimeout(context.Background(), i.TimeoutInterval)
 	defer cancelFunc()
 	cancelRunningCommandFunc = cancelFunc

@@ -32,14 +32,13 @@ type FileExecStatus struct {
 
 //Instance is the main struct for bash configs
 type Instance struct {
-	AutoYesEnabled  bool
 	DryRunEnabled   bool
-	RunOnLocal      bool
 	ReRun           bool
 	LogDir          string
 	GeneratedDir    string
 	TemplateDir     string
 	Error           error
+	OS              string
 	TimeoutInterval time.Duration
 	State
 }

@@ -68,8 +68,7 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go func() {
-		commandCenter.SetAutoYesEnabled(true).
-			SetRunOnLocal(true).
+		commandCenter.
 			GenerateConfigFilesFromDir("test"). //TODO replace with actual module
 			RunBashScripts()
 	}()

@@ -17,15 +17,3 @@ type Instance struct {
 	ConfigDir string
 	bash.Instance
 }
-
-//SetAutoYesEnabled is a setter for autoYesEnabled field
-func (i *Instance) SetAutoYesEnabled(autoYesEnabled bool) *Instance {
-	i.AutoYesEnabled = autoYesEnabled
-	return i
-}
-
-//SetRunOnLocal is a setter for runOnLocal field
-func (i *Instance) SetRunOnLocal(runOnLocal bool) *Instance {
-	i.RunOnLocal = runOnLocal
-	return i
-}
