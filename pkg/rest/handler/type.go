@@ -1,9 +1,17 @@
 package handler
 
-import "github.com/prashantgupta24/mozart/internal/bash"
+import (
+	"strings"
+
+	"github.com/prashantgupta24/mozart/internal/bash"
+)
 
 type moduleRequest struct {
 	ModuleName string `json:"moduleName"`
+}
+
+func (m *moduleRequest) getModuleName() string {
+	return strings.Join(strings.Split(m.ModuleName, " "), "/")
 }
 
 type task struct {

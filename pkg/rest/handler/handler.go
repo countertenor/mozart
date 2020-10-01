@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/prashantgupta24/mozart/internal/command"
-	"github.com/prashantgupta24/mozart/internal/flag"
 	"github.com/prashantgupta24/mozart/internal/ws"
 )
 
@@ -49,8 +48,7 @@ func Configuration(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
-	confFile, _ := flags.GetString(flag.ConfigurationFile)
-	commandCenter.CreateFromConfig(confFile)
+	commandCenter.CreateFromConfig()
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(commandCenter.Config)
@@ -62,7 +60,6 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 
 	commandCenter := command.New(getFlags(r.URL.Query()))
 	err := commandCenter.ParseAll().Error
-
 	if err != nil {
 		http.Error(w, "error with configuration, err: "+err.Error(), http.StatusBadRequest)
 		return
@@ -71,12 +68,12 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 	var moduleRequest moduleRequest
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(reqBody, &moduleRequest)
-	if moduleRequest.ModuleName == "" {
+	if moduleRequest.getModuleName() == "" {
 		http.Error(w, "invalid module", http.StatusBadRequest)
 		return
 	}
 
-	err = commandCenter.GenerateConfigFilesFromDir(moduleRequest.ModuleName).Error
+	err = commandCenter.GenerateConfigFilesFromDir(moduleRequest.getModuleName()).Error
 	if err != nil {
 		http.Error(w, "invalid module", http.StatusBadRequest)
 		return
@@ -96,11 +93,12 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(reqBody, &moduleRequest)
 
-	commandCenter := command.New(getFlags(r.URL.Query())).ReturnStateForDir(moduleRequest.ModuleName)
+	commandCenter := command.New(getFlags(r.URL.Query())).ReturnStateForDir(moduleRequest.getModuleName())
 	stateMap := commandCenter.ReturnStateMap
 
 	regexFile := regexp.MustCompile("([0-9]+-)")
-	regexDir := regexp.MustCompile("([a-z0-9/]+-)")
+	//regex101 - /r/MFyEZw/2
+	regexDir := regexp.MustCompile("([a-zA-Z0-9/]+/[0-9-]*)")
 	stateJSON := stateJSON{}
 	stepInstance := step{}
 	stepList := []step{}

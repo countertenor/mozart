@@ -133,7 +133,8 @@ func (i *Instance) ParseFile() *Instance {
 	if i.Error != nil {
 		return i
 	}
-	err := yaml.ParseFile(i.Config, getStringFlagValue(i.Flags, flag.ConfigurationFile))
+	confFile := getStringFlagValue(i.Flags, flag.ConfigurationFile)
+	err := yaml.ParseFile(i.Config, confFile)
 	if err != nil {
 		i.Error = fmt.Errorf("error while parsing YAML file: %v", err)
 		return i
@@ -155,10 +156,11 @@ func (i *Instance) PreCheck() *Instance {
 }
 
 //CreateFromConfig writes config struct to file
-func (i *Instance) CreateFromConfig(confFile string) *Instance {
+func (i *Instance) CreateFromConfig() *Instance {
 	if i.Error != nil {
 		return i
 	}
+	confFile := getStringFlagValue(i.Flags, flag.ConfigurationFile)
 	err := yaml.CreateFromConfig(i.Config, confFile)
 	if err != nil {
 		i.Error = err
