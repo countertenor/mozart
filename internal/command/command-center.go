@@ -22,7 +22,7 @@ var stateDBPathFromEnv string //This will be set through the build command, see 
 
 //constants needed
 const (
-	SampleConfigFileName = "mozart-sample.yaml"
+	sampleConfigFileName = "mozart-sample.yaml"
 
 	defaultConfigFileName = "mozart-defaults.yaml"
 	stateFileDefaultName  = "mozart-state.db"
@@ -86,11 +86,11 @@ func (i *Instance) CreateSampleConfigFile() *Instance {
 	if i.Error != nil {
 		return i
 	}
-	err := yaml.CreateSampleConfigFile(SampleConfigFileName)
+	err := yaml.CreateSampleConfigFile(sampleConfigFileName)
 	if err != nil {
 		i.Error = err
 	}
-	fmt.Println("\nGenerated sample file : ", SampleConfigFileName)
+	fmt.Println("\nGenerated sample file : ", sampleConfigFileName)
 	return i
 }
 
