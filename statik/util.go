@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -106,15 +105,12 @@ func GetAllDirsInDir(dirToLookIn string) ([]string, error) {
 			return err
 		}
 		if info.IsDir() {
-			if strings.HasPrefix(info.Name(), "test") {
-				return filepath.SkipDir
-			}
 			dirToReturn := path
 			dirToReturn = strings.TrimPrefix(dirToReturn, dirToLookIn)
 			dirToReturn = strings.TrimSpace(strings.Join(strings.Split(dirToReturn, "/"), " "))
 			dirToReturn = regexp.MustCompile("([0-9]+-)").ReplaceAllString(dirToReturn, "")
 			if dirToReturn != "" {
-				dirs = append(dirs, "\""+dirToReturn+"\"")
+				dirs = append(dirs, dirToReturn)
 			}
 		}
 		return nil

@@ -55,6 +55,12 @@ var routesForApp = routes{
 		handler.WebSocket,
 	},
 	route{
+		"Get modules",
+		"GET",
+		"/modules",
+		handler.GetModules,
+	},
+	route{
 		"Configuration Toggle",
 		"POST",
 		"/config",

@@ -25,6 +25,16 @@ func WebSocket(w http.ResponseWriter, r *http.Request) {
 	ws.ServeWs(w, r)
 }
 
+//GetModules gets the possible modules to execute
+func GetModules(w http.ResponseWriter, r *http.Request) {
+	modules, err := command.GetAllDirsInsideTmpl()
+	if err != nil {
+		http.Error(w, "could not fetch modules, err : "+err.Error(), http.StatusInternalServerError)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(modules)
+}
+
 //Configuration endpoint
 func Configuration(w http.ResponseWriter, r *http.Request) {
 
