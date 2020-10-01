@@ -74,7 +74,7 @@ var routesForApp = routes{
 	},
 	route{
 		"Cancel execution",
-		"GET",
+		"PUT",
 		"/cancel",
 		handler.Cancel,
 	},
