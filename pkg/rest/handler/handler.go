@@ -13,7 +13,6 @@ import (
 	"github.com/prashantgupta24/mozart/internal/command"
 	"github.com/prashantgupta24/mozart/internal/flag"
 	"github.com/prashantgupta24/mozart/internal/ws"
-	"github.com/spf13/pflag"
 )
 
 //Index page of application
@@ -83,7 +82,11 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 //GetState gets the state of a module
 func GetState(w http.ResponseWriter, r *http.Request) {
 
-	commandCenter := command.New(getFlags(r.URL.Query())).ReturnStateForDir("test")
+	var moduleRequest moduleRequest
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	json.Unmarshal(reqBody, &moduleRequest)
+
+	commandCenter := command.New(getFlags(r.URL.Query())).ReturnStateForDir(moduleRequest.ModuleName)
 	stateMap := commandCenter.ReturnStateMap
 
 	regexFile := regexp.MustCompile("([0-9]+-)")
@@ -134,8 +137,7 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 
 //Cancel cancels running command
 func Cancel(w http.ResponseWriter, r *http.Request) {
-	flags := pflag.NewFlagSet("REST", pflag.ContinueOnError)
-	err := command.New(flags).
+	err := command.New(getFlags(r.URL.Query())).
 		StopRunningCommand().
 		Error
 
