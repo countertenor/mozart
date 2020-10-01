@@ -56,7 +56,10 @@ func New(flags *pflag.FlagSet) *Instance {
 		logDir = logDirPathFromEnv
 	}
 
+	configInstance := config.Instance{}
+
 	bashInstance := bash.Instance{
+		Config:          &configInstance,
 		LogDir:          logDir,
 		GeneratedDir:    generatedDir,
 		TemplateDir:     templateDir,
@@ -71,7 +74,7 @@ func New(flags *pflag.FlagSet) *Instance {
 	bashInstance.Init()
 
 	return &Instance{
-		Config:    &config.Instance{},
+		Config:    &configInstance,
 		Flags:     flags,
 		Instance:  bashInstance,
 		StartTime: time.Now(),
@@ -94,12 +97,13 @@ func (i *Instance) CreateSampleConfigFile() *Instance {
 //ParseAll function first parses the default configuration file, which loads the
 //default values. After that, it parses the file passed in as a param,
 //thereby preserving default values if they are not over-written.
-func (i *Instance) ParseAll(confFile string) *Instance {
+func (i *Instance) ParseAll() *Instance {
 	if i.Error != nil {
 		return i
 	}
+	confFile := getStringFlagValue(i.Flags, flag.ConfigurationFile)
 	i.ParseDefault()
-	i.ParseFile(confFile)
+	i.ParseFile()
 	i.PreCheck()
 	if i.Error != nil {
 		return i
@@ -121,21 +125,19 @@ func (i *Instance) ParseDefault() *Instance {
 		i.Error = fmt.Errorf("error while parsing default YAML file: %v", err)
 		return i
 	}
-	i.Instance.Config = *i.Config
 	return i
 }
 
 //ParseFile parses yaml file passed in and puts configuration into config struct
-func (i *Instance) ParseFile(confFile string) *Instance {
+func (i *Instance) ParseFile() *Instance {
 	if i.Error != nil {
 		return i
 	}
-	err := yaml.ParseFile(i.Config, confFile)
+	err := yaml.ParseFile(i.Config, getStringFlagValue(i.Flags, flag.ConfigurationFile))
 	if err != nil {
 		i.Error = fmt.Errorf("error while parsing YAML file: %v", err)
 		return i
 	}
-	i.Instance.Config = *i.Config
 	return i
 }
 
@@ -149,7 +151,6 @@ func (i *Instance) PreCheck() *Instance {
 		i.Error = err
 		return i
 	}
-	i.Instance.Config = *i.Config
 	return i
 }
 

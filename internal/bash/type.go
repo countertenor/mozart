@@ -40,7 +40,7 @@ type Instance struct {
 	GeneratedDir    string
 	TemplateDir     string
 	Error           error
-	Config          config.Instance
+	Config          *config.Instance
 	TimeoutInterval time.Duration
 	State
 }

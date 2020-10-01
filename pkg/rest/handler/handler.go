@@ -61,7 +61,7 @@ func Configuration(w http.ResponseWriter, r *http.Request) {
 func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 
 	commandCenter := command.New(getFlags(r.URL.Query()))
-	err := commandCenter.ParseAll(command.SampleConfigFileName).Error
+	err := commandCenter.ParseAll().Error
 
 	if err != nil {
 		http.Error(w, "error with configuration, err: "+err.Error(), http.StatusBadRequest)
