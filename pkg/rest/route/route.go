@@ -78,28 +78,4 @@ var routesForApp = routes{
 		"/cancel",
 		handler.Cancel,
 	},
-	// route{
-	// 	"Add New IP",
-	// 	"POST",
-	// 	"/ip",
-	// 	IPAdd,
-	// },
-	// route{
-	// 	"Show all IPs present",
-	// 	"GET",
-	// 	"/ip",
-	// 	ShowAllIPs,
-	// },
-	// route{
-	// 	"Show if particular IP is present",
-	// 	"GET",
-	// 	"/ip/{ip}",
-	// 	IPShow,
-	// },
-	// route{
-	// 	"Delete IP",
-	// 	"DELETE",
-	// 	"/ip/{ip}",
-	// 	IPDelete,
-	// },
 }
