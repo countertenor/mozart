@@ -35,6 +35,9 @@ func (i *Instance) RunScriptsInDir(fullDirPath string) {
 		return
 	}
 	i.handleRunScripts(fullDirPath)
+	if i.DoRunParallel {
+		i.WaitGroup.Wait()
+	}
 }
 
 //recursively run all scripts inside the directory
@@ -48,15 +51,25 @@ func (i *Instance) handleRunScripts(fullDirPath string) {
 		if file.IsDir() { //recursion into dir
 			i.handleRunScripts(fullDirPath + "/" + file.Name())
 		} else {
-			err := i.runScript(fullDirPath, file.Name())
-			if err != nil {
-				i.Error = err
+			if i.DoRunParallel {
+				i.WaitGroup.Add(1)
+				go func(fullDirPath, filename string) {
+					i.runScript(fullDirPath, filename)
+				}(fullDirPath, file.Name())
+			} else {
+				err := i.runScript(fullDirPath, file.Name())
+				if err != nil {
+					i.Error = err
+				}
 			}
 		}
 	}
 }
 
 func (i *Instance) runScript(fullDirPath, filename string) error {
+	if i.DoRunParallel {
+		defer i.WaitGroup.Done()
+	}
 	i.PrintSeparator()
 	fmt.Printf("\nRunning file : %v\n\n", fullDirPath+"/"+filename)
 	//precautionary step so that scripts don't run locally
@@ -97,10 +110,14 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	}
 	defer logFile.Close()
 
-	writeToStdOutputAndFile := io.MultiWriter(logFile, os.Stdout)
-
-	command.Stdout = writeToStdOutputAndFile
-	command.Stderr = writeToStdOutputAndFile
+	if i.DoRunParallel {
+		command.Stdout = logFile
+		command.Stderr = logFile
+	} else {
+		writeToStdOutputAndFile := io.MultiWriter(logFile, os.Stdout)
+		command.Stdout = writeToStdOutputAndFile
+		command.Stderr = writeToStdOutputAndFile
+	}
 
 	i.updateRunningStatus(fullDirPath, filename, logFile.Name())
 	err = command.Run()
