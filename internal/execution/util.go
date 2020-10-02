@@ -83,6 +83,9 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	if i.DoRunParallel {
 		defer i.WaitGroup.Done()
 	}
+	if i.SkipRun {
+		return nil
+	}
 	i.PrintSeparator()
 	fmt.Printf("\nRunning file : %v\n\n", fullDirPath+"/"+filename)
 	//precautionary step so that scripts don't run locally

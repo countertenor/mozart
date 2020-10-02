@@ -38,6 +38,7 @@ type Instance struct {
 	ExecutionSource   string
 	ExecFileExtension string
 	DryRunEnabled     bool
+	SkipRun           bool
 	ReRun             bool
 	LogDir            string
 	GeneratedDir      string
