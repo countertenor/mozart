@@ -1,4 +1,4 @@
-package bash
+package execution
 
 import (
 	"context"
@@ -22,13 +22,13 @@ var cancelRunningCommandFunc context.CancelFunc
 
 type saveState func() error
 
-//Init the bash instance
+//Init the execution instance
 func (i *Instance) Init() {
 	i.DirExecStatusMap = makeStatusMap()
 	i.initState()
 }
 
-//RunScriptsInDir handles running of bash files inside a directory
+//RunScriptsInDir handles running of script files inside a directory
 func (i *Instance) RunScriptsInDir(fullDirPath string) {
 	i.loadState()
 	if i.Error != nil {

@@ -3,8 +3,8 @@ package command
 import (
 	"time"
 
-	"github.com/prashantgupta24/mozart/internal/bash"
 	"github.com/prashantgupta24/mozart/internal/config"
+	"github.com/prashantgupta24/mozart/internal/execution"
 	"github.com/spf13/pflag"
 )
 
@@ -15,5 +15,5 @@ type Instance struct {
 	Flags     *pflag.FlagSet
 	StartTime time.Time
 	ConfigDir string
-	bash.Instance
+	execution.Instance
 }

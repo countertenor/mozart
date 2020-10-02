@@ -1,4 +1,4 @@
-package bash
+package execution
 
 import (
 	"sync"
@@ -34,7 +34,7 @@ type FileExecStatus struct {
 	LogFilePath     string    `json:"logFilePath"`
 }
 
-//Instance is the main struct for bash configs
+//Instance is the main struct for execution configs
 type Instance struct {
 	DryRunEnabled   bool
 	ReRun           bool

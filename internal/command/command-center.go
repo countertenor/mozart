@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/prashantgupta24/mozart/internal/bash"
 	"github.com/prashantgupta24/mozart/internal/config"
+	"github.com/prashantgupta24/mozart/internal/execution"
 	"github.com/prashantgupta24/mozart/internal/flag"
 	"github.com/prashantgupta24/mozart/internal/template"
 	"github.com/prashantgupta24/mozart/internal/yaml"
@@ -60,7 +60,7 @@ func New(flags *pflag.FlagSet) *Instance {
 	configInstance := config.Instance{}
 	var wg sync.WaitGroup
 
-	bashInstance := bash.Instance{
+	executionInstance := execution.Instance{
 		Config:          &configInstance,
 		LogDir:          logDir,
 		GeneratedDir:    generatedDir,
@@ -70,17 +70,17 @@ func New(flags *pflag.FlagSet) *Instance {
 		ReRun:           getBoolFlagValue(flags, flag.ReRun),
 		TimeoutInterval: time.Hour * 5, //change later
 		WaitGroup:       &wg,
-		State: bash.State{
+		State: execution.State{
 			StateFilePath:        stateFilePath,
 			StateFileDefaultname: stateFileDefaultName,
 		},
 	}
-	bashInstance.Init()
+	executionInstance.Init()
 
 	return &Instance{
 		Config:    &configInstance,
 		Flags:     flags,
-		Instance:  bashInstance,
+		Instance:  executionInstance,
 		StartTime: time.Now(),
 	}
 }
@@ -220,8 +220,8 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 	return i
 }
 
-//RunBashScripts runs all bash scripts in a directory
-func (i *Instance) RunBashScripts() *Instance {
+//RunScripts runs all scripts in a directory
+func (i *Instance) RunScripts() *Instance {
 	if i.Error != nil {
 		return i
 	}

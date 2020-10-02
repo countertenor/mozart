@@ -3,7 +3,7 @@ package handler
 import (
 	"strings"
 
-	"github.com/prashantgupta24/mozart/internal/bash"
+	"github.com/prashantgupta24/mozart/internal/execution"
 )
 
 type moduleRequest struct {
@@ -15,8 +15,8 @@ func (m *moduleRequest) getModuleName() string {
 }
 
 type task struct {
-	TaskName       string              `json:"taskName"`
-	FileExecStatus bash.FileExecStatus `json:"status"`
+	TaskName       string                   `json:"taskName"`
+	FileExecStatus execution.FileExecStatus `json:"status"`
 }
 
 type step struct {
