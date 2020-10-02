@@ -11,20 +11,15 @@ func getFlags(queryParams map[string][]string) *pflag.FlagSet {
 	var confFile string
 	var dryRun bool
 	var reRun bool
+	var doRunParallel bool
 
 	flags.StringVarP(&confFile, flag.ConfigurationFile, "c", "mozart-sample.yaml", "configuration yaml file needed for application")
 	flags.BoolVarP(&dryRun, flag.DryRun, "d", false, "(optional) shows what scripts will run, but does not run the scripts")
 	flags.BoolVarP(&reRun, flag.ReRun, "r", false, "(optional) re-run script from initial state, ignoring previously saved state")
+	flags.BoolVarP(&doRunParallel, flag.DoRunParallel, "p", false, "(optional) Run all scripts in parallel")
 
 	for key, value := range queryParams {
-		switch key {
-		case "conf":
-			flags.Set(flag.ConfigurationFile, value[0])
-		case "dryRun":
-			flags.Set(flag.DryRun, value[0])
-		case "reRun":
-			flags.Set(flag.ReRun, value[0])
-		}
+		flags.Set(key, value[0])
 	}
 	return flags
 }

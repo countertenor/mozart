@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/prashantgupta24/mozart/internal/bash"
 	"github.com/prashantgupta24/mozart/internal/command"
 	"github.com/prashantgupta24/mozart/internal/ws"
 )
@@ -125,11 +126,12 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 		for _, file := range sortedFileKeys {
 			taskInstance.TaskName = regexFile.ReplaceAllString(strings.TrimSuffix(file, commandCenter.Config.Metadata.Extension), "")
 			taskInstance.FileExecStatus = mapDir[file]
-			if taskInstance.FileExecStatus.State == "running" { //update running time
+			if taskInstance.FileExecStatus.State == bash.RunningState { //update running time
 				taskInstance.FileExecStatus.TimeTaken = time.Since(taskInstance.FileExecStatus.StartTime).String()
+				stateOfExecution = string(bash.RunningState)
 			}
-			if taskInstance.FileExecStatus.State != "" {
-				stateOfExecution = string(taskInstance.FileExecStatus.State)
+			if taskInstance.FileExecStatus.State == bash.ErrorState {
+				stateOfExecution = string(bash.ErrorState)
 			}
 			taskList = append(taskList, taskInstance)
 		}
@@ -137,6 +139,9 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 		stepList = append(stepList, stepInstance)
 	}
 	stateJSON.Steps = stepList
+	if stateOfExecution == "" {
+		stateOfExecution = string(bash.SuccessState)
+	}
 	stateJSON.State = stateOfExecution
 
 	w.Header().Set("Content-Type", "application/json")

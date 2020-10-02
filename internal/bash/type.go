@@ -9,10 +9,11 @@ import (
 
 type stateType string
 
+//States of execution
 const (
-	successState stateType = "success"
-	errorState   stateType = "error"
-	runningState stateType = "running"
+	SuccessState stateType = "success"
+	ErrorState   stateType = "error"
+	RunningState stateType = "running"
 	skipped      stateType = "skipped"
 	timeout      stateType = "timeout"
 	canceled     stateType = "canceled"
