@@ -130,9 +130,6 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 				taskInstance.FileExecStatus.TimeTaken = time.Since(taskInstance.FileExecStatus.StartTime).String()
 				stateOfExecution = string(execution.RunningState)
 			}
-			if taskInstance.FileExecStatus.State == execution.ErrorState {
-				stateOfExecution = string(execution.ErrorState)
-			}
 			taskList = append(taskList, taskInstance)
 		}
 		stepInstance.Tasks = taskList
@@ -140,7 +137,7 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 	}
 	stateJSON.Steps = stepList
 	if stateOfExecution == "" {
-		stateOfExecution = string(execution.SuccessState)
+		stateOfExecution = "completed"
 	}
 	stateJSON.State = stateOfExecution
 
