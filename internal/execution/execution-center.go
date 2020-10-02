@@ -13,16 +13,8 @@ import (
 	"time"
 )
 
-type status struct {
-	fullDirPath string
-	fileName    string
-	logFileName string
-}
-
 var cancelRunningCommandFunc context.CancelFunc
 var waitGroup sync.WaitGroup
-
-type saveState func() error
 
 //Init the execution instance
 func (i *Instance) Init() {
