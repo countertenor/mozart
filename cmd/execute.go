@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/prashantgupta24/mozart/internal/command"
+	"github.com/prashantgupta24/mozart/internal/flag"
 	"github.com/spf13/cobra"
 )
 
@@ -60,4 +61,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// execute.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	flag.Init(execute.Flags())
 }

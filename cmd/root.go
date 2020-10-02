@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/prashantgupta24/mozart/internal/flag"
 	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -12,13 +11,6 @@ import (
 )
 
 var cfgFile string
-var verbose bool
-var confFile string
-
-var dryRun bool
-var rerun bool
-var noGenerate bool
-var doRunParallel bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -47,12 +39,6 @@ func init() {
 	// will be global for your application.
 
 	//rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.mozart.yaml)")
-	rootCmd.PersistentFlags().BoolVarP(&verbose, flag.Verbose, "v", false, "print verbosely")
-	rootCmd.PersistentFlags().StringVarP(&confFile, flag.ConfigurationFile, "c", "mozart-sample.yaml", "configuration yaml file needed for application")
-	rootCmd.PersistentFlags().BoolVarP(&dryRun, flag.DryRun, "d", false, "(optional) shows what scripts will run, but does not run the scripts")
-	rootCmd.PersistentFlags().BoolVarP(&rerun, flag.ReRun, "r", false, "(optional) re-run script from initial state, ignoring previously saved state")
-	rootCmd.PersistentFlags().BoolVarP(&noGenerate, flag.NoGenerate, "n", false, "(optional) do not generate scripts as part of install, instead use the ones in generated folder. Useful for running local change to the scripts")
-	rootCmd.PersistentFlags().BoolVarP(&doRunParallel, flag.DoRunParallel, "p", false, "(optional) Run all scripts in parallel")
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")

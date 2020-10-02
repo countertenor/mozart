@@ -1,0 +1,5 @@
+values:
+  required:
+    value1: hello2
+  optional:
+    value1: world2

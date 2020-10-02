@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -19,11 +20,21 @@ type status struct {
 }
 
 var cancelRunningCommandFunc context.CancelFunc
+var waitGroup sync.WaitGroup
 
 type saveState func() error
 
 //Init the execution instance
 func (i *Instance) Init() {
+	switch i.ExecutionSource {
+	case "bash":
+		i.ExecutionSource = "/bin/bash"
+		i.ExecFileExtention = ".sh"
+	case "python":
+		i.ExecutionSource = "python"
+		i.ExecFileExtention = ".py"
+	}
+	i.WaitGroup = &waitGroup
 	i.DirExecStatusMap = makeStatusMap()
 	i.initState()
 }
@@ -74,8 +85,8 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	fmt.Printf("\nRunning file : %v\n\n", fullDirPath+"/"+filename)
 	//precautionary step so that scripts don't run locally
 	osRunning := runtime.GOOS
-	if osRunning != i.Config.Metadata.OS { //scripts run only on OS defined
-		fmt.Printf("(Skipping execution since OS is %v. Scripts only run on %v)\n", osRunning, i.Config.Metadata.OS)
+	if osRunning != i.OS { //scripts run only on OS defined
+		fmt.Printf("(Skipping execution since OS is %v. Scripts only run on %v)\n", osRunning, i.OS)
 		return nil
 	}
 	if i.DirExecStatusMap[fullDirPath][filename].State == RunningState {
@@ -101,9 +112,9 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	defer cancelFunc()
 	cancelRunningCommandFunc = cancelFunc
 
-	command := exec.CommandContext(ctx, i.Config.Metadata.ExecutionCommand, args...)
+	command := exec.CommandContext(ctx, i.ExecutionSource, args...)
 
-	logFile, err := createLogFile(filename, i.LogDir, i.Config.Metadata.Extension)
+	logFile, err := createLogFile(filename, i.LogDir, i.ExecFileExtention)
 	if err != nil {
 		i.updateErrorState(fullDirPath, filename, logFile.Name())
 		return err

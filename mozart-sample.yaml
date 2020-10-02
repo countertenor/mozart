@@ -1,7 +1,4 @@
 #sample values
-metadata:
-  os: darwin
-  execution: bash
 values:
-    required:
-        value1: world
+  required:
+    value1: hello
