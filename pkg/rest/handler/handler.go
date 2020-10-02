@@ -56,7 +56,7 @@ func Configuration(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//ExecuteDir installs a module
+//ExecuteDir executes a module
 func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 
 	commandCenter := command.New(getFlags(r.URL.Query()))
