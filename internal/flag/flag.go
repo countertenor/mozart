@@ -7,7 +7,8 @@ import (
 //Constant flags used in CLI
 const (
 	OS                = "os"
-	ExecutionSource   = "execution-source"
+	ExecutionSource   = "source"
+	ExecFileExtension = "ext"
 	DoRunParallel     = "parallel"
 	NoGenerate        = "no-generate"
 	ReRun             = "re-run"
@@ -25,5 +26,6 @@ func Init(flags *pflag.FlagSet) {
 	flags.BoolP(NoGenerate, "n", false, "(optional) do not generate scripts as part of install, instead use the ones in generated folder. Useful for running local change to the scripts")
 	flags.BoolP(DoRunParallel, "p", false, "(optional) Run all scripts in parallel")
 	flags.StringP(OS, "o", "darwin", "(optional) OS on which scripts are allowed to run")
-	flags.StringP(ExecutionSource, "e", "bash", "(optional) Execution source to use [Bash|Python]")
+	flags.StringP(ExecutionSource, "s", "bash", "(optional) Execution source to use [Bash|Python|...]")
+	flags.StringP(ExecFileExtension, "x", "sh", "(optional) Extension for execution files [sh|py|...]")
 }

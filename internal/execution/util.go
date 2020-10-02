@@ -29,10 +29,12 @@ func (i *Instance) Init() {
 	switch i.ExecutionSource {
 	case "bash":
 		i.ExecutionSource = "/bin/bash"
-		i.ExecFileExtention = ".sh"
+		i.ExecFileExtension = ".sh"
 	case "python":
 		i.ExecutionSource = "python"
-		i.ExecFileExtention = ".py"
+		i.ExecFileExtension = ".py"
+	default:
+		i.ExecFileExtension = "." + i.ExecFileExtension
 	}
 	i.WaitGroup = &waitGroup
 	i.DirExecStatusMap = makeStatusMap()
@@ -114,7 +116,7 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 
 	command := exec.CommandContext(ctx, i.ExecutionSource, args...)
 
-	logFile, err := createLogFile(filename, i.LogDir, i.ExecFileExtention)
+	logFile, err := createLogFile(filename, i.LogDir, i.ExecFileExtension)
 	if err != nil {
 		i.updateErrorState(fullDirPath, filename, logFile.Name())
 		return err

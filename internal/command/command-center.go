@@ -57,15 +57,16 @@ func New(flags *pflag.FlagSet) *Instance {
 	}
 
 	executionInstance := execution.Instance{
-		LogDir:          logDir,
-		GeneratedDir:    generatedDir,
-		TemplateDir:     templateDir,
-		OS:              getStringFlagValue(flags, flag.OS),
-		ExecutionSource: getStringFlagValue(flags, flag.ExecutionSource),
-		DoRunParallel:   getBoolFlagValue(flags, flag.DoRunParallel),
-		DryRunEnabled:   getBoolFlagValue(flags, flag.DryRun),
-		ReRun:           getBoolFlagValue(flags, flag.ReRun),
-		TimeoutInterval: time.Minute * 15, //change later
+		LogDir:            logDir,
+		GeneratedDir:      generatedDir,
+		TemplateDir:       templateDir,
+		OS:                getStringFlagValue(flags, flag.OS),
+		ExecutionSource:   getStringFlagValue(flags, flag.ExecutionSource),
+		ExecFileExtension: getStringFlagValue(flags, flag.ExecFileExtension),
+		DoRunParallel:     getBoolFlagValue(flags, flag.DoRunParallel),
+		DryRunEnabled:     getBoolFlagValue(flags, flag.DryRun),
+		ReRun:             getBoolFlagValue(flags, flag.ReRun),
+		TimeoutInterval:   time.Minute * 15, //change later
 		State: execution.State{
 			StateFilePath:        stateFilePath,
 			StateFileDefaultname: stateFileDefaultName,
@@ -193,7 +194,7 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 	if !noGenerate {
 		//cleaning up all scripts in dir if it exists
 		if _, err := os.Stat(generatedDir + configDir); !os.IsNotExist(err) {
-			filesDeleted, err := cleanupFilesInDir(generatedDir+configDir, i.ExecFileExtention)
+			filesDeleted, err := cleanupFilesInDir(generatedDir+configDir, i.ExecFileExtension)
 			if err != nil {
 				i.Error = fmt.Errorf("could not delete files in %v directory, err: %v", generatedDir+configDir, err)
 				return i
@@ -206,7 +207,7 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 			configDir,
 			templateDir,
 			templateFileExt,
-			i.ExecFileExtention,
+			i.ExecFileExtension,
 			generatedDir)
 		if err != nil {
 			i.Error = fmt.Errorf("error while creating configuration : %v", err)

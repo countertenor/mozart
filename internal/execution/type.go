@@ -36,7 +36,7 @@ type FileExecStatus struct {
 type Instance struct {
 	OS                string
 	ExecutionSource   string
-	ExecFileExtention string
+	ExecFileExtension string
 	DryRunEnabled     bool
 	ReRun             bool
 	LogDir            string

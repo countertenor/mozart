@@ -124,7 +124,7 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 		sort.Strings(sortedFileKeys)
 
 		for _, file := range sortedFileKeys {
-			taskInstance.TaskName = regexFile.ReplaceAllString(strings.TrimSuffix(file, commandCenter.ExecFileExtention), "")
+			taskInstance.TaskName = regexFile.ReplaceAllString(strings.TrimSuffix(file, commandCenter.ExecFileExtension), "")
 			taskInstance.FileExecStatus = mapDir[file]
 			if taskInstance.FileExecStatus.State == execution.RunningState { //update running time
 				taskInstance.FileExecStatus.TimeTaken = time.Since(taskInstance.FileExecStatus.StartTime).String()
