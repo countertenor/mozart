@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/prashantgupta24/mozart/internal/bash"
 	"github.com/prashantgupta24/mozart/internal/command"
+	"github.com/prashantgupta24/mozart/internal/execution"
 	"github.com/prashantgupta24/mozart/internal/ws"
 )
 
@@ -81,7 +81,7 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go func() {
-		commandCenter.RunBashScripts()
+		commandCenter.RunScripts()
 	}()
 
 	fmt.Fprint(w, "Success!")
@@ -126,12 +126,12 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 		for _, file := range sortedFileKeys {
 			taskInstance.TaskName = regexFile.ReplaceAllString(strings.TrimSuffix(file, commandCenter.Config.Metadata.Extension), "")
 			taskInstance.FileExecStatus = mapDir[file]
-			if taskInstance.FileExecStatus.State == bash.RunningState { //update running time
+			if taskInstance.FileExecStatus.State == execution.RunningState { //update running time
 				taskInstance.FileExecStatus.TimeTaken = time.Since(taskInstance.FileExecStatus.StartTime).String()
-				stateOfExecution = string(bash.RunningState)
+				stateOfExecution = string(execution.RunningState)
 			}
-			if taskInstance.FileExecStatus.State == bash.ErrorState {
-				stateOfExecution = string(bash.ErrorState)
+			if taskInstance.FileExecStatus.State == execution.ErrorState {
+				stateOfExecution = string(execution.ErrorState)
 			}
 			taskList = append(taskList, taskInstance)
 		}
@@ -140,7 +140,7 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 	}
 	stateJSON.Steps = stepList
 	if stateOfExecution == "" {
-		stateOfExecution = string(bash.SuccessState)
+		stateOfExecution = string(execution.SuccessState)
 	}
 	stateJSON.State = stateOfExecution
 

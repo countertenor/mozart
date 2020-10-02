@@ -31,7 +31,7 @@ var execute = &cobra.Command{
 		err := command.New(cmd.Flags()).
 			ParseAll().
 			GenerateConfigFilesFromDir(cmdToExecute).
-			RunBashScripts().
+			RunScripts().
 			TimeTaken().
 			Error
 

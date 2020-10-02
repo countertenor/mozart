@@ -1,4 +1,4 @@
-package bash
+package execution
 
 import (
 	"encoding/json"

@@ -51,7 +51,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&confFile, flag.ConfigurationFile, "c", "mozart-sample.yaml", "configuration yaml file needed for application")
 	rootCmd.PersistentFlags().BoolVarP(&dryRun, flag.DryRun, "d", false, "(optional) shows what scripts will run, but does not run the scripts")
 	rootCmd.PersistentFlags().BoolVarP(&rerun, flag.ReRun, "r", false, "(optional) re-run script from initial state, ignoring previously saved state")
-	rootCmd.PersistentFlags().BoolVarP(&noGenerate, flag.NoGenerate, "n", false, "(optional) do not generate bash scripts as part of install, instead use the ones in generated folder. Useful for running local change to the scripts")
+	rootCmd.PersistentFlags().BoolVarP(&noGenerate, flag.NoGenerate, "n", false, "(optional) do not generate scripts as part of install, instead use the ones in generated folder. Useful for running local change to the scripts")
 	rootCmd.PersistentFlags().BoolVarP(&doRunParallel, flag.DoRunParallel, "p", false, "(optional) Run all scripts in parallel")
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
