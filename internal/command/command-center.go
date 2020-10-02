@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/prashantgupta24/mozart/internal/bash"
@@ -57,15 +58,18 @@ func New(flags *pflag.FlagSet) *Instance {
 	}
 
 	configInstance := config.Instance{}
+	var wg sync.WaitGroup
 
 	bashInstance := bash.Instance{
 		Config:          &configInstance,
 		LogDir:          logDir,
 		GeneratedDir:    generatedDir,
 		TemplateDir:     templateDir,
+		DoRunParallel:   getBoolFlagValue(flags, flag.DoRunParallel),
 		DryRunEnabled:   getBoolFlagValue(flags, flag.DryRun),
 		ReRun:           getBoolFlagValue(flags, flag.ReRun),
 		TimeoutInterval: time.Hour * 5, //change later
+		WaitGroup:       &wg,
 		State: bash.State{
 			StateFilePath:        stateFilePath,
 			StateFileDefaultname: stateFileDefaultName,

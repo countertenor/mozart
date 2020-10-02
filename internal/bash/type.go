@@ -1,6 +1,7 @@
 package bash
 
 import (
+	"sync"
 	"time"
 
 	"github.com/prashantgupta24/mozart/internal/config"
@@ -8,10 +9,11 @@ import (
 
 type stateType string
 
+//States of execution
 const (
-	successState stateType = "success"
-	errorState   stateType = "error"
-	runningState stateType = "running"
+	SuccessState stateType = "success"
+	ErrorState   stateType = "error"
+	RunningState stateType = "running"
 	skipped      stateType = "skipped"
 	timeout      stateType = "timeout"
 	canceled     stateType = "canceled"
@@ -40,6 +42,8 @@ type Instance struct {
 	GeneratedDir    string
 	TemplateDir     string
 	Error           error
+	DoRunParallel   bool
+	WaitGroup       *sync.WaitGroup
 	Config          *config.Instance
 	TimeoutInterval time.Duration
 	State

@@ -35,6 +35,9 @@ func (i *Instance) RunScriptsInDir(fullDirPath string) {
 		return
 	}
 	i.handleRunScripts(fullDirPath)
+	if i.DoRunParallel {
+		i.WaitGroup.Wait()
+	}
 }
 
 //recursively run all scripts inside the directory
@@ -48,15 +51,25 @@ func (i *Instance) handleRunScripts(fullDirPath string) {
 		if file.IsDir() { //recursion into dir
 			i.handleRunScripts(fullDirPath + "/" + file.Name())
 		} else {
-			err := i.runScript(fullDirPath, file.Name())
-			if err != nil {
-				i.Error = err
+			if i.DoRunParallel {
+				i.WaitGroup.Add(1)
+				go func(fullDirPath, filename string) {
+					i.runScript(fullDirPath, filename)
+				}(fullDirPath, file.Name())
+			} else {
+				err := i.runScript(fullDirPath, file.Name())
+				if err != nil {
+					i.Error = err
+				}
 			}
 		}
 	}
 }
 
 func (i *Instance) runScript(fullDirPath, filename string) error {
+	if i.DoRunParallel {
+		defer i.WaitGroup.Done()
+	}
 	i.PrintSeparator()
 	fmt.Printf("\nRunning file : %v\n\n", fullDirPath+"/"+filename)
 	//precautionary step so that scripts don't run locally
@@ -65,10 +78,10 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		fmt.Printf("(Skipping execution since OS is %v. Scripts only run on %v)\n", osRunning, i.Config.Metadata.OS)
 		return nil
 	}
-	if i.DirExecStatusMap[fullDirPath][filename].State == runningState {
+	if i.DirExecStatusMap[fullDirPath][filename].State == RunningState {
 		return fmt.Errorf("Already running")
 	}
-	if !i.ReRun && i.DirExecStatusMap[fullDirPath][filename].State == successState {
+	if !i.ReRun && i.DirExecStatusMap[fullDirPath][filename].State == SuccessState {
 		fmt.Println("Skipping file since it ran successfully in last execution.")
 		return nil
 	}
@@ -97,10 +110,14 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	}
 	defer logFile.Close()
 
-	writeToStdOutputAndFile := io.MultiWriter(logFile, os.Stdout)
-
-	command.Stdout = writeToStdOutputAndFile
-	command.Stderr = writeToStdOutputAndFile
+	if i.DoRunParallel {
+		command.Stdout = logFile
+		command.Stderr = logFile
+	} else {
+		writeToStdOutputAndFile := io.MultiWriter(logFile, os.Stdout)
+		command.Stdout = writeToStdOutputAndFile
+		command.Stderr = writeToStdOutputAndFile
+	}
 
 	i.updateRunningStatus(fullDirPath, filename, logFile.Name())
 	err = command.Run()
@@ -158,7 +175,7 @@ func (i *Instance) PrintSeparator() {
 }
 
 func (i *Instance) updateRunningStatus(directory, filename, logFilePath string) {
-	i.updateState(directory, filename, logFilePath, runningState)
+	i.updateState(directory, filename, logFilePath, RunningState)
 }
 
 func (i *Instance) updateSkipState(directory, filename, logFilePath string) {
@@ -170,7 +187,7 @@ func (i *Instance) updateNotStartedState(directory, filename, logFilePath string
 }
 
 func (i *Instance) updateErrorState(directory, filename, logFilePath string) {
-	i.updateState(directory, filename, logFilePath, errorState)
+	i.updateState(directory, filename, logFilePath, ErrorState)
 }
 
 func (i *Instance) updateTimeoutState(directory, filename, logFilePath string) {
@@ -182,7 +199,7 @@ func (i *Instance) updateCancelState(directory, filename, logFilePath string) {
 }
 
 func (i *Instance) updateSuccessState(directory, filename, logFilePath string) {
-	i.updateState(directory, filename, logFilePath, successState)
+	i.updateState(directory, filename, logFilePath, SuccessState)
 }
 
 func (i *Instance) updateState(directory, filename, logFilePath string, state stateType) {
@@ -193,13 +210,13 @@ func (i *Instance) updateState(directory, filename, logFilePath string, state st
 	if fileExecStatusMap, exists := dirExecStatusMap[directory]; exists {
 		fileExecStatus = fileExecStatusMap[filename]
 	}
-	if state == successState {
+	if state == SuccessState {
 		fileExecStatus.LastSuccessTime = time.Now().String()
 		fileExecStatus.TimeTaken = time.Since(fileExecStatus.StartTime).String()
-	} else if state == errorState || state == canceled || state == timeout {
+	} else if state == ErrorState || state == canceled || state == timeout {
 		fileExecStatus.LastErrorTime = time.Now().String()
 		fileExecStatus.TimeTaken = time.Since(fileExecStatus.StartTime).String()
-	} else if state == runningState {
+	} else if state == RunningState {
 		fileExecStatus.StartTime = time.Now()
 	}
 	fileExecStatus.State = state

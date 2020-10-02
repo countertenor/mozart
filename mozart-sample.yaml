@@ -1,7 +1,7 @@
 #sample values
 metadata:
   os: darwin
-  execution: python
+  execution: bash
 values:
     required:
         value1: world
