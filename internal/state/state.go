@@ -82,7 +82,7 @@ func Load(v interface{}) error {
 		defer f.Close()
 		return unmarshal(f, v)
 	}
-	fmt.Printf("Db file %v not found\n", fileType.path)
+	// fmt.Printf("Db file %v not found\n", fileType.path)
 	return nil
 }
 

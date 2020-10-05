@@ -1,7 +1,4 @@
 #default values
-metadata:
-  os: 
-  execution: 
 values:
   required:
     value1: 

@@ -23,10 +23,10 @@ type templateInstance struct {
 }
 
 //Generate conf files based on input yaml
-func Generate(conf *config.Instance, dirToGenerate, templateDir, templateFileExt, generatedDir string) error {
+func Generate(conf *config.Instance, dirToGenerate, templateDir, templateFileExt, generatedFileExt, generatedDir string) error {
 	fmt.Println("")
 
-	templatesToGenerate, err := getTemplatesToGenerate(dirToGenerate, templateDir, templateFileExt, conf.Metadata.Extension)
+	templatesToGenerate, err := getTemplatesToGenerate(dirToGenerate, templateDir, templateFileExt, generatedFileExt)
 	if err != nil {
 		return err
 	}

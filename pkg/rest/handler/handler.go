@@ -56,7 +56,7 @@ func Configuration(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//ExecuteDir installs a module
+//ExecuteDir executes a module
 func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 
 	commandCenter := command.New(getFlags(r.URL.Query()))
@@ -124,14 +124,11 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 		sort.Strings(sortedFileKeys)
 
 		for _, file := range sortedFileKeys {
-			taskInstance.TaskName = regexFile.ReplaceAllString(strings.TrimSuffix(file, commandCenter.Config.Metadata.Extension), "")
+			taskInstance.TaskName = regexFile.ReplaceAllString(strings.TrimSuffix(file, commandCenter.ExecFileExtension), "")
 			taskInstance.FileExecStatus = mapDir[file]
 			if taskInstance.FileExecStatus.State == execution.RunningState { //update running time
 				taskInstance.FileExecStatus.TimeTaken = time.Since(taskInstance.FileExecStatus.StartTime).String()
 				stateOfExecution = string(execution.RunningState)
-			}
-			if taskInstance.FileExecStatus.State == execution.ErrorState {
-				stateOfExecution = string(execution.ErrorState)
 			}
 			taskList = append(taskList, taskInstance)
 		}
@@ -140,7 +137,7 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 	}
 	stateJSON.Steps = stepList
 	if stateOfExecution == "" {
-		stateOfExecution = string(execution.SuccessState)
+		stateOfExecution = "completed"
 	}
 	stateJSON.State = stateOfExecution
 

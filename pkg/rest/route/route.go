@@ -69,7 +69,7 @@ var routesForApp = routes{
 	route{
 		"Execute dir",
 		"POST",
-		"/install",
+		"/execute",
 		handler.ExecuteDir,
 	},
 	route{

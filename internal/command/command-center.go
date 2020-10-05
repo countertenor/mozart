@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"sync"
 	"time"
 
 	"github.com/prashantgupta24/mozart/internal/config"
@@ -57,19 +56,17 @@ func New(flags *pflag.FlagSet) *Instance {
 		logDir = logDirPathFromEnv
 	}
 
-	configInstance := config.Instance{}
-	var wg sync.WaitGroup
-
 	executionInstance := execution.Instance{
-		Config:          &configInstance,
-		LogDir:          logDir,
-		GeneratedDir:    generatedDir,
-		TemplateDir:     templateDir,
-		DoRunParallel:   getBoolFlagValue(flags, flag.DoRunParallel),
-		DryRunEnabled:   getBoolFlagValue(flags, flag.DryRun),
-		ReRun:           getBoolFlagValue(flags, flag.ReRun),
-		TimeoutInterval: time.Hour * 5, //change later
-		WaitGroup:       &wg,
+		LogDir:            logDir,
+		GeneratedDir:      generatedDir,
+		TemplateDir:       templateDir,
+		OS:                getStringFlagValue(flags, flag.OS),
+		ExecutionSource:   getStringFlagValue(flags, flag.ExecutionSource),
+		ExecFileExtension: getStringFlagValue(flags, flag.ExecFileExtension),
+		DoRunParallel:     getBoolFlagValue(flags, flag.DoRunParallel),
+		DryRunEnabled:     getBoolFlagValue(flags, flag.DryRun),
+		ReRun:             getBoolFlagValue(flags, flag.ReRun),
+		TimeoutInterval:   time.Minute * 15, //change later
 		State: execution.State{
 			StateFilePath:        stateFilePath,
 			StateFileDefaultname: stateFileDefaultName,
@@ -78,7 +75,7 @@ func New(flags *pflag.FlagSet) *Instance {
 	executionInstance.Init()
 
 	return &Instance{
-		Config:    &configInstance,
+		Config:    &config.Instance{},
 		Flags:     flags,
 		Instance:  executionInstance,
 		StartTime: time.Now(),
@@ -197,7 +194,7 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 	if !noGenerate {
 		//cleaning up all scripts in dir if it exists
 		if _, err := os.Stat(generatedDir + configDir); !os.IsNotExist(err) {
-			filesDeleted, err := cleanupFilesInDir(generatedDir+configDir, i.Config.Metadata.Extension)
+			filesDeleted, err := cleanupFilesInDir(generatedDir+configDir, i.ExecFileExtension)
 			if err != nil {
 				i.Error = fmt.Errorf("could not delete files in %v directory, err: %v", generatedDir+configDir, err)
 				return i
@@ -210,6 +207,7 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 			configDir,
 			templateDir,
 			templateFileExt,
+			i.ExecFileExtension,
 			generatedDir)
 		if err != nil {
 			i.Error = fmt.Errorf("error while creating configuration : %v", err)
@@ -227,14 +225,13 @@ func (i *Instance) RunScripts() *Instance {
 	}
 	fullPath := generatedDir + i.ConfigDir
 	// fmt.Println("fullPath : ", fullPath)
-	if i.DryRunEnabled {
-		i.RunScriptsInDir(fullPath)
-	} else {
-		i.DryRunEnabled = true
-		i.RunScriptsInDir(fullPath)
-		i.DryRunEnabled = false
-		i.RunScriptsInDir(fullPath)
-	}
+
+	//skip the first time to populate state obj
+	i.SkipRun = true
+	i.RunScriptsInDir(fullPath)
+	i.SkipRun = false
+	i.RunScriptsInDir(fullPath)
+
 	i.Error = i.Instance.Error
 	i.PrintSeparator()
 	return i

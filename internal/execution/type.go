@@ -3,8 +3,6 @@ package execution
 import (
 	"sync"
 	"time"
-
-	"github.com/prashantgupta24/mozart/internal/config"
 )
 
 type stateType string
@@ -36,16 +34,19 @@ type FileExecStatus struct {
 
 //Instance is the main struct for execution configs
 type Instance struct {
-	DryRunEnabled   bool
-	ReRun           bool
-	LogDir          string
-	GeneratedDir    string
-	TemplateDir     string
-	Error           error
-	DoRunParallel   bool
-	WaitGroup       *sync.WaitGroup
-	Config          *config.Instance
-	TimeoutInterval time.Duration
+	OS                string
+	ExecutionSource   string
+	ExecFileExtension string
+	DryRunEnabled     bool
+	SkipRun           bool
+	ReRun             bool
+	LogDir            string
+	GeneratedDir      string
+	TemplateDir       string
+	Error             error
+	DoRunParallel     bool
+	WaitGroup         *sync.WaitGroup
+	TimeoutInterval   time.Duration
 	State
 }
 

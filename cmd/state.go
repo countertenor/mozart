@@ -11,17 +11,17 @@ var cleanState bool
 
 // stateCmd represents the stateCmd command
 var stateCmd = &cobra.Command{
-	Use:   "state [install|cleanup]",
+	Use:   "state",
 	Short: "See state",
 	Long: `See state. For example:
 
-	mozart state [install|cleanup] [linbit|pacemaker]
+	mozart state <parent_module>
 	
 It is implemented in such a way that you can query directories within directories.
 
 	For example:
 
-	mozart state <parent_dir> <child_dir>
+	mozart state <parent_module> <child_module>
 	`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
