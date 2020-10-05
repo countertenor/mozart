@@ -42,6 +42,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// parseCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	parseCmd.Flags().StringP(flag.ConfigurationFile, "c", "mozart-sample.yaml", "configuration yaml file needed for application")
-	parseCmd.Flags().BoolP(flag.Verbose, "v", false, "print verbosely")
+	flag.AddConfFileFlag(parseCmd.Flags())
+	flag.AddVerboseFlag(parseCmd.Flags())
 }
