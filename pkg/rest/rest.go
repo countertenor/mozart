@@ -25,5 +25,19 @@ func StartServer() {
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
+
+	uiRouter := route.NewUIRouter()
+
+	s1 := &http.Server{
+		Addr:           ":8081",
+		Handler:        uiRouter,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	go func() {
+		log.Fatal(s1.ListenAndServe())
+	}()
 	log.Fatal(s.ListenAndServe())
 }
