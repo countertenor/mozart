@@ -105,7 +105,9 @@ func (i *Instance) ParseConfig() *Instance {
 		i.Error = fmt.Errorf("error while parsing YAML file: %v", err)
 		return i
 	}
-	fmt.Println("config : ", i.Config)
+	if getBoolFlagValue(i.Flags, flag.Verbose) {
+		fmt.Println("config : ", i.Config)
+	}
 	return i
 }
 
