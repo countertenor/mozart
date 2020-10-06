@@ -1,2 +1,2 @@
 - CLI + UI way of execution
--
+- single binary - no need to send in bunch of scripts
