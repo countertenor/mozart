@@ -49,6 +49,7 @@ Global flags
 ### Good links for templating
 
 - https://golang.org/pkg/text/template/
+- https://forum.golangbridge.org/t/referencing-map-values-in-text-template/6253/5
 - https://medium.com/@IndianGuru/understanding-go-s-template-package-c5307758fab0
 - https://goinbigdata.com/example-of-using-templates-in-golang/
 - https://stackoverflow.com/questions/25689829/arithmetic-in-go-templates
