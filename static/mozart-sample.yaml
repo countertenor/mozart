@@ -2,3 +2,4 @@
 values:
   required:
     value1: hello
+    os:

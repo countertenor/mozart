@@ -1,0 +1,6 @@
+echo 'installing sailfish component 1'
+
+{{- range $machine := .Values.Required.Machines}}
+echo 'installing on {{$machine}}'
+echo ...
+{{- end}}

@@ -2,3 +2,5 @@
 values:
   required:
     value1: hello
+    os: linux
+    machines: [e1n1, e2n1, e3n1, e4n1]
