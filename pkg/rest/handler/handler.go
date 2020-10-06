@@ -70,8 +70,9 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(reqBody, &moduleRequest)
 	if moduleRequest.getModuleName() == "" {
-		http.Error(w, "invalid module", http.StatusBadRequest)
-		return
+		// http.Error(w, "invalid module", http.StatusBadRequest)
+		// return
+		moduleRequest.ModuleName = "bashModule"
 	}
 
 	err = commandCenter.GenerateConfigFilesFromDir(moduleRequest.getModuleName()).Error

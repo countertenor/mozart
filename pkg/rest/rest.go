@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/prashantgupta24/mozart/pkg/rest/route"
+	"github.com/rs/cors"
 )
 
 //Port on which to start
@@ -18,9 +19,14 @@ func StartServer() {
 
 	router := route.NewRouter()
 
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:8081"},
+		AllowCredentials: true,
+	})
+
 	s := &http.Server{
 		Addr:           ":" + Port,
-		Handler:        router,
+		Handler:        c.Handler(router),
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
