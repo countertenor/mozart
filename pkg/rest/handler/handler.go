@@ -75,11 +75,23 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go func() {
-		commandCenter.RunScripts()
-	}()
+	errChan := make(chan error)
+	go func(errChan chan error) {
+		errChan <- commandCenter.RunScripts().Error
+	}(errChan)
 
+	select {
+	case err := <-errChan:
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		break
+	case <-time.After(time.Second * 2):
+		break
+	}
 	fmt.Fprint(w, "Success!")
+	return
 }
 
 //GetState gets the state of a module
