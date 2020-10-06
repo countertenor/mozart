@@ -11,7 +11,7 @@ import (
 
 // execute represents the executeCmd command
 var execute = &cobra.Command{
-	Use:   "execute",
+	Use:   "execute folder-name [folder-name ...]",
 	Short: "Execute scripts inside any folder",
 	Long: `Execute scripts inside any folder. For example:
 
@@ -26,6 +26,16 @@ var execute = &cobra.Command{
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
+			fmt.Println("")
+			fmt.Println("*****************************************************************")
+			fmt.Println("Available commands:")
+			fmt.Println("")
+			commands := getCommandsToRun("")
+			for _, command := range commands {
+				fmt.Println("mozart execute", command)
+			}
+			fmt.Println("*****************************************************************")
+			fmt.Println("")
 			return fmt.Errorf("Execute needs at least one argument")
 		}
 		cmdToExecute := strings.Join(args, "/")
