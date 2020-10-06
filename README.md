@@ -77,3 +77,9 @@ Global flags
 
 - https://medium.com/@vCabbage/go-timeout-commands-with-os-exec-commandcontext-ba0c861ed738
 - https://stackoverflow.com/a/58572436
+
+### Error stack - todo
+
+- https://github.com/gruntwork-io/terratest/blob/master/modules/helm/template.go#L83
+- https://godoc.org/github.com/go-errors/errors
+- https://github.com/gruntwork-io/gruntwork-cli/blob/master/errors/errors.go
