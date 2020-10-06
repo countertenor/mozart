@@ -31,7 +31,7 @@ func CreateSampleConfigFile(sampleFileName string) error {
 	return nil
 }
 
-//CreateFromConfig creates the yaml file from config struct
+//CreateFromConfig creates the yaml file from config
 func CreateFromConfig(config map[string]interface{}, filename string) error {
 
 	filename = strings.TrimSpace(filename)

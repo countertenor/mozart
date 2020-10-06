@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"sigs.k8s.io/yaml"
+	"gopkg.in/yaml.v2"
 )
 
 //ParseFile parses file into config
