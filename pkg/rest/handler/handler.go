@@ -119,6 +119,7 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 	sort.Strings(sortedDirkeys)
 
 	for _, dir := range sortedDirkeys {
+		stepInstance.Directory = dir
 		stepInstance.Module = regexDir.ReplaceAllString(dir, "")
 		taskInstance := task{}
 		taskList := []task{}
