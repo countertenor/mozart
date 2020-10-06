@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/prashantgupta24/mozart/internal/config"
 	"github.com/prashantgupta24/mozart/internal/execution"
 	"github.com/prashantgupta24/mozart/internal/flag"
 	"github.com/prashantgupta24/mozart/internal/template"
@@ -75,7 +74,7 @@ func New(flags *pflag.FlagSet) *Instance {
 	executionInstance.Init()
 
 	return &Instance{
-		Config:    &config.Instance{},
+		Config:    make(map[string]interface{}),
 		Flags:     flags,
 		Instance:  executionInstance,
 		StartTime: time.Now(),
@@ -95,42 +94,8 @@ func (i *Instance) CreateSampleConfigFile() *Instance {
 	return i
 }
 
-//ParseAll function first parses the default configuration file, which loads the
-//default values. After that, it parses the file passed in as a param,
-//thereby preserving default values if they are not over-written.
-func (i *Instance) ParseAll() *Instance {
-	if i.Error != nil {
-		return i
-	}
-	confFile := getStringFlagValue(i.Flags, flag.ConfigurationFile)
-	i.ParseDefault()
-	i.ParseFile()
-	i.PreCheck()
-	if i.Error != nil {
-		return i
-	}
-	if getBoolFlagValue(i.Flags, flag.Verbose) {
-		i.Config.Print()
-	}
-	fmt.Printf("\nConfiguration is valid in file : %v\n", confFile)
-	return i
-}
-
-//ParseDefault parses default yaml file and puts configuration into config struct
-func (i *Instance) ParseDefault() *Instance {
-	if i.Error != nil {
-		return i
-	}
-	err := yaml.ParseDefault(i.Config, defaultConfigFileName)
-	if err != nil {
-		i.Error = fmt.Errorf("error while parsing default YAML file: %v", err)
-		return i
-	}
-	return i
-}
-
-//ParseFile parses yaml file passed in and puts configuration into config struct
-func (i *Instance) ParseFile() *Instance {
+//ParseConfig parses the file passed in through flags
+func (i *Instance) ParseConfig() *Instance {
 	if i.Error != nil {
 		return i
 	}
@@ -140,19 +105,7 @@ func (i *Instance) ParseFile() *Instance {
 		i.Error = fmt.Errorf("error while parsing YAML file: %v", err)
 		return i
 	}
-	return i
-}
-
-//PreCheck handles validation and pre-configuration
-func (i *Instance) PreCheck() *Instance {
-	if i.Error != nil {
-		return i
-	}
-	err := yaml.PreCheck(i.Config)
-	if err != nil {
-		i.Error = err
-		return i
-	}
+	fmt.Println("config : ", i.Config)
 	return i
 }
 

@@ -39,15 +39,10 @@ func GetModules(w http.ResponseWriter, r *http.Request) {
 func Configuration(w http.ResponseWriter, r *http.Request) {
 
 	flags := getFlags(r.URL.Query())
-	commandCenter := command.New(flags).ParseDefault()
+	commandCenter := command.New(flags)
 
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(reqBody, &commandCenter.Config)
-
-	err := commandCenter.PreCheck().Error
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
 
 	commandCenter.CreateFromConfig()
 
@@ -60,7 +55,7 @@ func Configuration(w http.ResponseWriter, r *http.Request) {
 func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 
 	commandCenter := command.New(getFlags(r.URL.Query()))
-	err := commandCenter.ParseAll().Error
+	err := commandCenter.ParseConfig().Error
 	if err != nil {
 		http.Error(w, "error with configuration, err: "+err.Error(), http.StatusBadRequest)
 		return

@@ -1,0 +1,6 @@
+#sample values
+values:
+  required:
+    value1: hello
+  temporary:
+    val2: asdfasdf

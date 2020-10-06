@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/prashantgupta24/mozart/internal/config"
 	"github.com/prashantgupta24/mozart/statik"
 	"gopkg.in/yaml.v2"
 )
@@ -33,7 +32,7 @@ func CreateSampleConfigFile(sampleFileName string) error {
 }
 
 //CreateFromConfig creates the yaml file from config struct
-func CreateFromConfig(config *config.Instance, filename string) error {
+func CreateFromConfig(config map[string]interface{}, filename string) error {
 
 	filename = strings.TrimSpace(filename)
 	file, err := os.Create(filename)

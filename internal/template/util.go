@@ -11,7 +11,6 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig"
-	"github.com/prashantgupta24/mozart/internal/config"
 	"github.com/prashantgupta24/mozart/statik"
 	"github.com/rakyll/statik/fs"
 )
@@ -23,7 +22,7 @@ type templateInstance struct {
 }
 
 //Generate conf files based on input yaml
-func Generate(conf *config.Instance, dirToGenerate, templateDir, templateFileExt, generatedFileExt, generatedDir string) error {
+func Generate(conf map[string]interface{}, dirToGenerate, templateDir, templateFileExt, generatedFileExt, generatedDir string) error {
 	fmt.Println("")
 
 	templatesToGenerate, err := getTemplatesToGenerate(dirToGenerate, templateDir, templateFileExt, generatedFileExt)
@@ -86,7 +85,7 @@ func getTemplatesToGenerate(dirToGenerate, templateDir, templateFileExt, scriptF
 	return templates, nil
 }
 
-func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir string, combinedStruct *config.Instance) error {
+func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir string, config map[string]interface{}) error {
 
 	statikFS, err := statik.GetStaticFS()
 	if err != nil {
@@ -133,7 +132,7 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 		Funcs(getFirstHost()).
 		Parse(string(templateFileContents)))
 
-	err = t.Execute(scriptFile, combinedStruct)
+	err = t.Execute(scriptFile, config)
 	if err != nil {
 		os.Remove(fileName)
 		return fmt.Errorf("error while generating %v script : %v", scriptName, err)

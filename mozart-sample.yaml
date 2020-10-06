@@ -1,4 +1,4 @@
 #sample values
 values:
-  required:
-    value1: hello
+  value1: hello
+  value2: world
