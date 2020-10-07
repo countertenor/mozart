@@ -181,10 +181,10 @@ func (i *Instance) RunScripts() *Instance {
 	fullPath := generatedDir + i.ConfigDir
 	// fmt.Println("fullPath : ", fullPath)
 
-	//skip the first time to populate state obj
-	i.SkipRun = true
+	//skip execution the first time to populate state obj
+	i.DryRunEnabled = true
 	i.RunScriptsInDir(fullPath)
-	i.SkipRun = false
+	i.DryRunEnabled = false
 	i.RunScriptsInDir(fullPath)
 
 	i.Error = i.Instance.Error
