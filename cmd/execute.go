@@ -40,7 +40,7 @@ var execute = &cobra.Command{
 		}
 		cmdToExecute := strings.Join(args, "/")
 		err := command.New(cmd.Flags()).
-			ParseAll().
+			ParseConfig().
 			GenerateConfigFilesFromDir(cmdToExecute).
 			RunScripts().
 			TimeTaken().
