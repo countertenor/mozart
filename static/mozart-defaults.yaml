@@ -1,6 +1,0 @@
-#default values
-values:
-  required:
-    value1: 
-  optional:
-    value1: world

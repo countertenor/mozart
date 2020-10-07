@@ -39,15 +39,10 @@ func GetModules(w http.ResponseWriter, r *http.Request) {
 func Configuration(w http.ResponseWriter, r *http.Request) {
 
 	flags := getFlags(r.URL.Query())
-	commandCenter := command.New(flags).ParseDefault()
+	commandCenter := command.New(flags)
 
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(reqBody, &commandCenter.Config)
-
-	err := commandCenter.PreCheck().Error
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
 
 	commandCenter.CreateFromConfig()
 
@@ -60,7 +55,7 @@ func Configuration(w http.ResponseWriter, r *http.Request) {
 func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 
 	commandCenter := command.New(getFlags(r.URL.Query()))
-	err := commandCenter.ParseAll().Error
+	err := commandCenter.ParseConfig().Error
 	if err != nil {
 		http.Error(w, "error with configuration, err: "+err.Error(), http.StatusBadRequest)
 		return
@@ -81,11 +76,23 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go func() {
-		commandCenter.RunScripts()
-	}()
+	errChan := make(chan error)
+	go func(errChan chan error) {
+		errChan <- commandCenter.RunScripts().Error
+	}(errChan)
 
+	select {
+	case err := <-errChan:
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		break
+	case <-time.After(time.Second * 2):
+		break
+	}
 	fmt.Fprint(w, "Success!")
+	return
 }
 
 //GetState gets the state of a module
@@ -113,6 +120,7 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 	sort.Strings(sortedDirkeys)
 
 	for _, dir := range sortedDirkeys {
+		stepInstance.Directory = dir
 		stepInstance.Module = regexDir.ReplaceAllString(dir, "")
 		taskInstance := task{}
 		taskList := []task{}

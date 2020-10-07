@@ -20,8 +20,9 @@ type task struct {
 }
 
 type step struct {
-	Module string `json:"module"`
-	Tasks  []task `json:"tasks"`
+	Directory string `json:"directory"`
+	Module    string `json:"module"`
+	Tasks     []task `json:"tasks"`
 }
 
 type stateJSON struct {
