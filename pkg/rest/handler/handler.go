@@ -105,8 +105,10 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 	stateMap := commandCenter.ReturnStateMap
 
 	regexFile := regexp.MustCompile("([0-9]+-)")
-	//regex101 - /r/MFyEZw/2
-	regexDir := regexp.MustCompile("([a-zA-Z0-9/]+/[0-9-]*)")
+	//regex101 - /r/MFyEZw/3
+	regexModule := regexp.MustCompile("([a-zA-Z0-9/-]+/[0-9-]*)")
+	//regex101 - /r/EZ9ZQ6/1
+	regexDir := regexp.MustCompile("^([a-zA-Z]+/)")
 	stateJSON := stateJSON{}
 	stepInstance := step{}
 	stepList := []step{}
@@ -119,8 +121,8 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 	sort.Strings(sortedDirkeys)
 
 	for _, dir := range sortedDirkeys {
-		stepInstance.Directory = dir
-		stepInstance.Module = regexDir.ReplaceAllString(dir, "")
+		stepInstance.Directory = regexDir.ReplaceAllString(dir, "")
+		stepInstance.Module = regexModule.ReplaceAllString(dir, "")
 		taskInstance := task{}
 		taskList := []task{}
 
