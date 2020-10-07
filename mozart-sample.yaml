@@ -2,5 +2,7 @@
 values:
   value1: hello
   value2: world
-  os: linux
-  machines: [e1n1, e2n1, e3n1, e4n1]
+  sailfish:
+    version: 0.0.2
+    os: linux
+    machines: [e1n1, e2n1, e3n1, e4n1]

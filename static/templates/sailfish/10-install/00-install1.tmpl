@@ -1,6 +1,9 @@
+echo 'SCRIPT VERSION : {{.values.sailfish.version}}'
+
 echo 'installing sailfish component 1'
 
-{{- range $machine := .Values.Required.Machines}}
+{{- range $machine := .values.sailfish.machines}}
 echo 'installing on {{$machine}}'
 echo ...
+sleep 1
 {{- end}}

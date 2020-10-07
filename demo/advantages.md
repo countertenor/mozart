@@ -1,2 +1,3 @@
 - CLI + UI way of execution
+- One change in one file - propagate across all scripts
 - single binary - no need to send in bunch of scripts
