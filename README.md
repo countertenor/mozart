@@ -49,6 +49,7 @@ Global flags
 ### Good links for templating
 
 - https://golang.org/pkg/text/template/
+- https://forum.golangbridge.org/t/referencing-map-values-in-text-template/6253/5
 - https://medium.com/@IndianGuru/understanding-go-s-template-package-c5307758fab0
 - https://goinbigdata.com/example-of-using-templates-in-golang/
 - https://stackoverflow.com/questions/25689829/arithmetic-in-go-templates
@@ -76,3 +77,9 @@ Global flags
 
 - https://medium.com/@vCabbage/go-timeout-commands-with-os-exec-commandcontext-ba0c861ed738
 - https://stackoverflow.com/a/58572436
+
+### Error stack - todo
+
+- https://github.com/gruntwork-io/terratest/blob/master/modules/helm/template.go#L83
+- https://godoc.org/github.com/go-errors/errors
+- https://github.com/gruntwork-io/gruntwork-cli/blob/master/errors/errors.go
