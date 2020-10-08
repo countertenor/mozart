@@ -28,7 +28,8 @@ type routes []route
 // 	return r
 // }
 
-func NewUIRouter() *mux.Router {
+//UIRouter creates a router for the UI
+func UIRouter() *mux.Router {
 	router := mux.NewRouter()
 
 	// ui := router.PathPrefix("/ui/")
@@ -53,8 +54,8 @@ func NewUIRouter() *mux.Router {
 	return router
 }
 
-//NewRouter creates a new mux router for application
-func NewRouter() *mux.Router {
+//RestRouter creates a new mux router for application
+func RestRouter() *mux.Router {
 
 	router := mux.NewRouter()
 

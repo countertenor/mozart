@@ -3,50 +3,58 @@ package rest
 import (
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/prashantgupta24/mozart/pkg/rest/route"
 	"github.com/rs/cors"
 )
 
-//Port on which to start
-const Port = "8080"
+//Ports on which to start
+const restPort = "8080"
+const uiPort = "8081"
 
-//StartServer starts the REST server
+//StartServer starts the REST and UI server
 func StartServer() {
 
-	log.Printf("Starting REST server at port %v ... \n", Port)
+	log.Printf("Starting REST server at port %v ... \n", restPort)
 
-	router := route.NewRouter()
-
+	restRouter := route.RestRouter()
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8081"},
+		AllowedOrigins:   []string{"http://localhost:" + uiPort},
 		AllowCredentials: true,
 	})
-
-	s := &http.Server{
-		Addr:           ":" + Port,
-		Handler:        c.Handler(router),
+	restServer := &http.Server{
+		Addr:           ":" + restPort,
+		Handler:        c.Handler(restRouter),
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	uiRouter := route.NewUIRouter()
-
-	s1 := &http.Server{
-		Addr:           ":8081",
+	uiRouter := route.UIRouter()
+	uiServer := &http.Server{
+		Addr:           ":" + uiPort,
 		Handler:        uiRouter,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	go func() {
-		log.Fatal(s1.ListenAndServe())
-	}()
-	log.Fatal(s.ListenAndServe())
+	var wg sync.WaitGroup
+	wg.Add(2)
 
+	go func() {
+		log.Fatal(restServer.ListenAndServe())
+		wg.Done()
+	}()
+
+	go func() {
+		log.Fatal(uiServer.ListenAndServe())
+		wg.Done()
+	}()
+
+	wg.Wait()
 	// statikFS, err := fs.New()
 	// if err != nil {
 	// 	log.Fatal(err)
