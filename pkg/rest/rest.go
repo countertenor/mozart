@@ -46,4 +46,12 @@ func StartServer() {
 		log.Fatal(s1.ListenAndServe())
 	}()
 	log.Fatal(s.ListenAndServe())
+
+	// statikFS, err := fs.New()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// // Serve the contents over HTTP.
+	// http.Handle("/", http.FileServer(statikFS))
+	// http.ListenAndServe(":8080", nil)
 }

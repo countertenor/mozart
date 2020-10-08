@@ -14,7 +14,7 @@ import (
 func CreateSampleConfigFile(sampleFileName string) error {
 
 	//Read sample file
-	sampleFile, err := statik.OpenFile("/" + sampleFileName)
+	sampleFile, err := statik.OpenFileFromStaticFS(statik.Template, "/"+sampleFileName)
 	if err != nil {
 		return err
 	}

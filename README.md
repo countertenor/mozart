@@ -83,3 +83,7 @@ Global flags
 - https://github.com/gruntwork-io/terratest/blob/master/modules/helm/template.go#L83
 - https://godoc.org/github.com/go-errors/errors
 - https://github.com/gruntwork-io/gruntwork-cli/blob/master/errors/errors.go
+
+### Embedding
+
+- https://github.com/golang/go/issues/41191

@@ -1,11 +1,13 @@
 package route
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/prashantgupta24/mozart/pkg/rest/handler"
-	"github.com/prashantgupta24/mozart/pkg/spa"
+	"github.com/prashantgupta24/mozart/statik/web/statik"
+	"github.com/rakyll/statik/fs"
 )
 
 type route struct {
@@ -33,8 +35,21 @@ func NewUIRouter() *mux.Router {
 	// ui := router.PathPrefix("/ui/")
 	// ui.Handler(http.StripPrefix("", spa.Handler{StaticPath: "./webapp/build", IndexPath: "index.html"}))
 
-	ui := router.PathPrefix("/")
-	ui.Handler(spa.Handler{StaticPath: "./webapp/build", IndexPath: "index.html"})
+	// ui := router.PathPrefix("/")
+	// ui.Handler(spa.Handler{StaticPath: "./webapp/build", IndexPath: "index.html"})
+
+	statikFS, err := fs.NewWithNamespace(statik.Webapp)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./webapp/build"))))
+	// router.Handle("/public/", http.StripPrefix("/public/", http.FileServer(statikFS)))
+	// router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(statikFS)))
+	router.PathPrefix("/").Handler(http.FileServer(statikFS))
+
+	// ui := router.PathPrefix("/")
+	// ui.Handler(spa.Handler{StaticPath: "./webapp/build", IndexPath: "index.html"})
 
 	return router
 }
