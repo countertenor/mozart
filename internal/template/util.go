@@ -56,7 +56,7 @@ func Generate(conf map[string]interface{}, dirToGenerate, templateDir, templateF
 func getTemplatesToGenerate(dirToGenerate, templateDir, templateFileExt, scriptFileExt string) ([]templateInstance, error) {
 	var templates []templateInstance
 
-	statikFS, err := statik.GetStaticFS()
+	statikFS, err := statik.GetStaticFS(statik.Template)
 	if err != nil {
 		return nil, err
 	}
@@ -87,11 +87,7 @@ func getTemplatesToGenerate(dirToGenerate, templateDir, templateFileExt, scriptF
 
 func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir string, config map[string]interface{}) error {
 
-	statikFS, err := statik.GetStaticFS()
-	if err != nil {
-		return err
-	}
-	templateFile, err := statik.OpenFileFromStaticFS(statikFS, templateFileName)
+	templateFile, err := statik.OpenFileFromStaticFS(statik.Template, templateFileName)
 	if err != nil {
 		return err
 	}

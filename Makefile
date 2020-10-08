@@ -12,7 +12,8 @@ clean:
 install: add-static clean
 	go install
 add-static: #add static code to binary. if error: do 'go get github.com/rakyll/statik'
-	statik -src static -f
+	statik -src resources -ns template -dest=statik/tmpl -f
+	statik -src webapp/build -ns webapp -dest=statik/web -f
 run-help:
 	go run main.go --help
 run-server: install
