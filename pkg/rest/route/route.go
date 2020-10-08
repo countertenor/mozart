@@ -32,7 +32,7 @@ func UIRouter() *mux.Router {
 //RestRouter creates a new mux router for application
 func RestRouter() *mux.Router {
 	router := mux.NewRouter()
-	restServer := router.PathPrefix("/api/v1").Subrouter().StrictSlash(false)
+	restServer := router.PathPrefix("/api/v1").Subrouter().StrictSlash(true)
 
 	restServer.Use(loggingMiddleware)
 	restServer.Use(panicHandlerMiddleware)
