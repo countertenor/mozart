@@ -6,8 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/prashantgupta24/mozart/pkg/rest/handler"
-	"github.com/prashantgupta24/mozart/statik/web/statik"
-	"github.com/rakyll/statik/fs"
+	"github.com/prashantgupta24/mozart/statik"
 )
 
 type route struct {
@@ -38,7 +37,7 @@ func NewUIRouter() *mux.Router {
 	// ui := router.PathPrefix("/")
 	// ui.Handler(spa.Handler{StaticPath: "./webapp/build", IndexPath: "index.html"})
 
-	statikFS, err := fs.NewWithNamespace(statik.Webapp)
+	statikFS, err := statik.GetStaticFS(statik.Webapp)
 	if err != nil {
 		log.Fatal(err)
 	}
