@@ -14,6 +14,8 @@ An orchestrator for scripts.
   - [Versioning with go](#versioning-with-go)
   - [Web sockets](#web-sockets)
   - [Command execution](#command-execution)
+  - [Error stack - todo](#error-stack-todo)
+  - [Embedding static content](#embedding-static-content)
 
 <!-- /code_chunk_output -->
 
@@ -84,6 +86,7 @@ Global flags
 - https://godoc.org/github.com/go-errors/errors
 - https://github.com/gruntwork-io/gruntwork-cli/blob/master/errors/errors.go
 
-### Embedding
+### Embedding static content
 
+- https://github.com/rakyll/statik/pull/101/files
 - https://github.com/golang/go/issues/41191
