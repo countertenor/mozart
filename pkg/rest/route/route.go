@@ -18,60 +18,22 @@ type route struct {
 
 type routes []route
 
-// //NewRouter creates a new mux router for application
-// func NewRouter() *mux.Router {
-// 	r := mux.NewRouter()
-// 	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./webapp/build"))))
-// 	//r.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./webapp/build"))))
-
-// 	r.PathPrefix("/").Handler(spa.Handler{StaticPath: "./webapp/build", IndexPath: "index.html"})
-// 	return r
-// }
-
 //UIRouter creates a router for the UI
 func UIRouter() *mux.Router {
 	router := mux.NewRouter()
-
-	// ui := router.PathPrefix("/ui/")
-	// ui.Handler(http.StripPrefix("", spa.Handler{StaticPath: "./webapp/build", IndexPath: "index.html"}))
-
-	// ui := router.PathPrefix("/")
-	// ui.Handler(spa.Handler{StaticPath: "./webapp/build", IndexPath: "index.html"})
-
 	statikFS, err := statik.GetStaticFS(statik.Webapp)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("could not get static files for UI, err : %v", err)
 	}
-
-	// router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./webapp/build"))))
-	// router.Handle("/public/", http.StripPrefix("/public/", http.FileServer(statikFS)))
-	// router.Handle("/static/", http.StripPrefix("/static/", http.FileServer(statikFS)))
 	router.PathPrefix("/").Handler(http.FileServer(statikFS))
-
-	// ui := router.PathPrefix("/")
-	// ui.Handler(spa.Handler{StaticPath: "./webapp/build", IndexPath: "index.html"})
-
 	return router
 }
 
 //RestRouter creates a new mux router for application
 func RestRouter() *mux.Router {
-
 	router := mux.NewRouter()
-
-	// ui := router.PathPrefix("/")
-	// ui.Handler(spa.Handler{StaticPath: "./webapp/build", IndexPath: "index.html"})
-
 	restServer := router.PathPrefix("/api/v1").Subrouter().StrictSlash(false)
-	// router.PathPrefix("/api/v1").Handler(negroni.New(
-	// 	negroni.NewRecovery(),
-	// 	negroni.NewLogger(),
-	// 	negroni.Wrap(subrouter),
-	// ))
 
-	// subrouter.Handle("/", handlers.LoggingHandler(logFile, finalHandler))
-	// subrouter.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./webapp/build"))))
-	// subrouter.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("webapp/build"))))
 	restServer.Use(loggingMiddleware)
 	restServer.Use(panicHandlerMiddleware)
 	for _, route := range routesForApp {
@@ -81,7 +43,6 @@ func RestRouter() *mux.Router {
 			Name(route.Name).
 			Handler(route.HandlerFunc)
 	}
-
 	return router
 }
 

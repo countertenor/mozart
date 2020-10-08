@@ -116,7 +116,6 @@ func parseState(directory, templateDir, generatedDir string) (DirExecStatusMap, 
 		return nil, fmt.Errorf("unable to load previous state , err : %v", err)
 	}
 
-	// var jsonData []byte
 	//Marshal
 	if directory != "" {
 		actualDir, err := statik.GetActualDirName(statik.Template, directory, templateDir)
@@ -142,19 +141,13 @@ func parseState(directory, templateDir, generatedDir string) (DirExecStatusMap, 
 			for _, key := range keys {
 				tempMap[key] = statusMap[key]
 			}
-			// jsonData, err = json.MarshalIndent(tempMap, "", "  ")
 			stateMapToReturn = tempMap
 		} else {
-			// jsonData, err = json.MarshalIndent(statusMap[directory], "", "  ")
 			stateMapToReturn[directory] = statusMap[directory]
 		}
 	} else {
-		// jsonData, err = json.MarshalIndent(statusMap, "", "  ")
 		stateMapToReturn = statusMap
 	}
-	// if err != nil {
-	// 	return nil, fmt.Errorf("unable to parse status , err : %v", err)
-	// }
 	return stateMapToReturn, nil
 }
 

@@ -55,11 +55,4 @@ func StartServer() {
 	}()
 
 	wg.Wait()
-	// statikFS, err := fs.New()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// // Serve the contents over HTTP.
-	// http.Handle("/", http.FileServer(statikFS))
-	// http.ListenAndServe(":8080", nil)
 }
