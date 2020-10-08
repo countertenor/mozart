@@ -37,7 +37,7 @@ func (i *Instance) DeleteState(directory string) *Instance {
 
 	if directory != "" {
 		if !strings.Contains(directory, i.GeneratedDir) {
-			actualDir, err := statik.GetActualDirName(directory, i.TemplateDir)
+			actualDir, err := statik.GetActualDirName(statik.Template, directory, i.TemplateDir)
 			if err != nil {
 				i.Error = fmt.Errorf("unable to get actual dir for %v. err : %v", directory, err)
 				return i
@@ -116,10 +116,9 @@ func parseState(directory, templateDir, generatedDir string) (DirExecStatusMap, 
 		return nil, fmt.Errorf("unable to load previous state , err : %v", err)
 	}
 
-	// var jsonData []byte
 	//Marshal
 	if directory != "" {
-		actualDir, err := statik.GetActualDirName(directory, templateDir)
+		actualDir, err := statik.GetActualDirName(statik.Template, directory, templateDir)
 		if err != nil {
 			return nil, fmt.Errorf("unable to get actual dir for %v. err : %v", directory, err)
 		}
@@ -142,19 +141,13 @@ func parseState(directory, templateDir, generatedDir string) (DirExecStatusMap, 
 			for _, key := range keys {
 				tempMap[key] = statusMap[key]
 			}
-			// jsonData, err = json.MarshalIndent(tempMap, "", "  ")
 			stateMapToReturn = tempMap
 		} else {
-			// jsonData, err = json.MarshalIndent(statusMap[directory], "", "  ")
 			stateMapToReturn[directory] = statusMap[directory]
 		}
 	} else {
-		// jsonData, err = json.MarshalIndent(statusMap, "", "  ")
 		stateMapToReturn = statusMap
 	}
-	// if err != nil {
-	// 	return nil, fmt.Errorf("unable to parse status , err : %v", err)
-	// }
 	return stateMapToReturn, nil
 }
 

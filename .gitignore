@@ -9,7 +9,7 @@ logs/
 .DS_Store
 
 #statik
-statik/statik.go
+statik.go
 
 # generated files
 generated/*

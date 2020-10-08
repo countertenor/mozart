@@ -1,11 +1,12 @@
 package route
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/prashantgupta24/mozart/pkg/rest/handler"
-	"github.com/prashantgupta24/mozart/pkg/spa"
+	"github.com/prashantgupta24/mozart/statik"
 )
 
 type route struct {
@@ -17,46 +18,22 @@ type route struct {
 
 type routes []route
 
-// //NewRouter creates a new mux router for application
-// func NewRouter() *mux.Router {
-// 	r := mux.NewRouter()
-// 	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./webapp/build"))))
-// 	//r.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./webapp/build"))))
-
-// 	r.PathPrefix("/").Handler(spa.Handler{StaticPath: "./webapp/build", IndexPath: "index.html"})
-// 	return r
-// }
-
-func NewUIRouter() *mux.Router {
+//UIRouter creates a router for the UI
+func UIRouter() *mux.Router {
 	router := mux.NewRouter()
-
-	// ui := router.PathPrefix("/ui/")
-	// ui.Handler(http.StripPrefix("", spa.Handler{StaticPath: "./webapp/build", IndexPath: "index.html"}))
-
-	ui := router.PathPrefix("/")
-	ui.Handler(spa.Handler{StaticPath: "./webapp/build", IndexPath: "index.html"})
-
+	statikFS, err := statik.GetStaticFS(statik.Webapp)
+	if err != nil {
+		log.Fatalf("could not get static files for UI, err : %v", err)
+	}
+	router.PathPrefix("/").Handler(http.FileServer(statikFS))
 	return router
 }
 
-//NewRouter creates a new mux router for application
-func NewRouter() *mux.Router {
-
+//RestRouter creates a new mux router for application
+func RestRouter() *mux.Router {
 	router := mux.NewRouter()
+	restServer := router.PathPrefix("/api/v1").Subrouter().StrictSlash(true)
 
-	// ui := router.PathPrefix("/")
-	// ui.Handler(spa.Handler{StaticPath: "./webapp/build", IndexPath: "index.html"})
-
-	restServer := router.PathPrefix("/api/v1").Subrouter().StrictSlash(false)
-	// router.PathPrefix("/api/v1").Handler(negroni.New(
-	// 	negroni.NewRecovery(),
-	// 	negroni.NewLogger(),
-	// 	negroni.Wrap(subrouter),
-	// ))
-
-	// subrouter.Handle("/", handlers.LoggingHandler(logFile, finalHandler))
-	// subrouter.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./webapp/build"))))
-	// subrouter.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("webapp/build"))))
 	restServer.Use(loggingMiddleware)
 	restServer.Use(panicHandlerMiddleware)
 	for _, route := range routesForApp {
@@ -66,7 +43,6 @@ func NewRouter() *mux.Router {
 			Name(route.Name).
 			Handler(route.HandlerFunc)
 	}
-
 	return router
 }
 
