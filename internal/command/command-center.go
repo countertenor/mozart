@@ -134,7 +134,7 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 	var configDir string
 	var err error
 	if dirToGenerateFrom != "" {
-		configDir, err = statik.GetActualDirName(dirToGenerateFrom, templateDir)
+		configDir, err = statik.GetActualDirName(statik.Template, dirToGenerateFrom, templateDir)
 		if err != nil {
 			i.Error = fmt.Errorf("could not get ActualDirName for dir %v, err : %v ", dirToGenerateFrom, err)
 			return i
@@ -240,7 +240,7 @@ func (i *Instance) StopRunningCommand() *Instance {
 
 //GetAllDirsInsideTmpl gets all directories inside template folder
 func GetAllDirsInsideTmpl() ([]string, error) {
-	dirs, err := statik.GetAllDirsInDir(templateDir)
+	dirs, err := statik.GetAllDirsInDir(statik.Template, templateDir)
 	if err != nil {
 		return nil, err
 	}

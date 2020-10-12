@@ -8,32 +8,31 @@ import (
 	"regexp"
 	"strings"
 
+	tmplStatik "github.com/prashantgupta24/mozart/statik/tmpl/statik"
+	webStatik "github.com/prashantgupta24/mozart/statik/web/statik"
 	"github.com/rakyll/statik/fs"
 )
 
-//GetStaticFS gets the static FS
-func GetStaticFS() (http.FileSystem, error) {
-	statikFS, err := fs.New()
+//constant namespaces declared
+const (
+	Template = tmplStatik.Template
+	Webapp   = webStatik.Webapp
+)
+
+//GetStaticFS gets the static FS according to namespace
+func GetStaticFS(namespace string) (http.FileSystem, error) {
+	statikFS, err := fs.NewWithNamespace(namespace)
 	if err != nil {
-		return nil, fmt.Errorf("could not start statikFS err: %v ", err)
+		return nil, fmt.Errorf("could not open statikFS err: %v ", err)
 	}
 	return statikFS, nil
 }
 
 //OpenFileFromStaticFS gets the FS used for static files
-func OpenFileFromStaticFS(statikFS http.FileSystem, filename string) (http.File, error) {
-	file, err := statikFS.Open(filename)
+func OpenFileFromStaticFS(namespace string, filename string) (http.File, error) {
+	statikFS, err := GetStaticFS(namespace)
 	if err != nil {
-		return nil, fmt.Errorf("error opening file %v err: %v", filename, err)
-	}
-	return file, nil
-}
-
-//OpenFile opens file using default static FS
-func OpenFile(filename string) (http.File, error) {
-	statikFS, err := GetStaticFS()
-	if err != nil {
-		return nil, fmt.Errorf("could not start statikFS err: %v ", err)
+		return nil, err
 	}
 	file, err := statikFS.Open(filename)
 	if err != nil {
@@ -43,12 +42,12 @@ func OpenFile(filename string) (http.File, error) {
 }
 
 //GetActualDirName gets actual dir name from inside a dir
-func GetActualDirName(directory, dirToLookIn string) (string, error) {
+func GetActualDirName(namespace string, directory, dirToLookIn string) (string, error) {
 	if directory == "" {
 		return "", nil
 	}
 	var fullDirPath string
-	statikFS, err := GetStaticFS()
+	statikFS, err := GetStaticFS(namespace)
 	if err != nil {
 		return "", err
 	}
@@ -89,13 +88,13 @@ func GetActualDirName(directory, dirToLookIn string) (string, error) {
 }
 
 //GetAllDirsInDir gets all dirs inside a directory
-func GetAllDirsInDir(dirToLookIn string) ([]string, error) {
+func GetAllDirsInDir(namespace string, dirToLookIn string) ([]string, error) {
 	var dirs []string
 	if dirToLookIn == "" {
 		return dirs, nil
 	}
 
-	statikFS, err := GetStaticFS()
+	statikFS, err := GetStaticFS(namespace)
 	if err != nil {
 		return nil, err
 	}
