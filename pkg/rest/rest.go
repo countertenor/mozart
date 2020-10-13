@@ -16,9 +16,6 @@ const uiPort = "8081"
 
 //StartServer starts the REST and UI server
 func StartServer() {
-
-	log.Printf("Starting REST server at port %v ... \n", restPort)
-
 	restRouter := route.RestRouter()
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:" + uiPort},
@@ -54,5 +51,7 @@ func StartServer() {
 		wg.Done()
 	}()
 
+	log.Printf("Started REST server at port %v ... \n", restPort)
+	log.Printf("Started UI server at port %v ... \n", uiPort)
 	wg.Wait()
 }
