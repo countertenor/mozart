@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/prashantgupta24/mozart/internal/command"
-	"github.com/prashantgupta24/mozart/internal/execution"
-	"github.com/prashantgupta24/mozart/internal/ws"
+	"github.com/countertenor/mozart/internal/command"
+	"github.com/countertenor/mozart/internal/execution"
+	"github.com/countertenor/mozart/internal/ws"
 )
 
 //Index page of application

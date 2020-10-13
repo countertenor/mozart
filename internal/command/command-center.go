@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/prashantgupta24/mozart/internal/execution"
-	"github.com/prashantgupta24/mozart/internal/flag"
-	"github.com/prashantgupta24/mozart/internal/template"
-	"github.com/prashantgupta24/mozart/internal/yaml"
-	"github.com/prashantgupta24/mozart/statik"
+	"github.com/countertenor/mozart/internal/execution"
+	"github.com/countertenor/mozart/internal/flag"
+	"github.com/countertenor/mozart/internal/template"
+	"github.com/countertenor/mozart/internal/yaml"
+	"github.com/countertenor/mozart/statik"
 
 	"github.com/spf13/pflag"
 )

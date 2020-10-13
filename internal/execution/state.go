@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/prashantgupta24/mozart/internal/state"
-	"github.com/prashantgupta24/mozart/statik"
+	"github.com/countertenor/mozart/internal/state"
+	"github.com/countertenor/mozart/statik"
 )
 
 //State is the main struct to hold state object
