@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/prashantgupta24/mozart/internal/command"
-	"github.com/prashantgupta24/mozart/internal/flag"
+	"github.com/countertenor/mozart/internal/command"
+	"github.com/countertenor/mozart/internal/flag"
 	"github.com/spf13/cobra"
 )
 

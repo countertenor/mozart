@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/prashantgupta24/mozart/internal/command"
+	"github.com/countertenor/mozart/internal/command"
 	"github.com/spf13/cobra"
 )
 

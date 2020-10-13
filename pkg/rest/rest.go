@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/prashantgupta24/mozart/pkg/rest/route"
+	"github.com/countertenor/mozart/pkg/rest/route"
 	"github.com/rs/cors"
 )
 
