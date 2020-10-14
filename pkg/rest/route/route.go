@@ -49,7 +49,7 @@ func RestRouter() *mux.Router {
 var routesForApp = routes{
 	route{
 		"Index Page",
-		"GET",
+		"POST",
 		"/",
 		handler.Index,
 	},
