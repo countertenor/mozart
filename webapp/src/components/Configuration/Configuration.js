@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FormLabel,
   TextInput,
@@ -6,13 +6,13 @@ import {
   Dropdown,
   Link,
   Form,
-  Button
+  Button,
 } from "carbon-components-react";
-import axios from 'axios';
+import axios from "axios";
 
 const { PasswordInput } = TextInput;
 
-export default function Configuration () {
+export default function Configuration() {
   const [clusterName, setClusterName] = useState("some cluster name?");
   const [apiKey, setApiKey] = useState("some apiKey?");
   const [resourceGroup, setResourceGroup] = useState("some resourceGroup?");
@@ -36,36 +36,58 @@ export default function Configuration () {
       label: "option-3",
       value: "Option 3",
     },
-  ])
-  const [region, setRegion] = useState(regionAPIResponseOptions[0])
+  ]);
+  const [region, setRegion] = useState(regionAPIResponseOptions[0]);
 
+  const [modules, setModules] = useState([""]);
+  let [selectedModule] = useState(modules.length > 0 ? [modules[0]] : [""]);
 
-//   const updateFieldChanged = e => {
-//     console.log("hey: ",items);
-//     let newArr = [...items]; // copying the old datas array
-//     newArr[newArr.length] = e.selectedItem; // replace e.target.value with whatever you want to change it to
-//     setRegion(newArr); // ??
-//     console.log("hello", items);
-// }
+  //   const updateFieldChanged = e => {
+  //     console.log("hey: ",items);
+  //     let newArr = [...items]; // copying the old datas array
+  //     newArr[newArr.length] = e.selectedItem; // replace e.target.value with whatever you want to change it to
+  //     setRegion(newArr); // ??
+  //     console.log("hello", items);
+  // }
 
-const makeSampleAPICall = e =>{
-  const data = {
-    "clusterName":clusterName,
-    "apiKey":apiKey,
-    "resourceGroup":resourceGroup,
-    "publicVLAN":publicVLAN,
-    "privateVLAN":privateVLAN,
-    "region":region.value
-  }
-  console.log("options: ",region)
-  console.log("data: ",data)
+  const makeSampleAPICall = (e) => {
+    const data = {
+      clusterName: clusterName,
+      apiKey: apiKey,
+      resourceGroup: resourceGroup,
+      publicVLAN: publicVLAN,
+      privateVLAN: privateVLAN,
+      region: region.value,
+      selectedModule: selectedModule,
+    };
+    console.log("options: ", region);
+    console.log("data: ", data);
 
-  axios.post('http://localhost:8080/api/v1/', data).then((res) => {
-      console.log(res.data);
-    }).catch((err) => {
-      console.log(err);
-    });
-}
+    axios
+      .post("http://localhost:8080/api/v1/", data)
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const getModulesAPI = (e) => {
+    axios
+      .get("http://localhost:8080/api/v1/modules")
+      .then((res) => {
+        console.log(res.data);
+        setModules(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    getModulesAPI();
+  }, []);
 
   return (
     <div style={{ marginLeft: "10%", width: "80%" }}>
@@ -85,34 +107,33 @@ const makeSampleAPICall = e =>{
             placeholder="Cluster name"
             defaultValue={clusterName}
             onChange={(e) => {
-              console.log("clustername: ",e.target.value);
+              console.log("clustername: ", e.target.value);
               setClusterName(e.target.value);
             }}
           />
 
           <FormLabel>
-          <Tooltip triggerText="Region">
-            <p id="tooltip-body">IBM Cloud locations.</p>
-            <div className="bx--tooltip__footer">
-              <Link
-                href="https://cloud.ibm.com/docs/containers?topic=containers-regions-and-zones"
-                target="_blank"
-              >
-                Learn more
-              </Link>
-            </div>
-          </Tooltip>
-        </FormLabel>
-        <Dropdown
-          items={regionAPIResponseOptions}
-          label="Select a region"
-          defaultValue={region}
-          onChange={(e) => {
-            // updateFieldChanged(e)
-            setRegion(e.selectedItem);
-            console.log(e.selectedItem);
-          }}
-        />
+            <Tooltip triggerText="Region">
+              <p id="tooltip-body">IBM Cloud locations.</p>
+              <div className="bx--tooltip__footer">
+                <Link
+                  href="https://cloud.ibm.com/docs/containers?topic=containers-regions-and-zones"
+                  target="_blank"
+                >
+                  Learn more
+                </Link>
+              </div>
+            </Tooltip>
+          </FormLabel>
+          <Dropdown
+            items={modules}
+            label="Select a region"
+            defaultValue={modules[0]}
+            onChange={(e) => {
+              selectedModule = e.selectedItem;
+              console.log(e.selectedItem);
+            }}
+          />
 
           <FormLabel>
             <Tooltip triggerText="API key">
