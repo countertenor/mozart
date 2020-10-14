@@ -18,7 +18,7 @@ const uiPort = "8081"
 func StartServer() {
 	restRouter := route.RestRouter()
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:" + uiPort},
+		AllowedOrigins:   []string{"http://localhost:" + uiPort, "http://localhost:3000"},
 		AllowCredentials: true,
 	})
 	restServer := &http.Server{
