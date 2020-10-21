@@ -58,7 +58,7 @@ export default function Configuration() {
     console.log("data: ", data);
 
     axios
-      .post(`localhost:8080/api/v1/config?conf=${configFileName}`, data)
+      .post(`http://localhost:8080/api/v1/config?conf=${configFileName}`, data)
       .then((res) => {
         console.log(res.data);
       })
