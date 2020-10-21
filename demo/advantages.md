@@ -1,3 +1,6 @@
+- Smaller + moduler scripts
+- One change in one file - propagate across all scripts - similar to helm
+- public state of execution of scripts
+- make sure scripts are executed just once
 - CLI + UI way of execution
-- One change in one file - propagate across all scripts
 - single binary - no need to send in bunch of scripts
