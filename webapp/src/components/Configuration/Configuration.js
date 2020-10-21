@@ -18,37 +18,12 @@ import axios from "axios";
 const { PasswordInput } = TextInput;
 
 export default function Configuration() {
-  const [moduleName, setModuleName] = useState("default-module-name");
-  // const [apiKey, setApiKey] = useState("some apiKey?");
-  // const [resourceGroup, setResourceGroup] = useState("some resourceGroup?");
-  // const [publicVLAN, setPublicVLAN] = useState("some publicVLAN?");
-  // const [privateVLAN, setPrivateVLAN] = useState("some privateVLAN?");
-
-  const [regionAPIResponseOptions] = useState([
-    {
-      label: "option-0",
-      value: "Option 0",
-    },
-    {
-      label: "option-1",
-      value: "Option 1",
-    },
-    {
-      label: "option-2",
-      value: "Option 2",
-    },
-    {
-      label: "option-3",
-      value: "Option 3",
-    },
-  ]);
+  const [moduleName, setModuleName] = useState("");
 
   const allSourceFileTypes = ["Python", "Bash"];
   const allExtensions = ["py", "sh"];
   const allOS = ["Darwin", "Linux"];
   const alltypesOfRun = ["Parallel", "Synchronous"];
-
-  const [region, setRegion] = useState(regionAPIResponseOptions[0]);
 
   const [modules, setModules] = useState([""]);
   let [selectedModule] = useState(modules.length > 0 ? [modules[0]] : [""]);
@@ -57,6 +32,10 @@ export default function Configuration() {
   const [extensions, setExtensions] = useState(allExtensions)
   const [os, setOS] = useState(allOS)
   const [typeOfRun, setTypeOfRun] = useState(alltypesOfRun)
+  const [typeOfModule, setTypeOfModule] = useState("existing")
+  let [jsonObject, setJsonObject] = useState("")
+  const [jsonFile, setJsonFile] = useState("")
+  let [configFileName, setConfigFileName] = useState("")
 
   //   const updateFieldChanged = e => {
   //     console.log("hey: ",items);
@@ -67,20 +46,19 @@ export default function Configuration() {
   // }
 
   const makeSampleAPICall = (e) => {
-    const data = {
-      moduleName: moduleName,
-      // apiKey: apiKey,
-      // resourceGroup: resourceGroup,
-      // publicVLAN: publicVLAN,
-      // privateVLAN: privateVLAN,
-      // region: region.value,
-      selectedModule: selectedModule,
-    };
-    console.log("options: ", region);
+    jsonObject = JSON.parse(jsonObject||"{}");
+    console.log(jsonObject);
+    // const data = {
+    //   jsonObject:jsonObject,
+    //   jsonFile:jsonFile,
+    //   selectedModule: selectedModule,
+    //   moduleName: moduleName,
+    // };
+    const data = jsonObject;
     console.log("data: ", data);
 
     axios
-      .post("http://localhost:8080/api/v1/", data)
+      .post(`localhost:8080/api/v1/config?conf=${configFileName}`, data)
       .then((res) => {
         console.log(res.data);
       })
@@ -113,86 +91,111 @@ export default function Configuration() {
       </div>
       <div>
         <Form>
-          <FormGroup>
-            <FormLabel>
-              <Tooltip triggerText="Select whether you want to create a new module or run an existing module">
-                Create a suitable name for your module.
-              </Tooltip>
-            </FormLabel>
-            <RadioButtonGroup
-              // defaultSelected="default-selected"
-              valueSelected={(e) => {
-                console.log("check: ", e);
-              }}
-              legend="Group Legend"
-            >
-              <RadioButton
-                value="default-selected"
-                labelText="existing module"
-                id="existing"
-                // checked={(e) => {
-                //   console.log(e.checked);
-                // }}
-                // onChange={(e) => {
-                //   console.log(e.target.value);
-                // }}
-              />
-              {/* <RadioButton value="standard" labelText="new module" id="new" /> */}
-            </RadioButtonGroup>
-          </FormGroup>
 
-          {/* <FormGroup>
+        <FormGroup>
             <FormLabel>
-              <Tooltip triggerText="New Module">
-                Create a suitable name for your module.
+              <Tooltip triggerText="Config file name">
+                Create a suitable name for your YAML config file.
               </Tooltip>
             </FormLabel>
             <TextInput
               id="ibmConfiguration-textInput-moduleName"
-              placeholder="Enter new module name"
+              placeholder="Enter a name for your config/YAML file here"
               onChange={(e) => {
-                console.log("moduleName: ", e.target.value);
-                setModuleName(e.target.value);
-              }}
-            />
-          </FormGroup> */}
-
-          <FormGroup>
-            <FormLabel>
-              <Tooltip triggerText="Module">
-                <p id="tooltip-body">IBM Cloud locations.</p>
-                <div className="bx--tooltip__footer">
-                  <Link
-                    href="https://cloud.ibm.com/docs/containers?topic=containers-regions-and-zones"
-                    target="_blank"
-                  >
-                    Learn more
-                  </Link>
-                </div>
-              </Tooltip>
-            </FormLabel>
-            <Dropdown
-              items={modules}
-              label="Select an existing module"
-              defaultValue={modules[0]}
-              onChange={(e) => {
-                selectedModule = e.selectedItem;
-                console.log(e.selectedItem);
+                console.log("configFile: ", e.target.value);
+                setConfigFileName(e.target.value);
               }}
             />
           </FormGroup>
 
           <FormGroup>
-            <TextArea placeholder="Paste JSON here or upload json file"></TextArea>
-            {/* <Button kind="ghost">Upload JSON file</Button> */}
+          <Tooltip triggerText="Config file details">
+                Enter the JSON for your config file.
+              </Tooltip>
+            <TextArea
+              placeholder="Paste JSON here or upload json file"
+              onChange={(e) => {
+                setJsonObject(e.target.value);
+                console.log(e.target.value);
+              }}
+            ></TextArea>
             <FileUploader
               multiple
               accept={[".json"]}
               buttonKind="ghost"
               buttonLabel="Upload .json files at 500mb or less"
               filenameStatus="edit"
+              onChange={(e) => {
+                setJsonFile(e.target.files[0] || {});
+                console.log(e.target.files);
+              }}
             />
           </FormGroup>
+
+
+          <FormGroup>
+            <FormLabel>
+              <Tooltip triggerText="Select whether you want to create a new module or run an existing module">
+                Create a suitable name for your module.
+              </Tooltip>
+            </FormLabel>
+            <RadioButtonGroup defaultSelected="existing">
+              <RadioButton
+                value="existing"
+                labelText="existing module"
+                id="existing"
+                onClick={(e) => {
+                  console.log("default: ", e.target.value);
+                  setTypeOfModule(e.target.value);
+                }}
+              />
+              <RadioButton
+                value="new"
+                labelText="new module"
+                id="new"
+                onClick={(e) => {
+                  console.log("standard: ", e.target.value);
+                  setTypeOfModule(e.target.value);
+                }}
+              />
+            </RadioButtonGroup>
+          </FormGroup>
+
+          {typeOfModule == "existing" ? (
+            <FormGroup>
+              <FormLabel>
+                <Tooltip triggerText="Module">
+                  Select a module you want to run
+                </Tooltip>
+              </FormLabel>
+              <Dropdown
+                items={modules}
+                label="Select an existing module"
+                defaultValue={modules[0]}
+                defaultSelected={modules[0]}
+                onChange={(e) => {
+                  selectedModule = e.selectedItem;
+                  console.log(e.selectedItem);
+                }}
+              />
+            </FormGroup>
+          ) : (
+            <FormGroup>
+              <FormLabel>
+                <Tooltip triggerText="New Module">
+                  Create a suitable name for your module.
+                </Tooltip>
+              </FormLabel>
+              <TextInput
+                id="ibmConfiguration-textInput-moduleName"
+                placeholder="Enter new module name"
+                onChange={(e) => {
+                  console.log("moduleName: ", e.target.value);
+                  setModuleName(e.target.value);
+                }}
+              />
+            </FormGroup>
+          )}
 
           <FormGroup>
             <FormLabel>
@@ -250,9 +253,7 @@ export default function Configuration() {
           </FormGroup>
           <FormGroup>
             <FormLabel>
-              <Tooltip triggerText="OS">
-                Select OS [Darwin, Linux]
-              </Tooltip>
+              <Tooltip triggerText="OS">Select OS [Darwin, Linux]</Tooltip>
             </FormLabel>
             <Dropdown
               items={os}
