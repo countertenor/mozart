@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/prashantgupta24/mozart/internal/command"
-	"github.com/prashantgupta24/mozart/internal/execution"
-	"github.com/prashantgupta24/mozart/internal/ws"
+	"github.com/countertenor/mozart/internal/command"
+	"github.com/countertenor/mozart/internal/execution"
+	"github.com/countertenor/mozart/internal/ws"
 )
 
 //Index page of application
@@ -65,8 +65,9 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal(reqBody, &moduleRequest)
 	if moduleRequest.getModuleName() == "" {
-		http.Error(w, "invalid module", http.StatusBadRequest)
-		return
+		// http.Error(w, "invalid module", http.StatusBadRequest)
+		// return
+		moduleRequest.ModuleName = "bashModule"
 	}
 
 	err = commandCenter.GenerateConfigFilesFromDir(moduleRequest.getModuleName()).Error

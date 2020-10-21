@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/prashantgupta24/mozart/internal/execution"
-	"github.com/prashantgupta24/mozart/internal/flag"
-	"github.com/prashantgupta24/mozart/internal/template"
-	"github.com/prashantgupta24/mozart/internal/yaml"
-	"github.com/prashantgupta24/mozart/statik"
+	"github.com/countertenor/mozart/internal/execution"
+	"github.com/countertenor/mozart/internal/flag"
+	"github.com/countertenor/mozart/internal/template"
+	"github.com/countertenor/mozart/internal/yaml"
+	"github.com/countertenor/mozart/statik"
 
 	"github.com/spf13/pflag"
 )
@@ -134,7 +134,7 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 	var configDir string
 	var err error
 	if dirToGenerateFrom != "" {
-		configDir, err = statik.GetActualDirName(dirToGenerateFrom, templateDir)
+		configDir, err = statik.GetActualDirName(statik.Template, dirToGenerateFrom, templateDir)
 		if err != nil {
 			i.Error = fmt.Errorf("could not get ActualDirName for dir %v, err : %v ", dirToGenerateFrom, err)
 			return i
@@ -181,12 +181,15 @@ func (i *Instance) RunScripts() *Instance {
 	fullPath := generatedDir + i.ConfigDir
 	// fmt.Println("fullPath : ", fullPath)
 
-	//skip execution the first time to populate state obj
-	i.DryRunEnabled = true
-	i.RunScriptsInDir(fullPath)
-	i.DryRunEnabled = false
-	i.RunScriptsInDir(fullPath)
-
+	if i.DryRunEnabled {
+		i.RunScriptsInDir(fullPath)
+	} else {
+		//skip execution the first time to populate state obj
+		i.DryRunEnabled = true
+		i.RunScriptsInDir(fullPath)
+		i.DryRunEnabled = false
+		i.RunScriptsInDir(fullPath)
+	}
 	i.Error = i.Instance.Error
 	i.PrintSeparator()
 	return i
@@ -240,7 +243,7 @@ func (i *Instance) StopRunningCommand() *Instance {
 
 //GetAllDirsInsideTmpl gets all directories inside template folder
 func GetAllDirsInsideTmpl() ([]string, error) {
-	dirs, err := statik.GetAllDirsInDir(templateDir)
+	dirs, err := statik.GetAllDirsInDir(statik.Template, templateDir)
 	if err != nil {
 		return nil, err
 	}
