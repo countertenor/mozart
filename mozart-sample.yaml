@@ -1,8 +1,9 @@
-#sample values
 values:
-  value1: hello
-  value2: world
   sailfish:
-    version: 0.0.2
-    os: linux
-    machines: [e1n1, e2n1, e3n1, e4n1]
+    machines:
+    - e1n1
+    - e2n1
+    - e3n1
+    - e4n1
+    os: darwin
+    version: 0.0.1
