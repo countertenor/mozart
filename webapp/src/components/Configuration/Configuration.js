@@ -148,8 +148,8 @@ export default function Configuration() {
   return (
     <div style={{ marginLeft: "10%", width: "80%" }}>
       <div style={{ marginBottom: "2%", marginTop: "2%", textAlign: "center" }}>
-        <h1>Configure Install</h1>
-        <p>Subtext goes here</p>
+        <h1>Mozart</h1>
+        {/* <p>Subtext goes here</p> */}
       </div>
       <div>
         <Form>
