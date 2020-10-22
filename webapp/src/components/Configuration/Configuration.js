@@ -18,7 +18,10 @@ import axios from "axios";
 
 export default function Configuration() {
   let history = useHistory();
-
+  const routeChange = () =>{ 
+    let path = `/install`; 
+    history.push(path);
+  }
   const allSourceFileTypes = ["Bash", "Python"];
   const allOS = ["Darwin", "Linux"];
   const allTypesOfModules = ["existing", "new"];
@@ -120,6 +123,7 @@ export default function Configuration() {
             )
             .then((res) => {
               console.log("response2222: ", res.data);
+              routeChange()
             })
             .catch((err) => {
               console.log(err);
