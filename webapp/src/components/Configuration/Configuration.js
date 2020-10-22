@@ -105,7 +105,8 @@ export default function Configuration() {
 
       axios
         .post(
-          `http://localhost:8080/api/v1/config?conf=${configFileName}`,
+          // `http://localhost:8080/api/v1/config?conf=${configFileName}`,
+          `http://localhost:8080/api/v1/config`,
           data
         )
         .then((res) => {
@@ -114,6 +115,7 @@ export default function Configuration() {
             .post(
               // `http://localhost:8080/api/v1/execute?re-run=${reRun}&conf=${configFileName}&parallel=${parallel}&source=${source}&dry-run=${dryRun}`,
               `http://localhost:8080/api/v1/execute?re-run=${reRun}&conf=${configFileName}&parallel=${parallel}&source=${source.toLowerCase()}`,
+              `http://localhost:8080/api/v1/execute?re-run=${reRun}&parallel=${parallel}&source=${source.toLowerCase()}`,
               dataBodyObj
             )
             .then((res) => {
