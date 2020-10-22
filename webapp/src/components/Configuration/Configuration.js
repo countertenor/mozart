@@ -16,7 +16,6 @@ import {
 } from "carbon-components-react";
 import axios from "axios";
 
-
 export default function Configuration() {
   let history = useHistory();
 
@@ -88,7 +87,7 @@ export default function Configuration() {
       };
       const queryParamsObj = {
         "re-run": reRun,
-        "dry-run": dryRun,
+        // "dry-run": dryRun,
         parallel: parallel,
         source: source.toLowerCase(),
       };
@@ -113,7 +112,8 @@ export default function Configuration() {
           console.log("response111: ", res.data);
           axios
             .post(
-              `http://localhost:8080/api/v1/execute?re-run=${reRun}&conf=${configFileName}&parallel=${parallel}&source=${source}&dry-run=${dryRun}`,
+              // `http://localhost:8080/api/v1/execute?re-run=${reRun}&conf=${configFileName}&parallel=${parallel}&source=${source}&dry-run=${dryRun}`,
+              `http://localhost:8080/api/v1/execute?re-run=${reRun}&conf=${configFileName}&parallel=${parallel}&source=${source}`,
               dataBodyObj
             )
             .then((res) => {
@@ -253,7 +253,7 @@ export default function Configuration() {
           {/* )} */}
 
           <FormGroup>
-            <Tooltip triggerText="Type of execution">
+            {/* <Tooltip triggerText="Type of execution">
               Dry Run shows what scripts will run, but does not run the scripts.
             </Tooltip>
             <Checkbox
@@ -262,7 +262,7 @@ export default function Configuration() {
               onClick={(e) => {
                 dryRun === false ? setDryRun(true) :setDryRun(false)
               }}
-            />
+            /> */}
             <Tooltip triggerText="Type of execution">
               Re Run runs all the scripts from initial state, ignoring
               previously saved state. (Check re-run if you have already ran your
