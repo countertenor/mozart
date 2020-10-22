@@ -4,7 +4,6 @@ import {
   TextInput,
   Tooltip,
   Dropdown,
-  Link,
   Form,
   Button,
   RadioButton,
@@ -12,30 +11,34 @@ import {
   FormGroup,
   TextArea,
   FileUploader,
+  Checkbox,
 } from "carbon-components-react";
 import axios from "axios";
 
-const { PasswordInput } = TextInput;
 
 export default function Configuration() {
-  const [moduleName, setModuleName] = useState("");
 
   const allSourceFileTypes = ["Python", "Bash"];
-  const allExtensions = ["py", "sh"];
   const allOS = ["Darwin", "Linux"];
-  const alltypesOfRun = ["Parallel", "Synchronous"];
+  const allTypesOfModules = ["existing", "new"];
 
-  const [modules, setModules] = useState([""]);
-  let [selectedModule] = useState(modules.length > 0 ? [modules[0]] : [""]);
-
-  const [sourceFileTypes, setSourceFileTypes] = useState(allSourceFileTypes)
-  const [extensions, setExtensions] = useState(allExtensions)
-  const [os, setOS] = useState(allOS)
-  const [typeOfRun, setTypeOfRun] = useState(alltypesOfRun)
-  const [typeOfModule, setTypeOfModule] = useState("existing")
-  let [jsonObject, setJsonObject] = useState("")
-  const [jsonFile, setJsonFile] = useState("")
   let [configFileName, setConfigFileName] = useState("")
+
+  let [jsonObject, setJsonObject] = useState("")
+  let [jsonFile, setJsonFile] = useState("")
+
+  let [typeOfModule, setTypeOfModule] = useState(allTypesOfModules[0])
+
+  let [modules, setModules] = useState([""]);
+  let [selectedModule, setSelectedModule] = useState(modules.length > 0 ? [modules[0]] : [""]);
+  const [newModuleName, setNewModuleName] = useState("");
+
+  let [dryRun, setDryRun] = useState(false);
+  let [reRun, setReRun] = useState(false);
+  let [parallel, setParallel] = useState(false);
+
+  let [source, setSourceFileTypes] = useState(allSourceFileTypes[0])
+  let [os, setOS] = useState(allOS[0])
 
   //   const updateFieldChanged = e => {
   //     console.log("hey: ",items);
@@ -47,20 +50,43 @@ export default function Configuration() {
 
   const makeSampleAPICall = (e) => {
     jsonObject = JSON.parse(jsonObject||"{}");
-    console.log(jsonObject);
-    // const data = {
-    //   jsonObject:jsonObject,
-    //   jsonFile:jsonFile,
-    //   selectedModule: selectedModule,
-    //   moduleName: moduleName,
-    // };
-    const data = jsonObject;
+    let moduleName = selectedModule.length > 0 ? selectedModule : newModuleName;
+
+    const dataBodyObj = {
+      "moduleName":moduleName,
+      "os":os
+    }
+    const queryParamsObj = {
+      "re-run":reRun,
+      "dry-run":dryRun,
+      "parallel":parallel,
+      "source":source.toLowerCase()
+    }
+
+    console.log(dataBodyObj);
+    console.log(queryParamsObj);
+
+    let data = {};
+    if(Object.keys(jsonObject).length === 0 && jsonObject.constructor === Object){
+      data = jsonFile
+    }
+    else{
+      data = jsonObject;
+    }
     console.log("data: ", data);
 
     axios
       .post(`http://localhost:8080/api/v1/config?conf=${configFileName}`, data)
       .then((res) => {
-        console.log(res.data);
+        console.log("response111: ",res.data);
+        axios
+          .post(`http://localhost:8080/api/v1/execute?re-run=${reRun}&conf=${configFileName}&parallel=${parallel}&source=${source}&dry-run=${dryRun}`, dataBodyObj)
+          .then((res) => {
+            console.log("response2222: ",res.data);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       })
       .catch((err) => {
         console.log(err);
@@ -91,32 +117,29 @@ export default function Configuration() {
       </div>
       <div>
         <Form>
-
-        <FormGroup>
+          <FormGroup>
             <FormLabel>
               <Tooltip triggerText="Config file name">
                 Create a suitable name for your YAML config file.
               </Tooltip>
             </FormLabel>
             <TextInput
-              id="ibmConfiguration-textInput-moduleName"
+              id="ibmConfiguration-textInput-newModuleName"
               placeholder="Enter a name for your config/YAML file here"
               onChange={(e) => {
-                console.log("configFile: ", e.target.value);
                 setConfigFileName(e.target.value);
               }}
             />
           </FormGroup>
 
           <FormGroup>
-          <Tooltip triggerText="Config file details">
-                Enter the JSON for your config file.
-              </Tooltip>
+            <Tooltip triggerText="Config file details">
+              Enter the JSON for your config file.
+            </Tooltip>
             <TextArea
               placeholder="Paste JSON here or upload json file"
               onChange={(e) => {
                 setJsonObject(e.target.value);
-                console.log(e.target.value);
               }}
             ></TextArea>
             <FileUploader
@@ -127,11 +150,9 @@ export default function Configuration() {
               filenameStatus="edit"
               onChange={(e) => {
                 setJsonFile(e.target.files[0] || {});
-                console.log(e.target.files);
               }}
             />
           </FormGroup>
-
 
           <FormGroup>
             <FormLabel>
@@ -145,7 +166,6 @@ export default function Configuration() {
                 labelText="existing module"
                 id="existing"
                 onClick={(e) => {
-                  console.log("default: ", e.target.value);
                   setTypeOfModule(e.target.value);
                 }}
               />
@@ -154,14 +174,13 @@ export default function Configuration() {
                 labelText="new module"
                 id="new"
                 onClick={(e) => {
-                  console.log("standard: ", e.target.value);
                   setTypeOfModule(e.target.value);
                 }}
               />
             </RadioButtonGroup>
           </FormGroup>
 
-          {typeOfModule == "existing" ? (
+          {typeOfModule === "existing" ? (
             <FormGroup>
               <FormLabel>
                 <Tooltip triggerText="Module">
@@ -174,8 +193,7 @@ export default function Configuration() {
                 defaultValue={modules[0]}
                 defaultSelected={modules[0]}
                 onChange={(e) => {
-                  selectedModule = e.selectedItem;
-                  console.log(e.selectedItem);
+                  setSelectedModule(e.selectedItem);
                 }}
               />
             </FormGroup>
@@ -187,37 +205,56 @@ export default function Configuration() {
                 </Tooltip>
               </FormLabel>
               <TextInput
-                id="ibmConfiguration-textInput-moduleName"
+                id="ibmConfiguration-textInput-newModuleName"
                 placeholder="Enter new module name"
                 onChange={(e) => {
-                  console.log("moduleName: ", e.target.value);
-                  setModuleName(e.target.value);
+                  setNewModuleName(e.target.value);
                 }}
               />
             </FormGroup>
           )}
 
           <FormGroup>
-            <FormLabel>
-              <Tooltip triggerText="Type of execution">
-                Shows what scripts will run, but does not run the scripts
-              </Tooltip>
-            </FormLabel>
-            <RadioButtonGroup
-              // defaultSelected="default-selected"
-              valueSelected={(e) => {
-                console.log("check: ", e);
+            <Tooltip triggerText="Type of execution">
+              Dry Run shows what scripts will run, but does not run the scripts.
+            </Tooltip>
+            <Checkbox
+              labelText="Dry Run"
+              id="dry-run"
+              onClick={(e) => {
+                dryRun === false ? setDryRun(true) :setDryRun(false)
               }}
-            >
-              <RadioButton
-                value="default-selected"
-                labelText="dry run"
-                id="d"
-              />
-              <RadioButton value="standard" labelText="run" id="r" />
-            </RadioButtonGroup>
+            />
+            <Tooltip triggerText="Type of execution">
+              Re Run runs all the scripts from initial state, ignoring
+              previously saved state. (Check re-run if you have already ran your
+              scripts once and want to run it again ignoring its previous
+              state.)
+            </Tooltip>
+            <Checkbox
+              labelText="Re Run"
+              id="re-run"
+              onClick={(e) => {
+                reRun === false ? setReRun(true) :setReRun(false)
+              }}
+            />
           </FormGroup>
 
+          <FormGroup>
+            <FormLabel>
+              <Tooltip triggerText="Type of Run">
+              Select how you want to run your files, sequentially or parallelly. Default runs sequentially.
+              </Tooltip>
+            </FormLabel>
+            <Checkbox
+              labelText="Parallel"
+              id="parallel"
+              onClick={(e) => {
+                parallel === false ? setParallel(true) :setParallel(false)
+              }}
+            />
+          </FormGroup>
+          
           <FormGroup>
             <FormLabel>
               <Tooltip triggerText="Source file type">
@@ -225,159 +262,29 @@ export default function Configuration() {
               </Tooltip>
             </FormLabel>
             <Dropdown
-              items={sourceFileTypes}
+              items={allSourceFileTypes}
               label="Select your source file type"
-              defaultValue={sourceFileTypes[0]}
+              defaultValue={allSourceFileTypes[0]}
               onChange={(e) => {
-                selectedModule = e.selectedItem;
-                console.log(e.selectedItem);
+                setSourceFileTypes(e.selectedItem);
               }}
             />
           </FormGroup>
 
-          <FormGroup>
-            <FormLabel>
-              <Tooltip triggerText="File extension">
-                Select file extension [py, sh]
-              </Tooltip>
-            </FormLabel>
-            <Dropdown
-              items={extensions}
-              label="Select your file extension"
-              defaultValue={extensions[0]}
-              onChange={(e) => {
-                selectedModule = e.selectedItem;
-                console.log(e.selectedItem);
-              }}
-            />
-          </FormGroup>
           <FormGroup>
             <FormLabel>
               <Tooltip triggerText="OS">Select OS [Darwin, Linux]</Tooltip>
             </FormLabel>
             <Dropdown
-              items={os}
+              items={allOS}
               label="Select your OS"
-              defaultValue={os[0]}
+              defaultValue={allOS[0]}
               onChange={(e) => {
-                selectedModule = e.selectedItem;
-                console.log(e.selectedItem);
+                setOS(e.selectedItem);
               }}
             />
           </FormGroup>
-          <FormGroup>
-            <FormLabel>
-              <Tooltip triggerText="Type of Run">
-                Select type of run [Parallel, Synchronous]
-              </Tooltip>
-            </FormLabel>
-            <Dropdown
-              items={typeOfRun}
-              label="Select your type of run"
-              defaultValue={typeOfRun[0]}
-              onChange={(e) => {
-                selectedModule = e.selectedItem;
-                console.log(e.selectedItem);
-              }}
-            />
-          </FormGroup>
-
-          {/* <FormLabel>
-            <Tooltip triggerText="API key">
-              <p id="tooltip-body">IBM Cloud user API key.</p>
-              <div className="bx--tooltip__footer">
-                <Link
-                  href="https://cloud.ibm.com/docs/iam?topic=iam-userapikey"
-                  target="_blank"
-                >
-                  Learn more
-                </Link>
-              </div>
-            </Tooltip>
-          </FormLabel>
-          <PasswordInput
-            id="ibmConfiguration-textInput-apiKey"
-            placeholder="IBM Cloud API key"
-            showPasswordLabel="Show"
-            hidePasswordLabel="Hide"
-            defaultValue={apiKey}
-            onChange={(e) => {
-              console.log("apiKey: ", e.target.value);
-              setApiKey(e.target.value);
-            }}
-          />
-
-          <FormLabel>
-            <Tooltip triggerText="Resource group (Optional)">
-              <p id="tooltip-body">
-                Provide your existing resource group name to organize your
-                account resources
-              </p>
-              <div className="bx--tooltip__footer">
-                <Link
-                  href="https://cloud.ibm.com/account/resource-groups"
-                  target="_blank"
-                >
-                  Learn more
-                </Link>
-              </div>
-            </Tooltip>
-          </FormLabel>
-          <TextInput
-            id="ibmConfiguration-textInput-resourceGroup"
-            placeholder="Resource group"
-            defaultValue={resourceGroup}
-            onChange={(e) => {
-              console.log("resourceGroup: ", e.target.value);
-              setResourceGroup(e.target.value);
-            }}
-          />
-
-          <FormLabel>
-            <Tooltip triggerText="Public VLAN (Optional)">
-              <p id="tooltip-body">Provide existing Public VLAN id</p>
-              <div className="bx--tooltip__footer">
-                <Link
-                  href="https://cloud.ibm.com/classic/network/vlans"
-                  target="_blank"
-                >
-                  Learn more
-                </Link>
-              </div>
-            </Tooltip>
-          </FormLabel>
-          <TextInput
-            id="ibmConfiguration-textInput-publicVLAN"
-            placeholder="Public VLAN"
-            defaultValue={publicVLAN}
-            onChange={(e) => {
-              console.log("publicVLAN: ", e.target.value);
-              setPublicVLAN(e.target.value);
-            }}
-          />
-
-          <FormLabel>
-            <Tooltip triggerText="Private VLAN (Optional)">
-              <p id="tooltip-body">Provide existing Private VLAN id</p>
-              <div className="bx--tooltip__footer">
-                <Link
-                  href="https://cloud.ibm.com/classic/network/vlans"
-                  target="_blank"
-                >
-                  Learn more
-                </Link>
-              </div>
-            </Tooltip>
-          </FormLabel>
-          <TextInput
-            id="ibmConfiguration-textInput-privateVLAN"
-            placeholder="Private VLAN"
-            defaultValue={privateVLAN}
-            onChange={(e) => {
-              console.log("privateVLAN: ", e.target.value);
-              setPrivateVLAN(e.target.value);
-            }}
-          /> */}
+          
         </Form>
 
         <div style={{ marginTop: "2%" }}>
