@@ -18,11 +18,11 @@ import axios from "axios";
 
 export default function Configuration() {
 
-  const allSourceFileTypes = ["Python", "Bash"];
+  const allSourceFileTypes = ["Bash", "Python"];
   const allOS = ["Darwin", "Linux"];
   const allTypesOfModules = ["existing", "new"];
 
-  let [configFileName, setConfigFileName] = useState("")
+  let [configFileName, setConfigFileName] = useState("mozart-test.yaml")
 
   let [jsonObject, setJsonObject] = useState("")
   let [jsonFile, setJsonFile] = useState("")
@@ -117,7 +117,7 @@ export default function Configuration() {
       </div>
       <div>
         <Form>
-          <FormGroup>
+          {/* <FormGroup>
             <FormLabel>
               <Tooltip triggerText="Config file name">
                 Create a suitable name for your YAML config file.
@@ -130,7 +130,7 @@ export default function Configuration() {
                 setConfigFileName(e.target.value);
               }}
             />
-          </FormGroup>
+          </FormGroup> */}
 
           <FormGroup>
             <Tooltip triggerText="Config file details">
@@ -142,7 +142,7 @@ export default function Configuration() {
                 setJsonObject(e.target.value);
               }}
             ></TextArea>
-            <FileUploader
+            {/* <FileUploader
               multiple
               accept={[".json"]}
               buttonKind="ghost"
@@ -151,10 +151,10 @@ export default function Configuration() {
               onChange={(e) => {
                 setJsonFile(e.target.files[0] || {});
               }}
-            />
+            /> */}
           </FormGroup>
 
-          <FormGroup>
+          {/* <FormGroup>
             <FormLabel>
               <Tooltip triggerText="Select whether you want to create a new module or run an existing module">
                 Create a suitable name for your module.
@@ -178,9 +178,9 @@ export default function Configuration() {
                 }}
               />
             </RadioButtonGroup>
-          </FormGroup>
+          </FormGroup> */}
 
-          {typeOfModule === "existing" ? (
+          {/* {typeOfModule === "existing" ? ( */}
             <FormGroup>
               <FormLabel>
                 <Tooltip triggerText="Module">
@@ -189,7 +189,8 @@ export default function Configuration() {
               </FormLabel>
               <Dropdown
                 items={modules}
-                label="Select an existing module"
+                // label="Select an existing module"
+                label={modules[0]}
                 defaultValue={modules[0]}
                 defaultSelected={modules[0]}
                 onChange={(e) => {
@@ -197,8 +198,8 @@ export default function Configuration() {
                 }}
               />
             </FormGroup>
-          ) : (
-            <FormGroup>
+          {/* ) : ( */}
+            {/* <FormGroup>
               <FormLabel>
                 <Tooltip triggerText="New Module">
                   Create a suitable name for your module.
@@ -211,8 +212,8 @@ export default function Configuration() {
                   setNewModuleName(e.target.value);
                 }}
               />
-            </FormGroup>
-          )}
+            </FormGroup> */}
+          {/* )} */}
 
           <FormGroup>
             <Tooltip triggerText="Type of execution">
@@ -263,7 +264,8 @@ export default function Configuration() {
             </FormLabel>
             <Dropdown
               items={allSourceFileTypes}
-              label="Select your source file type"
+              // label="Select your source file type"
+              label={allSourceFileTypes[0]}
               defaultValue={allSourceFileTypes[0]}
               onChange={(e) => {
                 setSourceFileTypes(e.selectedItem);
@@ -277,7 +279,8 @@ export default function Configuration() {
             </FormLabel>
             <Dropdown
               items={allOS}
-              label="Select your OS"
+              // label="Select your OS"
+              label={allOS[0]}
               defaultValue={allOS[0]}
               onChange={(e) => {
                 setOS(e.selectedItem);
