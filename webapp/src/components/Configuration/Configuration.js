@@ -40,6 +40,13 @@ export default function Configuration() {
   let [source, setSourceFileTypes] = useState(allSourceFileTypes[0])
   let [os, setOS] = useState(allOS[0])
 
+  const someProps = {
+    invalid: true,
+    invalidText: "This value cannot be empty. You must enter a valid json object here.",
+  };
+
+  let [validateTextArea, setValidateTextArea] = useState(false);
+
   //   const updateFieldChanged = e => {
   //     console.log("hey: ",items);
   //     let newArr = [...items]; // copying the old datas array
@@ -49,48 +56,62 @@ export default function Configuration() {
   // }
 
   const makeSampleAPICall = (e) => {
-    jsonObject = JSON.parse(jsonObject||"{}");
-    let moduleName = selectedModule.length > 0 ? selectedModule : newModuleName;
+    e.preventDefault();
+    console.log(!jsonFile)
+    console.log(Object.keys(jsonObject).length)
+    if (Object.keys(jsonObject).length === 0 && !jsonFile) {
+      console.log("ERROR!");
+      setValidateTextArea(true);
+    } else {
+      jsonObject = JSON.parse(jsonObject || "{}");
+      let moduleName =
+        selectedModule.length > 0 ? selectedModule : newModuleName;
 
-    const dataBodyObj = {
-      "moduleName":moduleName,
-      "os":os
-    }
-    const queryParamsObj = {
-      "re-run":reRun,
-      "dry-run":dryRun,
-      "parallel":parallel,
-      "source":source.toLowerCase()
-    }
+      const dataBodyObj = {
+        moduleName: moduleName,
+        os: os,
+      };
+      const queryParamsObj = {
+        "re-run": reRun,
+        "dry-run": dryRun,
+        parallel: parallel,
+        source: source.toLowerCase(),
+      };
 
-    console.log(dataBodyObj);
-    console.log(queryParamsObj);
+      console.log(dataBodyObj);
+      console.log(queryParamsObj);
 
-    let data = {};
-    if(Object.keys(jsonObject).length === 0 && jsonObject.constructor === Object){
-      data = jsonFile
-    }
-    else{
-      data = jsonObject;
-    }
-    console.log("data: ", data);
+      let data = {};
+      if (Object.keys(jsonObject).length === 0) {
+        data = jsonFile;
+      } else {
+        data = jsonObject;
+      }
+      console.log("data: ", data);
 
-    axios
-      .post(`http://localhost:8080/api/v1/config?conf=${configFileName}`, data)
-      .then((res) => {
-        console.log("response111: ",res.data);
-        axios
-          .post(`http://localhost:8080/api/v1/execute?re-run=${reRun}&conf=${configFileName}&parallel=${parallel}&source=${source}&dry-run=${dryRun}`, dataBodyObj)
-          .then((res) => {
-            console.log("response2222: ",res.data);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      axios
+        .post(
+          `http://localhost:8080/api/v1/config?conf=${configFileName}`,
+          data
+        )
+        .then((res) => {
+          console.log("response111: ", res.data);
+          axios
+            .post(
+              `http://localhost:8080/api/v1/execute?re-run=${reRun}&conf=${configFileName}&parallel=${parallel}&source=${source}&dry-run=${dryRun}`,
+              dataBodyObj
+            )
+            .then((res) => {
+              console.log("response2222: ", res.data);
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   };
 
   const getModulesAPI = (e) => {
@@ -141,6 +162,7 @@ export default function Configuration() {
               onChange={(e) => {
                 setJsonObject(e.target.value);
               }}
+              {...validateTextArea ===true ? {...someProps} : ""}
             ></TextArea>
             {/* <FileUploader
               multiple
