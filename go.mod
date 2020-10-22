@@ -1,4 +1,4 @@
-module github.com/prashantgupta24/mozart
+module github.com/countertenor/mozart
 
 go 1.14
 

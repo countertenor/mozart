@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/countertenor/mozart/pkg/rest/handler"
+	"github.com/countertenor/mozart/statik"
 	"github.com/gorilla/mux"
-	"github.com/prashantgupta24/mozart/pkg/rest/handler"
-	"github.com/prashantgupta24/mozart/statik"
 )
 
 type route struct {

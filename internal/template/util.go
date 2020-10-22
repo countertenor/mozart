@@ -11,7 +11,7 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig"
-	"github.com/prashantgupta24/mozart/statik"
+	"github.com/countertenor/mozart/statik"
 	"github.com/rakyll/statik/fs"
 )
 
