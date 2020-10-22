@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/prashantgupta24/mozart/statik"
+	"github.com/countertenor/mozart/statik"
 	"gopkg.in/yaml.v2"
 )
 

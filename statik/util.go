@@ -8,8 +8,8 @@ import (
 	"regexp"
 	"strings"
 
-	tmplStatik "github.com/prashantgupta24/mozart/statik/tmpl/statik"
-	webStatik "github.com/prashantgupta24/mozart/statik/web/statik"
+	tmplStatik "github.com/countertenor/mozart/statik/tmpl/statik"
+	webStatik "github.com/countertenor/mozart/statik/web/statik"
 	"github.com/rakyll/statik/fs"
 )
 

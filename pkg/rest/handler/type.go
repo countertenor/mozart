@@ -3,7 +3,7 @@ package handler
 import (
 	"strings"
 
-	"github.com/prashantgupta24/mozart/internal/execution"
+	"github.com/countertenor/mozart/internal/execution"
 )
 
 type moduleRequest struct {
