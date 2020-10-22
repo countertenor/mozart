@@ -2,8 +2,8 @@ values:
   sailfish:
     machines:
     - e1n1
-    - e2n1
-    - e3n1
-    - e4n1
+    - e1n2
+    - e1n3
+    - e1n4
     os: darwin
     version: 0.0.1
