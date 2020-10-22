@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import {
   FormLabel,
   TextInput,
@@ -17,6 +18,7 @@ import axios from "axios";
 
 
 export default function Configuration() {
+  let history = useHistory();
 
   const allSourceFileTypes = ["Bash", "Python"];
   const allOS = ["Darwin", "Linux"];
@@ -75,6 +77,7 @@ export default function Configuration() {
       console.log("ERROR!");
       setValidateTextArea(true);
     } else {
+      setValidateTextArea(false);
       jsonObject = JSON.parse(jsonObject || "{}");
       let moduleName =
         selectedModule.length > 0 ? selectedModule : newModuleName;
