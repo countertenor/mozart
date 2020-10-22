@@ -54,12 +54,24 @@ export default function Configuration() {
   //     setRegion(newArr); // ??
   //     console.log("hello", items);
   // }
+  function IsJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
 
   const makeSampleAPICall = (e) => {
     e.preventDefault();
     console.log(!jsonFile)
     console.log(Object.keys(jsonObject).length)
-    if (Object.keys(jsonObject).length === 0 && !jsonFile) {
+    console.log(typeof jsonObject)
+    if (
+      IsJsonString(jsonObject) === false ||
+      (Object.keys(jsonObject).length === 0 && !jsonFile)
+    ) {
       console.log("ERROR!");
       setValidateTextArea(true);
     } else {
