@@ -165,11 +165,11 @@ func createLogFile(filename, logDir string) (*os.File, error) {
 }
 
 func getSource(filename string) (source string) {
-	fileExt := filename[strings.LastIndex(filename, ".")+1:]
+	fileExt := filename[strings.LastIndex(filename, "."):]
 	switch fileExt {
-	case "sh":
+	case ".sh":
 		source = "/bin/bash"
-	case "py":
+	case ".py":
 		source = "python"
 	}
 	return
