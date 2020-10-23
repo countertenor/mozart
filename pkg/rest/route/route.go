@@ -1,10 +1,12 @@
 package route
 
 import (
+	"log"
 	"net/http"
 
+	"github.com/countertenor/mozart/pkg/rest/handler"
+	"github.com/countertenor/mozart/statik"
 	"github.com/gorilla/mux"
-	"github.com/prashantgupta24/mozart/pkg/rest/handler"
 )
 
 type route struct {
@@ -16,29 +18,32 @@ type route struct {
 
 type routes []route
 
-//NewRouter creates a new mux router for application
-func NewRouter() *mux.Router {
-
+//UIRouter creates a router for the UI
+func UIRouter() *mux.Router {
 	router := mux.NewRouter()
-	subrouter := router.PathPrefix("/api/v1").Subrouter().StrictSlash(true)
-	// router.PathPrefix("/api/v1").Handler(negroni.New(
-	// 	negroni.NewRecovery(),
-	// 	negroni.NewLogger(),
-	// 	negroni.Wrap(subrouter),
-	// ))
+	statikFS, err := statik.GetStaticFS(statik.Webapp)
+	if err != nil {
+		log.Fatalf("could not get static files for UI, err : %v", err)
+	}
+	router.PathPrefix("/").Handler(http.FileServer(statikFS))
+	return router
+}
 
-	// subrouter.Handle("/", handlers.LoggingHandler(logFile, finalHandler))
-	subrouter.Use(loggingMiddleware)
-	subrouter.Use(panicHandlerMiddleware)
+//RestRouter creates a new mux router for application
+func RestRouter() *mux.Router {
+	router := mux.NewRouter()
+	restServer := router.PathPrefix("/api/v1").Subrouter().StrictSlash(true)
+
+	restServer.Use(loggingMiddleware)
+	restServer.Use(panicHandlerMiddleware)
 	for _, route := range routesForApp {
-		subrouter.
+		restServer.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(route.HandlerFunc)
 	}
-
-	return subrouter
+	return router
 }
 
 var routesForApp = routes{

@@ -1,6 +1,6 @@
 package main
 
-import "github.com/prashantgupta24/mozart/cmd"
+import "github.com/countertenor/mozart/cmd"
 
 func main() {
 	cmd.Execute()

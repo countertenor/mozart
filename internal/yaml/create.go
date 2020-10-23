@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/prashantgupta24/mozart/statik"
+	"github.com/countertenor/mozart/statik"
 	"gopkg.in/yaml.v2"
 )
 
@@ -14,7 +14,7 @@ import (
 func CreateSampleConfigFile(sampleFileName string) error {
 
 	//Read sample file
-	sampleFile, err := statik.OpenFile("/" + sampleFileName)
+	sampleFile, err := statik.OpenFileFromStaticFS(statik.Template, "/"+sampleFileName)
 	if err != nil {
 		return err
 	}
