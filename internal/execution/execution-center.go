@@ -64,26 +64,25 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	if i.DoRunParallel {
 		defer i.WaitGroup.Done()
 	}
-	i.PrintSeparator()
-	fmt.Printf("\nRunning file : %v\n\n", fullDirPath+"/"+filename)
 	if i.DirExecStatusMap[fullDirPath][filename].State == RunningState {
 		return fmt.Errorf("Already running")
 	}
 	if !i.ReRun && i.DirExecStatusMap[fullDirPath][filename].State == SuccessState {
-		fmt.Println("Skipping file since it ran successfully in last execution.")
+		fmt.Printf("Skipping %v since it ran successfully in last execution.\n", filename)
 		return nil
 	}
 	if i.DryRunEnabled {
-		fmt.Printf("(Skipping execution because dry-run was selected)\n")
+		// fmt.Printf("(Skipping %v execution because dry-run was selected)\n", filename)
 		i.updateNotStartedState(fullDirPath, filename, "")
 		return nil
 	}
 	if i.Error != nil {
-		fmt.Println("Skipping file since previous file had errors or was terminated.")
+		fmt.Printf("Skipping %v since previous file had errors or was terminated.\n", filename)
 		i.updateSkipState(fullDirPath, filename, "")
 		return nil
 	}
-
+	i.PrintSeparator()
+	fmt.Printf("\nRunning file : %v\n\n", fullDirPath+"/"+filename)
 	args := []string{fullDirPath + "/" + filename}
 	ctx, cancelFunc := context.WithTimeout(context.Background(), i.TimeoutInterval)
 	defer cancelFunc()
