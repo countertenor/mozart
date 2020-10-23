@@ -18,16 +18,6 @@ var waitGroup sync.WaitGroup
 
 //Init the execution instance
 func (i *Instance) Init() {
-	switch i.ExecutionSource {
-	case "bash":
-		i.ExecutionSource = "/bin/bash"
-		i.ExecFileExtension = ".sh"
-	case "python":
-		i.ExecutionSource = "python"
-		i.ExecFileExtension = ".py"
-	default:
-		i.ExecFileExtension = "." + i.ExecFileExtension
-	}
 	i.WaitGroup = &waitGroup
 	i.DirExecStatusMap = makeStatusMap()
 	i.initState()
@@ -106,9 +96,9 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	defer cancelFunc()
 	cancelRunningCommandFunc = cancelFunc
 
-	command := exec.CommandContext(ctx, i.ExecutionSource, args...)
+	command := exec.CommandContext(ctx, getSource(filename), args...)
 
-	logFile, err := createLogFile(filename, i.LogDir, i.ExecFileExtension)
+	logFile, err := createLogFile(filename, i.LogDir)
 	if err != nil {
 		i.updateErrorState(fullDirPath, filename, logFile.Name())
 		return err
@@ -155,7 +145,7 @@ func (i *Instance) StopRunningCmd() {
 	return
 }
 
-func createLogFile(filename, logDir, fileExt string) (*os.File, error) {
+func createLogFile(filename, logDir string) (*os.File, error) {
 
 	//check if log dir exists
 	if _, err := os.Stat(logDir); os.IsNotExist(err) {
@@ -167,11 +157,22 @@ func createLogFile(filename, logDir, fileExt string) (*os.File, error) {
 
 	//create log file
 	timeNow := time.Now().Format("2006-01-02--15-04-05.000")
-	logFile, err := os.Create(logDir + timeNow + "-" + strings.TrimSuffix(filename, fileExt) + ".log")
+	logFile, err := os.Create(logDir + timeNow + "-" + filename[:strings.LastIndex(filename, ".")] + ".log")
 	if err != nil {
 		return nil, fmt.Errorf("cannot write to logfile, err : %v", err)
 	}
 	return logFile, nil
+}
+
+func getSource(filename string) (source string) {
+	fileExt := filename[strings.LastIndex(filename, ".")+1:]
+	switch fileExt {
+	case "sh":
+		source = "/bin/bash"
+	case "py":
+		source = "python"
+	}
+	return
 }
 
 //PrintSeparator prints a separator

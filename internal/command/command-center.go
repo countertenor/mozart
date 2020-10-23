@@ -26,9 +26,8 @@ const (
 	defaultConfigFileName = "mozart-defaults.yaml"
 	stateFileDefaultName  = "mozart-state.db"
 
-	generatedDir    = "generated"
-	templateDir     = "/templates"
-	templateFileExt = ".tmpl"
+	generatedDir = "generated"
+	templateDir  = "/templates"
 )
 
 func init() {
@@ -56,16 +55,14 @@ func New(flags *pflag.FlagSet) *Instance {
 	}
 
 	executionInstance := execution.Instance{
-		LogDir:            logDir,
-		GeneratedDir:      generatedDir,
-		TemplateDir:       templateDir,
-		OS:                getStringFlagValue(flags, flag.OS),
-		ExecutionSource:   getStringFlagValue(flags, flag.ExecutionSource),
-		ExecFileExtension: getStringFlagValue(flags, flag.ExecFileExtension),
-		DoRunParallel:     getBoolFlagValue(flags, flag.DoRunParallel),
-		DryRunEnabled:     getBoolFlagValue(flags, flag.DryRun),
-		ReRun:             getBoolFlagValue(flags, flag.ReRun),
-		TimeoutInterval:   time.Minute * 15, //change later
+		LogDir:          logDir,
+		GeneratedDir:    generatedDir,
+		TemplateDir:     templateDir,
+		OS:              getStringFlagValue(flags, flag.OS),
+		DoRunParallel:   getBoolFlagValue(flags, flag.DoRunParallel),
+		DryRunEnabled:   getBoolFlagValue(flags, flag.DryRun),
+		ReRun:           getBoolFlagValue(flags, flag.ReRun),
+		TimeoutInterval: time.Minute * 15, //change later
 		State: execution.State{
 			StateFilePath:        stateFilePath,
 			StateFileDefaultname: stateFileDefaultName,
@@ -149,7 +146,7 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 	if !noGenerate {
 		//cleaning up all scripts in dir if it exists
 		if _, err := os.Stat(generatedDir + configDir); !os.IsNotExist(err) {
-			filesDeleted, err := cleanupFilesInDir(generatedDir+configDir, i.ExecFileExtension)
+			filesDeleted, err := cleanupFilesInDir(generatedDir + configDir)
 			if err != nil {
 				i.Error = fmt.Errorf("could not delete files in %v directory, err: %v", generatedDir+configDir, err)
 				return i
@@ -161,8 +158,6 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 		err := template.Generate(i.Config,
 			configDir,
 			templateDir,
-			templateFileExt,
-			i.ExecFileExtension,
 			generatedDir)
 		if err != nil {
 			i.Error = fmt.Errorf("error while creating configuration : %v", err)
@@ -252,13 +247,13 @@ func GetAllDirsInsideTmpl() ([]string, error) {
 }
 
 //returns number of files cleaned up, along with error (if nil)
-func cleanupFilesInDir(directory, fileExt string) (int, error) {
+func cleanupFilesInDir(directory string) (int, error) {
 	filesDeleted := 0
 	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		if filepath.Ext(path) == fileExt {
+		if filepath.Ext(path) == ".sh" || filepath.Ext(path) == ".py" {
 			err = os.Remove(path)
 			if err != nil {
 				return fmt.Errorf("could not delete file %v, err : %v", info.Name(), err)
