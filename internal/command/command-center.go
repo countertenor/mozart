@@ -253,7 +253,7 @@ func cleanupFilesInDir(directory string) (int, error) {
 		if err != nil {
 			return err
 		}
-		if filepath.Ext(path) == ".sh" || filepath.Ext(path) == ".py" {
+		if !info.IsDir() {
 			err = os.Remove(path)
 			if err != nil {
 				return fmt.Errorf("could not delete file %v, err : %v", info.Name(), err)
