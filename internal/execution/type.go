@@ -34,7 +34,6 @@ type FileExecStatus struct {
 
 //Instance is the main struct for execution configs
 type Instance struct {
-	OS              string
 	DryRunEnabled   bool
 	ReRun           bool
 	LogDir          string

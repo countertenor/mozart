@@ -58,7 +58,6 @@ func New(flags *pflag.FlagSet) *Instance {
 		LogDir:          logDir,
 		GeneratedDir:    generatedDir,
 		TemplateDir:     templateDir,
-		OS:              getStringFlagValue(flags, flag.OS),
 		DoRunParallel:   getBoolFlagValue(flags, flag.DoRunParallel),
 		DryRunEnabled:   getBoolFlagValue(flags, flag.DryRun),
 		ReRun:           getBoolFlagValue(flags, flag.ReRun),

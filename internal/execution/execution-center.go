@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -67,12 +66,6 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	}
 	i.PrintSeparator()
 	fmt.Printf("\nRunning file : %v\n\n", fullDirPath+"/"+filename)
-	//precautionary step so that scripts don't run locally
-	osRunning := runtime.GOOS
-	if osRunning != i.OS { //scripts run only on OS defined
-		fmt.Printf("(Skipping execution since OS is %v. Scripts only run on %v)\n", osRunning, i.OS)
-		return nil
-	}
 	if i.DirExecStatusMap[fullDirPath][filename].State == RunningState {
 		return fmt.Errorf("Already running")
 	}
