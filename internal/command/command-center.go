@@ -177,6 +177,7 @@ func (i *Instance) RunScripts() *Instance {
 
 	if i.DryRunEnabled {
 		i.RunScriptsInDir(fullPath)
+		fmt.Println("Skipping all files since dry-run was selected")
 	} else {
 		//skip execution the first time to populate state obj
 		i.DryRunEnabled = true

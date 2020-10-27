@@ -72,7 +72,6 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		return nil
 	}
 	if i.DryRunEnabled {
-		// fmt.Printf("(Skipping %v execution because dry-run was selected)\n", filename)
 		i.updateNotStartedState(fullDirPath, filename, "")
 		return nil
 	}
