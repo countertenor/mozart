@@ -239,38 +239,36 @@ export default function Install({ notificationDispatch, uninstall }) {
   );
 
   return (
-    <Tile className={styles.Install}>
-      {curStatus === 'loading' ? (
-        <>
-          {header}
-          <Loading
-            active
-            small={false}
-          />
-        </>
-      ) : (
-        <>
-          {header}
-          {steps.map((module) => {
-            return (
-              <div key={module.module} className={styles.module}>
-                <h3>{module.module}</h3>
-                {module.tasks.map((task) => (
-                  <ul className={styles.loadersHolder} key={task.taskName}>
-                    <Task
-                      duration="TODO"
-                      taskName={task.taskName}
-                      state={task.status.state}
-                      openLogModal={openLogModal}
-                      closeLogModal={closeLogModal}
-                    />
-                  </ul>
-                ))}
-              </div>
-            );
-          })}
-          <br />
-          {/* (curStatus === 'failed' || curStatus === 'waiting') && (
+    <div style={{ marginLeft: "10%" }}>
+      <Tile className={styles.Install}>
+        {curStatus === "loading" ? (
+          <>
+            {header}
+            <Loading active small={false} />
+          </>
+        ) : (
+          <>
+            {header}
+            {steps.map((module) => {
+              return (
+                <div key={module.module} className={styles.module}>
+                  <h3>{module.module}</h3>
+                  {module.tasks.map((task) => (
+                    <ul className={styles.loadersHolder} key={task.taskName}>
+                      <Task
+                        duration="TODO"
+                        taskName={task.taskName}
+                        state={task.status.state}
+                        openLogModal={openLogModal}
+                        closeLogModal={closeLogModal}
+                      />
+                    </ul>
+                  ))}
+                </div>
+              );
+            })}
+            <br />
+            {/* (curStatus === 'failed' || curStatus === 'waiting') && (
             <div id="install-restartPromptHolder" className={styles.restartPromptHolder}>
               {curStatus === 'failed' ? (
                 <>
@@ -297,23 +295,23 @@ export default function Install({ notificationDispatch, uninstall }) {
               </div>
             </div>
               ) */}
-          <div className="ButtonRow">
-            <Button
-              onClick={history.goBack}
-              kind="secondary"
-            >
-              Cancel
-            </Button>
-            <Button onClick={() => history.push('/enclosureConfig')}>Next</Button>
-          </div>
-        </>
-      )}
-      <LogModal
-        open={logModalIsOpen}
-        log={logRef.current}
-        onRequestClose={closeLogModal}
-      />
-    </Tile>
+            <div className="ButtonRow">
+              <Button onClick={history.goBack} kind="secondary">
+                Cancel
+              </Button>
+              <Button onClick={() => history.push("/enclosureConfig")}>
+                Next
+              </Button>
+            </div>
+          </>
+        )}
+        <LogModal
+          open={logModalIsOpen}
+          log={logRef.current}
+          onRequestClose={closeLogModal}
+        />
+      </Tile>
+    </div>
   );
 }
 

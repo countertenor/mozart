@@ -8,6 +8,7 @@ import {
 
 import './App.scss';
 import Configuration from './components/Configuration/Configuration';
+import Execution from './components/Execution/Execution';
 import Install from './components/Status/Install';
 import { NOTIFICATION_INIT, NOTIFICATION_REDUCER } from './constants/reducer-constants';
 
@@ -20,14 +21,14 @@ export default function App() {
     <Router>
       <div>
         <Switch>
-          <Route path="/install">
+          {/* <Route path="/install">
               <Install notificationDispatch={notificationDispatch} />
-            </Route>
-          {/* <Route path="/status">
-            <Install />
-          </Route> */}
+            </Route> */}
+          <Route path="/status">
+            <Execution />
+          </Route>
           <Route path="/">
-            <Configuration />
+            <Execution />
           </Route>
         </Switch>
       </div>

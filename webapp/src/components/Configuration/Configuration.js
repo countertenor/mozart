@@ -19,7 +19,7 @@ import axios from "axios";
 export default function Configuration() {
   let history = useHistory();
   const routeChange = () =>{ 
-    let path = `/install`; 
+    let path = `/status`; 
     history.push(path);
   }
   const allSourceFileTypes = ["Bash", "Python"];
@@ -154,7 +154,7 @@ export default function Configuration() {
   return (
     <div style={{ marginLeft: "10%", width: "80%" }}>
       <div style={{ marginBottom: "2%", marginTop: "2%", textAlign: "center" }}>
-        <h1>Mozart</h1>
+        {/* <h1>Mozart</h1> */}
         {/* <p>Subtext goes here</p> */}
       </div>
       <div>
