@@ -151,7 +151,7 @@ export default function Install({ notificationDispatch, uninstall }) {
           }
         });
       }
-      setSteps(data.steps);
+      setSteps((data||{}).steps||[]);
       setCurStatus(''); // TODO: Figure out
     });
     // switch (resCurStatus) {
