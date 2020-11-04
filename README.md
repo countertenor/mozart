@@ -11,14 +11,14 @@ Mozart is a simple utility to convert your independent, messy bunch of scripts i
 - [What exactly does an orchestrator do?](#what-exactly-does-an-orchestrator-do)
 - [Benefits of using Mozart](#benefits-of-using-mozart)
 - [Easy steps to migrate to Mozart](#easy-steps-to-migrate-to-mozart)
-- [Steps to use your scripts with Mozart](#steps-to-use-your-scripts-with-mozart)
+- [Using your scripts with Mozart](#using-your-scripts-with-mozart)
   - [Steps](#steps)
     - [1. Initial setup](#1-initial-setup)
     - [2. Modularize](#2-modularize)
     - [3. (Optional) Use templating](#3-optional-use-templating)
     - [4. Build the binary](#4-build-the-binary)
-- [CLI](#cli)
-- [UI](#ui)
+  - [CLI](#cli)
+  - [UI](#ui)
 - [Helpful resources](#helpful-resources)
   - [Good links for templating](#good-links-for-templating)
   - [Bash scripts through go](#bash-scripts-through-go)
@@ -62,7 +62,7 @@ It is extremely simple - NO CODE CHANGE REQUIRED!
 1. Build the binary. (discussed below.)
 1. Voila! You have a single orchestrator binary with all your scripts in it!
 
-## Steps to use your scripts with Mozart
+## Using your scripts with Mozart
 
 Let us walk through how to actually add your scripts. There are some terms that are going to be used:
 
@@ -141,7 +141,7 @@ echo hello world
 
 Voila! You have a single orchestrator binary with all your scripts in it!
 
-## CLI
+### CLI
 
 ```
 mozart commands
@@ -180,7 +180,7 @@ If you select a module that contains other modules, something like `mozart execu
 
 **Note**: Mozart automatically removes any prefix of the form `xx-`before the module name.
 
-## UI
+### UI
 
 _Coming soon_
 
