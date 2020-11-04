@@ -52,16 +52,6 @@ Suppose you had 2 bash scripts which let you install and uninstall a particular 
 - Make sure scripts are `executed just once` - the orchestrator will not allow you to run the same script again without explicitely mentioning a `Re-Run` flag, thereby preventing accidental execution of the same script.
 - Ready to use `CLI + UI` to manage the execution.
 
-## Easy steps to migrate to Mozart
-
-It is extremely simple - NO CODE CHANGE REQUIRED!
-
-1. Clone repo.
-1. Create a directory inside `resources/templates`.
-1. Dump your bash or python scripts into that directory.
-1. Build the binary. (discussed below.)
-1. Voila! You have a single orchestrator binary with all your scripts in it!
-
 ## Using your scripts with Mozart
 
 Let us walk through how to actually add your scripts. There are some terms that are going to be used:
