@@ -138,9 +138,9 @@ echo hello world
 
 Voila! You have a single orchestrator binary with all your scripts in it.
 
-### CLI
+## CLI
 
-#### Mozart commands
+### Mozart commands
 
 ```
 - execute       (executes all scripts in specified directory)
@@ -157,7 +157,7 @@ Global flags
 
 ```
 
-#### Executing modules
+### Executing modules
 
 Running the binary built in the earlier step, you will see something like this:
 
@@ -179,7 +179,7 @@ If you select a module that contains other modules, something like `mozart execu
 
 **Note**: Mozart automatically removes any prefix of the form `xx-`before the module name.
 
-#### Checking the state
+### Checking the state
 
 The `state` shows you the current state of execution of the various modules within Mozart, along with other information.
 
@@ -238,7 +238,7 @@ State: {
 }
 ```
 
-### UI
+## UI
 
 _Under development by Tosha Kamath_
 
