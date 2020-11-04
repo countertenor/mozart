@@ -2,10 +2,16 @@
 
 An orchestrator for scripts.
 
+Mozart is a simple utility to convert your independent, messy bunch of scripts into a well defined, orchestrated program!
+
 <!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
 
 <!-- code_chunk_output -->
 
+- [Easy steps to migrate to Mozart](#easy-steps-to-migrate-to-mozart)
+- [What exactly does an orchestrator do?](#what-exactly-does-an-orchestrator-do)
+- [Benefits of mozart](#benefits-of-mozart)
+- [Details](#details)
 - [Commands](#commands)
 - [Building the application](#building-the-application)
 - [Helpful resources](#helpful-resources)
@@ -18,6 +24,38 @@ An orchestrator for scripts.
   - [Embedding static content](#embedding-static-content)
 
 <!-- /code_chunk_output -->
+
+## Easy steps to migrate to Mozart
+
+It is extremely simple - NO CODE CHANGE REQUIRED!
+
+1. Dump your bash or python scripts into the `resources/templates` directory. (Modularize if necessary. Use templating if necessary.)
+1. Build the binary.
+1. Voila! You have a single orchestrator binary with all your scripts in it!
+
+## What exactly does an orchestrator do?
+
+Good question. Simply speaking, an orchestrator manages execution of your unorganized scripts. Suppose you had 2 bash scripts which let you install and uninstall a particular component respectively.
+
+Without an orchestrator, :
+
+1. You would have to ship both files to anyone who wants to use them.
+1. If running on a shared system, you can never know if the other person already ran the install script (unless actually going through the effort of seeing if the component was actually installed).
+1. No way of using common variables across the scripts (like version of the component being managed).
+1. No way of accidentally preventing execution of a script more than once (like prevent install script from running again if it already ran once).
+1. Manually execute the scripts through bash or python (no CLI or UI)
+
+## Benefits of mozart
+
+- Simple migration - no code change necessary.
+- Lets you modularize the scripts, which means you can have smaller scripts which do smaller tasks (called modules). No need to maintain huge bash files anymore. The smaller the scripts - the easier it is to manage them.
+- Ability to use templating capabilities - similar to helm. Values in the yaml file are read by all scripts.
+- Public state of execution of scripts, so no more confusion of whether scripts were executed or not.
+- Make sure scripts are executed just once - the orchestrator will not allow you to run the same script again without explicitely mentioning a `Re-Run` flag, thereby preventing accidental execution of the same script.
+- Ready to use CLI + UI to manage the execution.
+- Single binary which contains everything - no need to send in bunch of scripts to anyone anymore.
+
+## Details
 
 ## Commands
 
