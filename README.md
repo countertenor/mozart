@@ -154,6 +154,7 @@ Global flags
   -v                  (prints verbosely, useful for debugging)
   -d, --dry-run       (optional) shows what scripts will run, but does not run the scripts
   -n, --no-generate   (optional) do not generate bash scripts as part of execution, instead use the ones in generated folder. Useful for running local change to the scripts
+  -p, --parallel      (optional) Run all scripts in parallel
   -r, --re-run        (optional) re-run script from initial state, ignoring previously saved state
 
 ```
@@ -182,7 +183,7 @@ If you select a module that contains other modules, something like `mozart execu
 
 ### Checking the state
 
-The `state` shows you the current state of execution of the various modules within Mozart, along with other information.
+Once you start the execution, the `state` command shows you the current state of execution of the various modules within Mozart, along with other information.
 
 ```
 $ ./bin/mozart state
