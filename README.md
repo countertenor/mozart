@@ -19,6 +19,9 @@ Mozart is a simple utility to convert your independent, messy bunch of scripts i
     - [3. (Optional) Use templating](#3-optional-use-templating)
     - [4. Build the binary](#4-build-the-binary)
   - [CLI](#cli)
+    - [Mozart commands](#mozart-commands)
+    - [Executing modules](#executing-modules)
+    - [Checking the state](#checking-the-state)
   - [UI](#ui)
 - [Helpful resources](#helpful-resources)
   - [Good links for templating](#good-links-for-templating)
@@ -55,51 +58,53 @@ Suppose you had 2 bash scripts which let you install and uninstall a particular 
 
 ## Using your scripts with Mozart
 
-Let us walk through how to actually add your scripts. There are some terms that are going to be used:
+Let us walk through how to actually add your scripts. There is one term that is of prime importance to Mozart - Modules.
 
 **Modules**
 
-Mozart works with the concept of modules and not the scripts directly. Modules are nothing but directories, created with the intention of performing 1 simple task. Each module (or directory) can consist of either scripts or more nested modules (directories).
+Mozart works with the concept of modules and not the scripts directly. Modules are nothing but directories, created with the intention of performing 1 simple task. Each module (or directory) can consist of either scripts or more nested modules (nested directories).
 
-So in short, all your scripts need to belong to a module, and Mozart will help you control the execution of those modules.
+So in short, all your scripts need to be in a module, and Mozart will help you control the execution of those modules (instead of the scripts themselves).
 
 **Sample module**
 
-There is already a sample module present there called `test-module`, which you can use to reference.
+There is already a sample module present called `test-module` under `resources/templates`, which you can use to reference.
 
 ### Steps
 
 #### 1. Initial setup
 
 1. Clone the repo
-1. Create a base directory inside `resources/templates`. This will be the main directory under which all your scripts will exist.
+1. Create a new directory inside `resources/templates`. This will be the base directory under which all your modules will exist.
 
 #### 2. Modularize
 
-1. Look through your scripts, and identify the most basic steps that the scripts are supposed to be performing. Suppose I want to install a component called `Symphony`. I have one huge bash script that does everything. Some steps inside that huge bash scripot could be:
+1. Look through your scripts, and identify the most basic steps that the scripts are supposed to be performing. Suppose I want to install a component called `Symphony`. I have one huge bash script for that. Some basic steps inside that bash script could be:
 
    1. Pre-requisite check.
    1. Installation of component.
    1. Validation of install.
    1. Uninstallation of component.
 
-1. For each identified step, create a module(directory) within the base directory and add that part of the script within that directory. For example, continuing with the above, your directory structure should look like this:
+1. For each identified step, create a module(directory) within the base directory and add that part of the script within that directory. For example, continuing with the above example, the directory structure should look like this:
 
 ```
 resources/templates
-├── symphony
-│   ├── 00-pre-req
+├── symphony                    (this is the base directory)
+│   ├── 00-pre-req              (first module)
 │   │   └── pre-req.sh
-│   ├── 10-install
+│   ├── 10-install              (second module)
 │   │   ├── 00-install-step1.sh
 │   │   └── 10-install-step2.sh
-│   ├── 20-validate
+│   ├── 20-validate             (third module)
 │   │   └── validate.sh
-│   └── 30-uninstall
+│   └── 30-uninstall            (fourth module)
 │       └── uninstall.sh
 ```
 
-**Note:** the `xx-`prefix before a module or script name is an optional prefix, through this you can control the order of execution within your module.
+The huge bash script is now broken down into smaller scripts, each in its own module. This makes the script easy to manage, while giving the option to add more scripts in the future as needed.
+
+**Note:** the `xx-`prefix before a module or script name is an optional prefix, through this you can control the order of execution of scripts/modules within the module.
 
 #### 3. (Optional) Use templating
 
@@ -109,11 +114,12 @@ You can do something like this within any script:
 echo "{{.values.value1}} {{.values.value2}}"
 ```
 
-These values are going to be fetched from a yaml file that you supply while invoking the CLI or the UI.
+These values are going to be fetched from a yaml file that you supply while invoking the CLI or the UI. (discussed later)
 
 The yaml file will look something like this for the example above:
 
 ```
+$ cat mozart-sample.yaml
 values:
   value1: hello
   value2: world
@@ -127,16 +133,16 @@ echo hello world
 
 #### 4. Build the binary
 
-`make build-linux` -> for Linux
 `make build` -> for Darwin (Mac)
+`make build-linux` -> for Linux
 
-Voila! You have a single orchestrator binary with all your scripts in it!
+Voila! You have a single orchestrator binary with all your scripts in it.
 
 ### CLI
 
-```
-mozart commands
+#### Mozart commands
 
+```
 - execute       (executes all scripts in specified directory)
 - state         (displays install state of all components, accepts optional args)
 - version       (displays version info for the application)
@@ -151,10 +157,12 @@ Global flags
 
 ```
 
+#### Executing modules
+
 Running the binary built in the earlier step, you will see something like this:
 
 ```
-./bin/mozart execute
+$ ./bin/mozart execute
 
 *****************************************
 Available commands:
@@ -167,13 +175,72 @@ mozart execute symphony-module uninstall
 *****************************************
 ```
 
-If you select a module that contains other modules, something like `mozart execute symphony-module`, that's where the ordering of the sub-modules comes into play, which you control by adding the prefix.
+If you select a module that contains other modules, something like `mozart execute symphony-module`, that's where the ordering of the sub-modules comes into play, which you control by adding the prefix. Or you can choose to execute a sub-module directly.
 
 **Note**: Mozart automatically removes any prefix of the form `xx-`before the module name.
 
+#### Checking the state
+
+The `state` shows you the current state of execution of the various modules within Mozart, along with other information.
+
+```
+$ ./bin/mozart state
+
+State: {
+  "generated/symphony-module/00-pre-req": {
+    "pre-req.sh": {
+      "startTime": "2020-11-04T15:08:12.5981-08:00",
+      "timeTaken": "8.218745ms",
+      "lastSuccessTime": "2020-11-04 15:08:12.606306 -0800 PST m=+0.016747847",
+      "lastErrorTime": "",
+      "state": "success",
+      "logFilePath": "logs/2020-11-04--15-08-12.597-pre-req.log"
+    }
+  },
+  "generated/symphony-module/10-install": {
+    "00-install-step1.sh": {
+      "startTime": "2020-11-04T15:08:12.607053-08:00",
+      "timeTaken": "9.723926ms",
+      "lastSuccessTime": "2020-11-04 15:08:12.616754 -0800 PST m=+0.027195761",
+      "lastErrorTime": "",
+      "state": "success",
+      "logFilePath": "logs/2020-11-04--15-08-12.606-00-install-step1.log"
+    },
+    "10-install-step2.sh": {
+      "startTime": "2020-11-04T15:08:12.617443-08:00",
+      "timeTaken": "7.333338ms",
+      "lastSuccessTime": "2020-11-04 15:08:12.624767 -0800 PST m=+0.035208922",
+      "lastErrorTime": "",
+      "state": "success",
+      "logFilePath": "logs/2020-11-04--15-08-12.617-10-install-step2.log"
+    }
+  },
+  "generated/symphony-module/20-validate": {
+    "validate.sh": {
+      "startTime": "2020-11-04T15:08:12.625411-08:00",
+      "timeTaken": "7.542653ms",
+      "lastSuccessTime": "2020-11-04 15:08:12.632945 -0800 PST m=+0.043386468",
+      "lastErrorTime": "",
+      "state": "success",
+      "logFilePath": "logs/2020-11-04--15-08-12.625-validate.log"
+    }
+  },
+  "generated/symphony-module/30-uninstall": {
+    "uninstall.sh": {
+      "startTime": "2020-11-04T15:08:12.633649-08:00",
+      "timeTaken": "8.040003ms",
+      "lastSuccessTime": "2020-11-04 15:08:12.641679 -0800 PST m=+0.052120673",
+      "lastErrorTime": "",
+      "state": "success",
+      "logFilePath": "logs/2020-11-04--15-08-12.633-uninstall.log"
+    }
+  }
+}
+```
+
 ### UI
 
-_Coming soon_
+_Under development by Tosha Kamath_
 
 ## Helpful resources
 
