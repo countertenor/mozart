@@ -134,6 +134,7 @@ echo hello world
 #### 4. Build the binary
 
 `make build` -> for Darwin (Mac)
+
 `make build-linux` -> for Linux
 
 Voila! You have a single orchestrator binary with all your scripts in it.
