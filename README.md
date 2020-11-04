@@ -62,7 +62,7 @@ Let us walk through how to actually add your scripts. There is one term that is 
 
 **Modules**
 
-Mozart works with the concept of modules and not the scripts directly. Modules are nothing but directories, created with the intention of performing 1 simple task. Each module (or directory) can consist of either scripts or more nested modules (nested directories).
+Mozart works with the concept of modules and not the scripts directly. Modules are nothing but directories, created with the intention of performing 1 simple task. Each module (aka directory) can consist of either scripts or more nested modules (nested directories).
 
 So in short, all your scripts need to be in a module, and Mozart will help you control the execution of those modules (instead of the scripts themselves).
 
@@ -75,7 +75,7 @@ There is already a sample module present called `test-module` under `resources/t
 #### 1. Initial setup
 
 1. Clone the repo
-1. Create a new directory inside `resources/templates`. This will be the base directory under which all your modules will exist.
+1. Create a new directory inside `resources/templates`. This will be the base module under which all your modules will exist.
 
 #### 2. Modularize
 
@@ -90,15 +90,15 @@ There is already a sample module present called `test-module` under `resources/t
 
 ```
 resources/templates
-├── symphony                    (this is the base directory)
-│   ├── 00-pre-req              (first module)
+├── symphony                    (this is the base module)
+│   ├── 00-pre-req              (first sub-module)
 │   │   └── pre-req.sh
-│   ├── 10-install              (second module)
+│   ├── 10-install              (second sub-module)
 │   │   ├── 00-install-step1.sh
 │   │   └── 10-install-step2.sh
-│   ├── 20-validate             (third module)
+│   ├── 20-validate             (third sub-module)
 │   │   └── validate.sh
-│   └── 30-uninstall            (fourth module)
+│   └── 30-uninstall            (fourth sub-module)
 │       └── uninstall.sh
 ```
 
