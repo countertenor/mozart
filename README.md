@@ -33,7 +33,7 @@ Mozart is a simple utility to convert your independent, messy bunch of scripts i
 
 ## What exactly does an orchestrator do?
 
-Good question. Simply speaking, an orchestrator manages execution of all of your scripts.
+Simply speaking, an orchestrator manages execution of all of your scripts.
 
 Suppose you had 2 bash scripts which let you install and uninstall a particular component respectively. Without an orchestrator:
 
