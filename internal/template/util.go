@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 	"text/template"
@@ -22,10 +21,10 @@ type templateInstance struct {
 }
 
 //Generate conf files based on input yaml
-func Generate(conf map[string]interface{}, dirToGenerate, templateDir, templateFileExt, generatedFileExt, generatedDir string) error {
+func Generate(conf map[string]interface{}, dirToGenerate, templateDir, generatedDir string) error {
 	fmt.Println("")
 
-	templatesToGenerate, err := getTemplatesToGenerate(dirToGenerate, templateDir, templateFileExt, generatedFileExt)
+	templatesToGenerate, err := getTemplatesToGenerate(dirToGenerate, templateDir)
 	if err != nil {
 		return err
 	}
@@ -53,7 +52,7 @@ func Generate(conf map[string]interface{}, dirToGenerate, templateDir, templateF
 	return nil
 }
 
-func getTemplatesToGenerate(dirToGenerate, templateDir, templateFileExt, scriptFileExt string) ([]templateInstance, error) {
+func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstance, error) {
 	var templates []templateInstance
 
 	statikFS, err := statik.GetStaticFS(statik.Template)
@@ -66,12 +65,12 @@ func getTemplatesToGenerate(dirToGenerate, templateDir, templateFileExt, scriptF
 			return err
 		}
 
-		if filepath.Ext(path) == templateFileExt {
+		if !info.IsDir() {
 			fileName := info.Name()
-			scriptFileName := strings.TrimPrefix(path, templateDir)
+			fileExt := fileName[strings.LastIndex(fileName, "."):]
 			templateInstance := templateInstance{
-				scriptName:       strings.TrimSuffix(fileName, templateFileExt),
-				scriptFileName:   strings.TrimSuffix(scriptFileName, templateFileExt) + scriptFileExt,
+				scriptName:       strings.TrimSuffix(fileName, fileExt),
+				scriptFileName:   strings.TrimPrefix(path, templateDir),
 				templateFileName: path,
 			}
 			templates = append(templates, templateInstance)

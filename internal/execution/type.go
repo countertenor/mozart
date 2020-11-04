@@ -34,18 +34,15 @@ type FileExecStatus struct {
 
 //Instance is the main struct for execution configs
 type Instance struct {
-	OS                string
-	ExecutionSource   string
-	ExecFileExtension string
-	DryRunEnabled     bool
-	ReRun             bool
-	LogDir            string
-	GeneratedDir      string
-	TemplateDir       string
-	Error             error
-	DoRunParallel     bool
-	WaitGroup         *sync.WaitGroup
-	TimeoutInterval   time.Duration
+	DryRunEnabled   bool
+	ReRun           bool
+	LogDir          string
+	GeneratedDir    string
+	TemplateDir     string
+	Error           error
+	DoRunParallel   bool
+	WaitGroup       *sync.WaitGroup
+	TimeoutInterval time.Duration
 	State
 }
 

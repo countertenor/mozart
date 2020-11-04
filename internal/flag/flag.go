@@ -6,9 +6,6 @@ import (
 
 //Constant flags used in CLI
 const (
-	OS                = "os"
-	ExecutionSource   = "source"
-	ExecFileExtension = "ext"
 	DoRunParallel     = "parallel"
 	NoGenerate        = "no-generate"
 	ReRun             = "re-run"
@@ -25,9 +22,6 @@ func Init(flags *pflag.FlagSet) {
 	AddReRunFlag(flags)
 	AddNoGenFlag(flags)
 	AddRunParFlag(flags)
-	AddOSFlag(flags)
-	AddExecSourceFlag(flags)
-	AddExecFileExtFlag(flags)
 }
 
 //AddVerboseFlag flag
@@ -58,19 +52,4 @@ func AddNoGenFlag(flags *pflag.FlagSet) {
 //AddRunParFlag flag
 func AddRunParFlag(flags *pflag.FlagSet) {
 	flags.BoolP(DoRunParallel, "p", false, "(optional) Run all scripts in parallel")
-}
-
-//AddOSFlag flag
-func AddOSFlag(flags *pflag.FlagSet) {
-	flags.StringP(OS, "o", "darwin", "(optional) OS on which scripts are allowed to run")
-}
-
-//AddExecSourceFlag flag
-func AddExecSourceFlag(flags *pflag.FlagSet) {
-	flags.StringP(ExecutionSource, "s", "bash", "(optional) Execution source to use [Bash|Python|...]")
-}
-
-//AddExecFileExtFlag flag
-func AddExecFileExtFlag(flags *pflag.FlagSet) {
-	flags.StringP(ExecFileExtension, "x", "sh", "(optional) Extension for execution files [sh|py|...]")
 }
