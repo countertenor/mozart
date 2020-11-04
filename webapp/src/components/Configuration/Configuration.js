@@ -16,12 +16,12 @@ import {
 } from "carbon-components-react";
 import axios from "axios";
 
-export default function Configuration() {
+export default function Configuration(props) {
   let history = useHistory();
-  const routeChange = () =>{ 
-    let path = `/status`; 
-    history.push(path);
-  }
+  // const routeChange = () =>{ 
+  //   let path = `/status`; 
+  //   history.push(path);
+  // }
   const allSourceFileTypes = ["Bash", "Python"];
   const allOS = ["Darwin", "Linux"];
   const allTypesOfModules = ["existing", "new"];
@@ -34,7 +34,7 @@ export default function Configuration() {
   let [typeOfModule, setTypeOfModule] = useState(allTypesOfModules[0])
 
   let [modules, setModules] = useState([""]);
-  let [selectedModule, setSelectedModule] = useState(modules.length > 0 ? [modules[0]] : [""]);
+  let [selectedModule, setSelectedModule] = useState(modules.length > 0 ? [modules[0]] : []);
   const [newModuleName, setNewModuleName] = useState("");
 
   let [dryRun, setDryRun] = useState(false);
@@ -49,7 +49,13 @@ export default function Configuration() {
     invalidText: "This value cannot be empty. You must enter a valid json object here.",
   };
 
+  const propsForModuleName = {
+    invalid: true,
+    invalidText: "This value cannot be empty. The module list is not populated. Refresh the page. If issue persists please contact Mozart team.",
+  };
+
   let [validateTextArea, setValidateTextArea] = useState(false);
+  let [validateModuleList, setModuleList] = useState(false);
 
   //   const updateFieldChanged = e => {
   //     console.log("hey: ",items);
@@ -78,25 +84,29 @@ export default function Configuration() {
     ) {
       console.log("ERROR!");
       setValidateTextArea(true);
-    } else {
+    } 
+    if(selectedModule.length <= 1){
+      console.log("ERROR!", selectedModule.length);
+      setModuleList(true)
+    }
+    else {
       setValidateTextArea(false);
+      setModuleList(false)
       jsonObject = JSON.parse(jsonObject || "{}");
       let moduleName =
         selectedModule.length > 0 ? selectedModule : newModuleName;
-
       const dataBodyObj = {
         moduleName: moduleName,
         os: os,
       };
       const queryParamsObj = {
         "re-run": reRun,
-        // "dry-run": dryRun,
         parallel: parallel,
         source: source.toLowerCase(),
       };
 
-      console.log(dataBodyObj);
-      console.log(queryParamsObj);
+      console.log("dataBodyObj: ", dataBodyObj);
+      console.log("queryParamsObj: ",queryParamsObj);
 
       let data = {};
       if (Object.keys(jsonObject).length === 0) {
@@ -120,10 +130,11 @@ export default function Configuration() {
               // `http://localhost:8080/api/v1/execute?re-run=${reRun}&conf=${configFileName}&parallel=${parallel}&source=${source.toLowerCase()}`,
               `http://localhost:8080/api/v1/execute?re-run=${reRun}&parallel=${parallel}&source=${source.toLowerCase()}`,
               dataBodyObj
-            )
+              )
             .then((res) => {
               console.log("response2222: ", res.data);
-              routeChange()
+              // routeChange()
+              props.switchActiveTab("execution")
             })
             .catch((err) => {
               console.log(err);
@@ -239,6 +250,7 @@ export default function Configuration() {
                 onChange={(e) => {
                   setSelectedModule(e.selectedItem);
                 }}
+                {...validateModuleList ===true ? {...propsForModuleName} : ""}
               />
             </FormGroup>
           {/* ) : ( */}
