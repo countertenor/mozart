@@ -18,11 +18,11 @@ Mozart is a simple utility to convert your independent, messy bunch of scripts i
     - [2. Modularize](#2-modularize)
     - [3. (Optional) Use templating](#3-optional-use-templating)
     - [4. Build the binary](#4-build-the-binary)
-  - [CLI](#cli)
-    - [Mozart commands](#mozart-commands)
-    - [Executing modules](#executing-modules)
-    - [Checking the state](#checking-the-state)
-  - [UI](#ui)
+- [CLI](#cli)
+  - [Mozart commands](#mozart-commands)
+  - [Executing modules](#executing-modules)
+  - [Checking the state](#checking-the-state)
+- [UI](#ui)
 - [Helpful resources](#helpful-resources)
   - [Good links for templating](#good-links-for-templating)
   - [Bash scripts through go](#bash-scripts-through-go)
@@ -149,8 +149,8 @@ Voila! You have a single orchestrator binary with all your scripts in it.
   --json                (gives output in JSON)
 
 Global flags
-  -c           (configuration file, defaults to 'mozart-sample.yaml')
-  -v           (prints verbosely, useful for debugging)
+  -c                  (configuration file, defaults to 'mozart-sample.yaml')
+  -v                  (prints verbosely, useful for debugging)
   -d, --dry-run       (optional) shows what scripts will run, but does not run the scripts
   -n, --no-generate   (optional) do not generate bash scripts as part of execution, instead use the ones in generated folder. Useful for running local change to the scripts
   -r, --re-run        (optional) re-run script from initial state, ignoring previously saved state
