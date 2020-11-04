@@ -4,13 +4,14 @@ An orchestrator for scripts. (Python and Bash scripts supported for now).
 
 Mozart is a simple utility to convert your independent, messy bunch of scripts into a well defined, orchestrated program!
 
+**Note:** No Golang code changes required, it is a simple drop-in type utility for your scripts.
+
 <!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
 
 <!-- code_chunk_output -->
 
 - [What exactly does an orchestrator do?](#what-exactly-does-an-orchestrator-do)
 - [Benefits of using Mozart](#benefits-of-using-mozart)
-- [Easy steps to migrate to Mozart](#easy-steps-to-migrate-to-mozart)
 - [Using your scripts with Mozart](#using-your-scripts-with-mozart)
   - [Steps](#steps)
     - [1. Initial setup](#1-initial-setup)
