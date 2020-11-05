@@ -43,6 +43,7 @@ Suppose you had 2 bash scripts which let you install and uninstall a particular 
 1. You would have to ship both files to anyone who wants to use them. (imagine if you had 10 scripts, you would have to tar them up and send all).
 1. If running on a shared system, you can never know if another person already ran the install script (unless actually going through the effort of seeing if the component was actually installed).
 1. No way of using common variables across the scripts (like version of the component being managed).
+1. No way for one developer to look at the logs of a script executed by a second developer (unless the second developer explicitly routes the logs to an external file).
 1. No way of accidentally preventing execution of a script more than once (like prevent install script from running again if it already ran once).
 1. Manually execute each script through bash or python (no CLI or UI)
 
@@ -53,6 +54,7 @@ Suppose you had 2 bash scripts which let you install and uninstall a particular 
 - Lets you `modularize` the scripts, which means you can have more number of smaller scripts which do smaller tasks. No need to maintain huge bash files anymore. The smaller the scripts - the easier it is for you to manage and maintain them.
 - Ability to use `templating` capabilities - similar to helm. Values in the yaml file are accessible by all scripts.
 - `Public visibility of the state` of execution of scripts, so everyone has a clear idea of whether scripts were executed or not.
+- `Central logs` for everyone to see.
 - Make sure scripts are `executed just once` - the orchestrator will not allow you to run the same script again without explicitely mentioning a `Re-Run` flag, thereby preventing accidental execution of the same script.
 - Ready to use `CLI + UI` to manage the execution.
 
