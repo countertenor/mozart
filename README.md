@@ -242,7 +242,11 @@ State: {
 
 ## UI
 
-_Under development by Tosha Kamath_
+_Under development by Tosha Kamath_.
+
+A sample UI wireframe:
+
+![](https://user-images.githubusercontent.com/36335212/97355431-214dd300-1854-11eb-9103-0a39fcf3cf87.png)
 
 ## Helpful resources
 
