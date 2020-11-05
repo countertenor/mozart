@@ -163,12 +163,12 @@ export default function Configuration(props) {
   }, []);
 
   return (
-    <div style={{ marginLeft: "10%", width: "80%" }}>
-      <div style={{ marginBottom: "2%", marginTop: "2%", textAlign: "center" }}>
+    <div>
+      <div style={{ marginBottom: "2%", marginTop: "2%" }}>
         {/* <h1>Mozart</h1> */}
         {/* <p>Subtext goes here</p> */}
       </div>
-      <div>
+      <div style={{backgroundColor: "#f4f4f4", minWidth:"8rem", minHeight:"4rem", padding: "1.625rem 1.625rem 2.125rem 1.625rem"}}>
         <Form>
           {/* <FormGroup>
             <FormLabel>
