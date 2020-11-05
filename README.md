@@ -6,10 +6,13 @@ Mozart is a simple utility to convert your independent, messy bunch of scripts i
 
 **Note:** No Golang code changes required, it is a simple drop-in type utility for your scripts.
 
+## Table of Contents
+
 <!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
 
 <!-- code_chunk_output -->
 
+- [Table of Contents](#table-of-contents)
 - [What exactly does an orchestrator do?](#what-exactly-does-an-orchestrator-do)
   - [Life without an orchestrator](#life-without-an-orchestrator)
   - [Benefits of using Mozart](#benefits-of-using-mozart)
@@ -80,7 +83,7 @@ There is already a sample module present called `test-module` under `resources/t
 
 #### 1. Initial setup
 
-1. Clone the repo
+1. Clone the repo.
 1. Create a new directory inside `resources/templates`. This will be the base module under which all your modules will exist.
 
 #### 2. Modularize
