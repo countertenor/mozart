@@ -42,6 +42,7 @@ Suppose you had 2 bash scripts which let you install and uninstall a particular 
 
 1. You would have to ship both files to anyone who wants to use them. (imagine if you had 10 scripts, you would have to tar them up and send all).
 1. If running on a shared system, you can never know if another person already ran the install script (unless actually going through the effort of seeing if the component was actually installed).
+1. Tendency to use a single huge script which handles all functionality. Breaking it down into multiple smaller scripts makes it easy to manage the code but it becomes harder to manage execution of all scripts.
 1. No way of using common variables across the scripts (like version of the component being managed).
 1. No way for one developer to look at the logs of a script executed by a second developer (unless the second developer explicitly routes the logs to an external file).
 1. No way of accidentally preventing execution of a script more than once (like prevent install script from running again if it already ran once).
