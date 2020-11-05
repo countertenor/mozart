@@ -14,11 +14,12 @@ export default function TabView (){
   let switchActiveTab = (tab) => {
     if(tab == "execution" || tab == "configuration"){
       setActiveTab(tab)
+      console.log("heyyyyyy: ", tab)
     }
     else{
       setActiveTab(tab.target.value);
+      console.log("heyyyyyy: ", tab.target.value)
     }
-    console.log("heyyyyyy: ", tab.target.value)
   };
 
   const [notification, notificationDispatch] = useReducer(NOTIFICATION_REDUCER, NOTIFICATION_INIT);
