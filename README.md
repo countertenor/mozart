@@ -11,7 +11,8 @@ Mozart is a simple utility to convert your independent, messy bunch of scripts i
 <!-- code_chunk_output -->
 
 - [What exactly does an orchestrator do?](#what-exactly-does-an-orchestrator-do)
-- [Benefits of using Mozart](#benefits-of-using-mozart)
+  - [Life without an orchestrator](#life-without-an-orchestrator)
+  - [Benefits of using Mozart](#benefits-of-using-mozart)
 - [Using your scripts with Mozart](#using-your-scripts-with-mozart)
   - [Steps](#steps)
     - [1. Initial setup](#1-initial-setup)
@@ -50,7 +51,7 @@ Suppose you had 2 bash scripts which let you install and uninstall a particular 
 1. No way of accidentally preventing execution of a script more than once (like prevent install script from running again if it already ran once).
 1. Manually execute each script through bash or python (no CLI or UI)
 
-## Benefits of using Mozart
+### Benefits of using Mozart
 
 1. Simple migration to Mozart - `no Go code change necessary`. Just create a directory and dump your scripts in that - it's that easy. (Discussed in detail below)
 1. `Single binary` which contains all your scripts 1. so no need to send in bunch of scripts to anyone anymore.
