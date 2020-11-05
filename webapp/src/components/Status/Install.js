@@ -239,7 +239,7 @@ export default function Install({ notificationDispatch, uninstall }) {
   );
 
   return (
-    <div style={{ marginLeft: "10%" }}>
+    <div style={{ marginBottom: "2%", marginTop: "2%"}}>
       <Tile className={styles.Install}>
         {curStatus === "loading" ? (
           <>
