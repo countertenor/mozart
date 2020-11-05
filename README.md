@@ -49,14 +49,14 @@ Suppose you had 2 bash scripts which let you install and uninstall a particular 
 
 ## Benefits of using Mozart
 
-- Simple migration to Mozart - `no Go code change necessary`. Just create a directory and dump your scripts in that - it's that easy. (Discussed in detail below)
-- `Single binary` which contains all your scripts - so no need to send in bunch of scripts to anyone anymore.
-- Lets you `modularize` the scripts, which means you can have more number of smaller scripts which do smaller tasks. No need to maintain huge bash files anymore. The smaller the scripts - the easier it is for you to manage and maintain them.
-- Ability to use `templating` capabilities - similar to helm. Values in the yaml file are accessible by all scripts.
-- `Public visibility of the state` of execution of scripts, so everyone has a clear idea of whether scripts were executed or not.
-- `Central logs` for everyone to see.
-- Make sure scripts are `executed just once` - the orchestrator will not allow you to run the same script again without explicitely mentioning a `Re-Run` flag, thereby preventing accidental execution of the same script.
-- Ready to use `CLI + UI` to manage the execution.
+1. Simple migration to Mozart - `no Go code change necessary`. Just create a directory and dump your scripts in that - it's that easy. (Discussed in detail below)
+1. `Single binary` which contains all your scripts 1. so no need to send in bunch of scripts to anyone anymore.
+1. Lets you `modularize` the scripts, which means you can have more number of smaller scripts which do smaller tasks. No need to maintain huge bash files anymore. The smaller the scripts - the easier it is for you to manage and maintain them.
+1. Ability to use `templating` capabilities - similar to helm. Values in the yaml file are accessible by all scripts.
+1. `Public visibility of the state` of execution of scripts, so everyone has a clear idea of whether scripts were executed or not.
+1. `Central logs` for everyone to see.
+1. Make sure scripts are `executed just once` - the orchestrator will not allow you to run the same script again without explicitely mentioning a `Re-Run` flag, thereby preventing accidental execution of the same script.
+1. Ready to use `CLI + UI` to manage the execution.
 
 ## Using your scripts with Mozart
 
