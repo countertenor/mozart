@@ -38,6 +38,8 @@ Mozart is a simple utility to convert your independent, messy bunch of scripts i
 
 Simply speaking, an orchestrator manages execution of all of your scripts.
 
+### Life without an orchestrator
+
 Suppose you had 2 bash scripts which let you install and uninstall a particular component respectively. Without an orchestrator:
 
 1. You would have to ship both files to anyone who wants to use them. (imagine if you had 10 scripts, you would have to tar them up and send all).
