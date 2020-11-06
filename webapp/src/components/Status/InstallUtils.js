@@ -18,7 +18,7 @@ export function getStatus(callback) { // eslint-disable-line
 
 export function setupWS(fp, callback) { // Expect this to be called multiple times
   if (window.WebSocket) {
-    const conn = new WebSocket(`ws://127.0.0.1:8080/ws?filename=${fp}`);
+    const conn = new WebSocket(`/api/v1/ws://127.0.0.1:8080/ws?filename=${fp}`);
     conn.onmessage = (evt) => {
       console.log(evt.data);
       callback(null, evt.data);
