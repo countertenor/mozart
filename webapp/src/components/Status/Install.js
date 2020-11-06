@@ -37,7 +37,7 @@ LogModal.propTypes = {
 };
 
 function Task({
-  duration, taskName, state, openLogModal
+  duration, taskName, state, openLogModal, logFilePath
 }) {
   let statusIcon = null;
   switch (state) {
@@ -72,6 +72,7 @@ function Task({
     <li className={styles.Task}>
       <div className={styles.statusMsg}>
         <p>{taskName}</p>
+        <p>{logFilePath}</p>
         {duration && <p>{`Completion time: ${duration} minutes.`}</p>}
       </div>
       {statusIcon}
@@ -90,6 +91,7 @@ function Task({
 Task.propTypes = {
   duration: PropTypes.number.isRequired,
   taskName: PropTypes.string.isRequired,
+  logFilePath: PropTypes.string.isRequired,
   state: PropTypes.string.isRequired,
   openLogModal: PropTypes.func.isRequired
 };
@@ -100,13 +102,16 @@ export default function Install({ notificationDispatch, uninstall }) {
   const history = useHistory();
   const { provider } = useParams();
   const [steps, setSteps] = useState([]);
+  // steps is an array of objects with keys directory, module, tasks
+  // tasks is an array of objects with keys taskName and status
   const [curStatus, setCurStatus] = useState('loading');
   const [logModalIsOpen, setLogModalIsOpen] = useState(false);
   const [logSocket, setLogSocket] = useState(null);
 
   const openLogModal = useCallback((logFilePath) => {
     // TODO: Change the path to passed in
-    const socket = setupWS('/Users/aaronleong/Desktop/projects/yellowstone_webapp/test_log.txt', (err, streamData) => {
+    console.log("logFilePath: ≥≥≥", logFilePath);
+    const socket = setupWS(`/Users/tosha.kamath@ibm.com/IBM/new/mozart/webapp/test_log.txt`, (err, streamData) => {
       if (err) {
         return console.log('Handle error TODO');
       }
@@ -258,6 +263,7 @@ export default function Install({ notificationDispatch, uninstall }) {
                       <Task
                         duration="TODO"
                         taskName={task.taskName}
+                        logFilePath={task.status.logFilePath}
                         state={task.status.state}
                         openLogModal={openLogModal}
                         closeLogModal={closeLogModal}
