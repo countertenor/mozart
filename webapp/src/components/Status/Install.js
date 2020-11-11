@@ -1,15 +1,12 @@
-// In renderer process (web page).
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory, useParams } from 'react-router-dom';
-// import { ipcRenderer, shell } from 'electron';
 import {
   Button, CodeSnippet, InlineLoading, Loading, Modal, Tile
 } from 'carbon-components-react';
 import { CheckmarkFilled16, Misuse16, View16 } from '@carbon/icons-react';
 import styles from './Install.module.scss';
 import { getStatus, setupWS } from './InstallUtils';
-// import { getProvisioningStatus, restartProvision, restartUninstall } from '../../utils/installer-utils';
 
 function LogModal({ onRequestClose, open, log }) {
   return (
@@ -71,8 +68,8 @@ function Task({
   return (
     <li className={styles.Task}>
       <div className={styles.statusMsg}>
-        <p>{taskName}</p>
-        <p>{logFilePath}</p>
+        <p>{taskName}</p>   {/*steps*/}
+        {/* <p>{logFilePath}</p> */}
         {duration && <p>{`Completion time: ${duration} minutes.`}</p>}
       </div>
       {statusIcon}
@@ -82,7 +79,7 @@ function Task({
         kind="ghost"
         iconDescription="View logs"
         tooltipPosition="top"
-        onClick={() => openLogModal(taskName)}
+        onClick={() => openLogModal(logFilePath)}
       />
     </li>
   );
@@ -102,6 +99,9 @@ export default function Install({ notificationDispatch, uninstall }) {
   const history = useHistory();
   const { provider } = useParams();
   const [steps, setSteps] = useState([]);
+  
+  const [totalStepsCount, setTotalNumberOfSteps] = useState({});
+  
   // steps is an array of objects with keys directory, module, tasks
   // tasks is an array of objects with keys taskName and status
   const [curStatus, setCurStatus] = useState('loading');
@@ -110,8 +110,8 @@ export default function Install({ notificationDispatch, uninstall }) {
 
   const openLogModal = useCallback((logFilePath) => {
     // TODO: Change the path to passed in
-    console.log("logFilePath: ≥≥≥", logFilePath);
-    const socket = setupWS(`/Users/tosha.kamath@ibm.com/IBM/new/mozart/webapp/test_log.txt`, (err, streamData) => {
+    console.log(`logFilePath: ≥≥≥ ${__filename}`);
+    const socket = setupWS(`/Users/tosha.kamath@ibm.com/IBM/new/mozart/${logFilePath}`, (err, streamData) => {
       if (err) {
         return console.log('Handle error TODO');
       }
@@ -144,6 +144,7 @@ export default function Install({ notificationDispatch, uninstall }) {
   }, []);
 
   const getData = useCallback(async () => {
+    let obj ={}
     getStatus((err, data) => {
       if (err) {
         notificationDispatch({
@@ -157,7 +158,19 @@ export default function Install({ notificationDispatch, uninstall }) {
         });
       }
       setSteps((data||{}).steps||[]);
+      console.log("hello",(data||{}).steps||[])
       setCurStatus(''); // TODO: Figure out
+      ((data||{}).steps||[]).map( e => {
+        let module = e.module
+        let count = e.tasks.length
+        console.log(module, " : ", count)
+        obj = {...obj,
+          [module]: count
+        }
+      })
+      setTotalNumberOfSteps(
+        obj
+      );
     });
     // switch (resCurStatus) {
     // case 'complete':
@@ -232,7 +245,7 @@ export default function Install({ notificationDispatch, uninstall }) {
   // }, [uninstall, setStatusInterval, getData, notificationDispatch, provider]);
 
   useEffect(() => {
-    getData();
+    getData();        //gets data.steps array of tasks
     setStatusInterval();
     return clearStatusInterval;
   }, []); // eslint-disable-line
@@ -257,7 +270,7 @@ export default function Install({ notificationDispatch, uninstall }) {
             {steps.map((module) => {
               return (
                 <div key={module.module} className={styles.module}>
-                  <h3>{module.module}</h3>
+                  <h3>{module.module} {totalStepsCount[module.module]}</h3>    {/**add percent here */}
                   {module.tasks.map((task) => (
                     <ul className={styles.loadersHolder} key={task.taskName}>
                       <Task
