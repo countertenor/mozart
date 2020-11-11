@@ -92,7 +92,7 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 
 	logFile, logfilePath, err := createLogFile(filename, i.LogDir)
 	if err != nil {
-		i.updateErrorState(fullDirPath, filename, logFile.Name())
+		i.updateErrorState(fullDirPath, filename, logfilePath)
 		return err
 	}
 	defer logFile.Close()
@@ -123,7 +123,7 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	}
 	i.PrintSeparator()
 	fmt.Printf("File ran successfully : %v\n", filename)
-	i.updateSuccessState(fullDirPath, filename, logFile.Name())
+	i.updateSuccessState(fullDirPath, filename, logfilePath)
 	return nil
 }
 
