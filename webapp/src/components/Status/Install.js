@@ -100,7 +100,11 @@ export default function Install(props, { notificationDispatch, uninstall }) {
   const history = useHistory();
   const { provider } = useParams();
   const [steps, setSteps] = useState([]);
-
+  let stringPrint=" - "
+  for(let i=0; i<55; i++){
+    stringPrint+=" - "
+  }
+  const [print] = useState(stringPrint)
   const [percentage, setPercentage] = useState({});
   // const [totalStepsCount, setTotalNumberOfSteps] = useState({});
   
@@ -299,7 +303,7 @@ export default function Install(props, { notificationDispatch, uninstall }) {
               {steps.map((module) => {
                 return (
                   <div key={module.module} className={styles.module}>
-                    <AccordionItem title= {module.module+" - - - - - - - - - - - - - - - - - - - - - - - - - - - "+percentage[module.module]+"% complete"}>
+                    <AccordionItem title= {module.module+print+percentage[module.module]+"% complete"}>
                       {/* <p>{totalStepsCount[module.module]}</p> */}
                       {module.tasks.map((task) => (
                         <ul
