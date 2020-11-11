@@ -48,7 +48,7 @@ export default function TabView (){
           {activeTab === "configuration" ? (
             <Configuration switchActiveTab={switchActiveTab} />
           ) : activeTab === "execution" ? (
-            <Execution notificationDispatch={notificationDispatch} />
+            <Execution notificationDispatch={notificationDispatch} switchActiveTab={switchActiveTab} />
           ) : (
             <div></div>
           )}
