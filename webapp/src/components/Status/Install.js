@@ -101,6 +101,7 @@ export default function Install(props, { notificationDispatch, uninstall }) {
   const history = useHistory();
   const { provider } = useParams();
   const [steps, setSteps] = useState([]);
+  const [state, setState] = useState("");
   let stringPrint=" - "
   for(let i=0; i<55; i++){
     stringPrint+=" - "
@@ -166,6 +167,7 @@ export default function Install(props, { notificationDispatch, uninstall }) {
         });
       }
       setSteps((data||{}).steps||[]);
+      setState((data||{}).state||"")
       console.log("hello",(data||{}).steps||[])
       setCurStatus(''); // TODO: Figure out
       ((data||{}).steps||[]).map( e => {
@@ -284,9 +286,9 @@ export default function Install(props, { notificationDispatch, uninstall }) {
   }, []); // eslint-disable-line
 
   const header = (
-    <h1>
-      Deploying configuration
-    </h1>
+    <h6>
+      Status: {state}
+    </h6>
   );
 
   return (
@@ -294,12 +296,12 @@ export default function Install(props, { notificationDispatch, uninstall }) {
       <Tile className={styles.Install}>
         {curStatus === "loading" ? (
           <>
-            {/* {header} */}
+            {header}
             <Loading active small={false} />
           </>
         ) : (
           <>
-            {/* {header} */}
+            {header}
             <Accordion size="xl" align="start">
               {steps.map((module) => {
                 return (
