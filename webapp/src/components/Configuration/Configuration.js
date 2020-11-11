@@ -196,6 +196,7 @@ export default function Configuration(props) {
             </Tooltip>
             <TextArea
               placeholder="Paste JSON here or upload json file"
+              defaultValue="{}"
               onChange={(e) => {
                 setJsonObject(e.target.value);
               }}
