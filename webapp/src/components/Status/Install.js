@@ -91,17 +91,18 @@ Task.propTypes = {
   taskName: PropTypes.string.isRequired,
   logFilePath: PropTypes.string.isRequired,
   state: PropTypes.string.isRequired,
-  openLogModal: PropTypes.func.isRequired
+  openLogModal: PropTypes.func.isRequired,
 };
 
-export default function Install({ notificationDispatch, uninstall }) {
+export default function Install(props, { notificationDispatch, uninstall }) {
   const intervalRef = useRef(null);
   const logRef = useRef('');
   const history = useHistory();
   const { provider } = useParams();
   const [steps, setSteps] = useState([]);
-  
-  const [totalStepsCount, setTotalNumberOfSteps] = useState({});
+
+  const [percentage, setPercentage] = useState({});
+  // const [totalStepsCount, setTotalNumberOfSteps] = useState({});
   
   // steps is an array of objects with keys directory, module, tasks
   // tasks is an array of objects with keys taskName and status
@@ -145,7 +146,8 @@ export default function Install({ notificationDispatch, uninstall }) {
   }, []);
 
   const getData = useCallback(async () => {
-    let obj ={}
+    // let obj ={};
+    let countObj={}
     getStatus((err, data) => {
       if (err) {
         notificationDispatch({
@@ -162,16 +164,26 @@ export default function Install({ notificationDispatch, uninstall }) {
       console.log("hello",(data||{}).steps||[])
       setCurStatus(''); // TODO: Figure out
       ((data||{}).steps||[]).map( e => {
-        let module = e.module
-        let count = e.tasks.length
-        console.log(module, " : ", count)
-        obj = {...obj,
-          [module]: count
+
+        // obj = {...obj,
+        //   [e.module]: e.tasks.length
+        // }
+        countObj = {...countObj,
+            [e.module]: 0
         }
+        let count = 0;
+        e.tasks.map(item =>{
+
+          if(item.status.state === "success"){
+            countObj = {...countObj,
+              [e.module]: ++count * 100/e.tasks.length
+            }
+          }
+          
+        })
       })
-      setTotalNumberOfSteps(
-        obj
-      );
+      setPercentage(countObj);
+      // setTotalNumberOfSteps(obj);
     });
     // switch (resCurStatus) {
     // case 'complete':
@@ -214,7 +226,8 @@ export default function Install({ notificationDispatch, uninstall }) {
 
 
   const cancel = (e) =>{
-    console.log("Cancel pressed!")
+    console.log("Cancel pressed!", props)
+    props.switchActiveTab("configuration")
     // e.preventDefault();
     // axios
     // .put(`http://localhost:8080/api/v1/cancel`)
@@ -282,12 +295,12 @@ export default function Install({ notificationDispatch, uninstall }) {
         ) : (
           <>
             {/* {header} */}
-            <Accordion align="end">
+            <Accordion size="xl" align="start">
               {steps.map((module) => {
                 return (
                   <div key={module.module} className={styles.module}>
-                    <AccordionItem title={module.module}>
-                      {/* <h3>{module.module} {totalStepsCount[module.module]}</h3> */}
+                    <AccordionItem title= {module.module+" - - - - - - - - - - - - - - - - - - - - - - - - - - - "+percentage[module.module]+"% complete"}>
+                      {/* <p>{totalStepsCount[module.module]}</p> */}
                       {module.tasks.map((task) => (
                         <ul
                           className={styles.loadersHolder}
