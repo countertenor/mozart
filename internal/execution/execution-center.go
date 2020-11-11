@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -89,7 +90,7 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 
 	command := exec.CommandContext(ctx, getSource(filename), args...)
 
-	logFile, err := createLogFile(filename, i.LogDir)
+	logFile, logfilePath, err := createLogFile(filename, i.LogDir)
 	if err != nil {
 		i.updateErrorState(fullDirPath, filename, logFile.Name())
 		return err
@@ -105,18 +106,18 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		command.Stderr = writeToStdOutputAndFile
 	}
 
-	i.updateRunningStatus(fullDirPath, filename, logFile.Name())
+	i.updateRunningStatus(fullDirPath, filename, logfilePath)
 	err = command.Run()
 	if err != nil {
 		errMessage := ""
 		if ctx.Err() == context.DeadlineExceeded {
-			i.updateTimeoutState(fullDirPath, filename, logFile.Name())
+			i.updateTimeoutState(fullDirPath, filename, logfilePath)
 			errMessage = "script timeout"
 		} else if ctx.Err() == context.Canceled {
-			i.updateCancelState(fullDirPath, filename, logFile.Name())
+			i.updateCancelState(fullDirPath, filename, logfilePath)
 			errMessage = "script canceled"
 		} else {
-			i.updateErrorState(fullDirPath, filename, logFile.Name())
+			i.updateErrorState(fullDirPath, filename, logfilePath)
 		}
 		return fmt.Errorf("error while running script %v, %v, err: %v", filename, errMessage, err)
 	}
@@ -136,23 +137,29 @@ func (i *Instance) StopRunningCmd() {
 	return
 }
 
-func createLogFile(filename, logDir string) (*os.File, error) {
+func createLogFile(filename, logDir string) (*os.File, string, error) {
 
 	//check if log dir exists
 	if _, err := os.Stat(logDir); os.IsNotExist(err) {
 		err := os.MkdirAll(logDir, 0755)
 		if err != nil {
-			return nil, fmt.Errorf("error while creating log dir %v, err : %v", logDir, err)
+			return nil, "", fmt.Errorf("error while creating log dir %v, err : %v", logDir, err)
 		}
 	}
 
 	//create log file
 	timeNow := time.Now().Format("2006-01-02--15-04-05.000")
-	logFile, err := os.Create(logDir + timeNow + "-" + filename[:strings.LastIndex(filename, ".")] + ".log")
+	logfilePath := logDir + timeNow + "-" + filename[:strings.LastIndex(filename, ".")] + ".log"
+
+	absPath, err := filepath.Abs(logfilePath)
 	if err != nil {
-		return nil, fmt.Errorf("cannot write to logfile, err : %v", err)
+		return nil, "", fmt.Errorf("error while getting absolute dir for logfile %v, err : %v", filename, err)
 	}
-	return logFile, nil
+	logFile, err := os.Create(logfilePath)
+	if err != nil {
+		return nil, "", fmt.Errorf("cannot create logfile for %v, err : %v", logfilePath, err)
+	}
+	return logFile, absPath, nil
 }
 
 func getSource(filename string) (source string) {
