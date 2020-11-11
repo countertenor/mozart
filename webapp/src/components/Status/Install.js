@@ -119,7 +119,7 @@ export default function Install(props, { notificationDispatch, uninstall }) {
   const openLogModal = useCallback((logFilePath) => {
     // TODO: Change the path to passed in
     console.log(`logFilePath: ≥≥≥ ${__filename}`);
-    const socket = setupWS(`/Users/tosha.kamath@ibm.com/IBM/new/mozart/${logFilePath}`, (err, streamData) => {
+    const socket = setupWS(`${logFilePath}`, (err, streamData) => {
       if (err) {
         return console.log('Handle error TODO');
       }
