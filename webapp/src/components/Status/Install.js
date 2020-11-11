@@ -183,7 +183,7 @@ export default function Install(props, { notificationDispatch, uninstall }) {
 
           if(item.status.state === "success"){
             countObj = {...countObj,
-              [e.module]: ++count * 100/e.tasks.length
+              [e.module]: Math.trunc(++count * 100/e.tasks.length)
             }
           }
           
