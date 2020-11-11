@@ -2,11 +2,12 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory, useParams } from 'react-router-dom';
 import {
-  Button, CodeSnippet, InlineLoading, Loading, Modal, Tile
+  Button, CodeSnippet, InlineLoading, Loading, Modal, Tile, Accordion, AccordionItem
 } from 'carbon-components-react';
 import { CheckmarkFilled16, Misuse16, View16 } from '@carbon/icons-react';
 import styles from './Install.module.scss';
 import { getStatus, setupWS } from './InstallUtils';
+import axios from "axios";
 
 function LogModal({ onRequestClose, open, log }) {
   return (
@@ -70,7 +71,7 @@ function Task({
       <div className={styles.statusMsg}>
         <p>{taskName}</p>   {/*steps*/}
         {/* <p>{logFilePath}</p> */}
-        {duration && <p>{`Completion time: ${duration} minutes.`}</p>}
+        {/* {duration && <p>{`Completion time: ${duration} minutes.`}</p>} */}
       </div>
       {statusIcon}
       <Button
@@ -211,6 +212,20 @@ export default function Install({ notificationDispatch, uninstall }) {
     // setCurStatus(response.data.status.toLowerCase());
   }, [uninstall, clearStatusInterval, history, notificationDispatch]);
 
+
+  const cancel = (e) =>{
+    console.log("Cancel pressed!")
+    // e.preventDefault();
+    // axios
+    // .put(`http://localhost:8080/api/v1/cancel`)
+    // .then((res) => {
+    //   console.log("response cancel??: ", res.data);
+    // })
+    // .catch((err) => {
+    //   console.log("error cancel",err);
+    // });
+  }
+
   const setStatusInterval = useCallback(() => {
     if (intervalRef.current) {
       // Clear any current status interval if there is one
@@ -257,35 +272,42 @@ export default function Install({ notificationDispatch, uninstall }) {
   );
 
   return (
-    <div style={{ marginBottom: "2%", marginTop: "2%"}}>
+    <div style={{ marginBottom: "2%", marginTop: "2%" }}>
       <Tile className={styles.Install}>
         {curStatus === "loading" ? (
           <>
-            {header}
+            {/* {header} */}
             <Loading active small={false} />
           </>
         ) : (
           <>
-            {header}
-            {steps.map((module) => {
-              return (
-                <div key={module.module} className={styles.module}>
-                  <h3>{module.module} {totalStepsCount[module.module]}</h3>    {/**add percent here */}
-                  {module.tasks.map((task) => (
-                    <ul className={styles.loadersHolder} key={task.taskName}>
-                      <Task
-                        duration="TODO"
-                        taskName={task.taskName}
-                        logFilePath={task.status.logFilePath}
-                        state={task.status.state}
-                        openLogModal={openLogModal}
-                        closeLogModal={closeLogModal}
-                      />
-                    </ul>
-                  ))}
-                </div>
-              );
-            })}
+            {/* {header} */}
+            <Accordion align="end">
+              {steps.map((module) => {
+                return (
+                  <div key={module.module} className={styles.module}>
+                    <AccordionItem title={module.module}>
+                      {/* <h3>{module.module} {totalStepsCount[module.module]}</h3> */}
+                      {module.tasks.map((task) => (
+                        <ul
+                          className={styles.loadersHolder}
+                          key={task.taskName}
+                        >
+                          <Task
+                            duration="TODO"
+                            taskName={task.taskName}
+                            logFilePath={task.status.logFilePath}
+                            state={task.status.state}
+                            openLogModal={openLogModal}
+                            closeLogModal={closeLogModal}
+                          />
+                        </ul>
+                      ))}
+                    </AccordionItem>
+                  </div>
+                );
+              })}
+            </Accordion>
             <br />
             {/* (curStatus === 'failed' || curStatus === 'waiting') && (
             <div id="install-restartPromptHolder" className={styles.restartPromptHolder}>
@@ -315,12 +337,12 @@ export default function Install({ notificationDispatch, uninstall }) {
             </div>
               ) */}
             <div className="ButtonRow">
-              <Button onClick={history.goBack} kind="secondary">
+              <Button onClick={cancel} kind="secondary">
                 Cancel
               </Button>
-              <Button onClick={() => history.push("/enclosureConfig")}>
+              {/* <Button onClick={() => history.push("/enclosureConfig")}>
                 Next
-              </Button>
+              </Button> */}
             </div>
           </>
         )}
