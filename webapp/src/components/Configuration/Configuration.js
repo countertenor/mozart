@@ -13,6 +13,7 @@ import {
   TextArea,
   FileUploader,
   Checkbox,
+  Modal,
 } from "carbon-components-react";
 import axios from "axios";
 
@@ -44,6 +45,9 @@ export default function Configuration(props) {
   let [source, setSourceFileTypes] = useState(allSourceFileTypes[0])
   let [os, setOS] = useState(allOS[0])
 
+  let [networkError, setNetworkError] = useState("");
+  let [openModal, setOpenModal] = useState(false);
+
   const someProps = {
     invalid: true,
     invalidText: "This value cannot be empty. You must enter a valid json object here.",
@@ -74,6 +78,10 @@ export default function Configuration(props) {
 }
 
   const makeSampleAPICall = (e) => {
+    if (networkError.length > 0) {
+      setOpenModal(true);
+    }
+    else{
     e.preventDefault();
     console.log(!jsonFile)
     console.log(Object.keys(jsonObject).length)
@@ -144,6 +152,7 @@ export default function Configuration(props) {
           console.log(err);
         });
     }
+  }
   };
 
   const getModulesAPI = (e) => {
@@ -154,6 +163,7 @@ export default function Configuration(props) {
         setModules(res.data);
       })
       .catch((err) => {
+        setNetworkError("err");
         console.log(err);
       });
   };
@@ -244,10 +254,13 @@ export default function Configuration(props) {
               <Dropdown
                 items={modules}
                 // label="Select an existing module"
-                label={modules[0]}
+                label="Select a module to run"
                 defaultValue={modules[0]}
                 defaultSelected={modules[0]}
                 onChange={(e) => {
+                if (networkError.length > 0) {
+                  setOpenModal(true);
+                }
                   setSelectedModule(e.selectedItem);
                 }}
                 {...validateModuleList ===true ? {...propsForModuleName} : ""}
@@ -291,7 +304,7 @@ export default function Configuration(props) {
               labelText="Re Run"
               id="re-run"
               onClick={(e) => {
-                reRun === false ? setReRun(true) :setReRun(false)
+                reRun === false ? setReRun(true) : setReRun(false);
               }}
             />
           </FormGroup>
@@ -351,6 +364,26 @@ export default function Configuration(props) {
             <Button onClick={makeSampleAPICall}>Deploy</Button>
           </span>
         </div>
+      </div>
+      <div>
+        {openModal === true ? (
+          <div>
+            <Modal
+              className="error-modal"
+              iconDescription="Close"
+              modalHeading="NETWORK ERROR!"
+              onRequestClose={() => {
+                setOpenModal(false);
+              }}
+              open
+              passiveModal
+            >
+              <p>You are not connected to the server!</p>
+            </Modal>
+          </div>
+        ) : (
+          <div></div>
+        )}
       </div>
     </div>
   );
