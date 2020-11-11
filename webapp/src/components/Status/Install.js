@@ -14,6 +14,7 @@ function LogModal({ onRequestClose, open, log }) {
     <Modal
       onRequestClose={onRequestClose}
       passiveModal
+      modalHeading="Logs"
       open={open}
       size="lg"
     >

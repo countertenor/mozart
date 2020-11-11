@@ -19,10 +19,6 @@ import axios from "axios";
 
 export default function Configuration(props) {
   let history = useHistory();
-  // const routeChange = () =>{ 
-  //   let path = `/status`; 
-  //   history.push(path);
-  // }
   const allSourceFileTypes = ["Bash", "Python"];
   const allOS = ["Darwin", "Linux"];
   const allTypesOfModules = ["existing", "new"];
@@ -141,7 +137,6 @@ export default function Configuration(props) {
               )
             .then((res) => {
               console.log("response2222: ", res.data);
-              // routeChange()
               props.switchActiveTab("execution")
             })
             .catch((err) => {
@@ -253,7 +248,6 @@ export default function Configuration(props) {
               </FormLabel>
               <Dropdown
                 items={modules}
-                // label="Select an existing module"
                 label="Select a module to run"
                 defaultValue={modules[0]}
                 defaultSelected={modules[0]}
