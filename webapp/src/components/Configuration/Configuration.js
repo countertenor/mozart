@@ -1,38 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { useHistory } from "react-router-dom";
 import {
   FormLabel,
-  TextInput,
   Tooltip,
   Dropdown,
   Form,
   Button,
-  RadioButton,
-  RadioButtonGroup,
   FormGroup,
   TextArea,
-  FileUploader,
   Checkbox,
   Modal,
 } from "carbon-components-react";
 import axios from "axios";
 
 export default function Configuration(props) {
-  let history = useHistory();
-  const allTypesOfModules = ["existing", "new"];
-
-  let [configFileName, setConfigFileName] = useState("mozart-test.yaml")
-
   let [jsonObject, setJsonObject] = useState("")
-  let [jsonFile, setJsonFile] = useState("")
-
-  let [typeOfModule, setTypeOfModule] = useState(allTypesOfModules[0])
 
   let [modules, setModules] = useState([""]);
-  let [selectedModule, setSelectedModule] = useState(modules.length > 0 ? [modules[0]] : []);
-  const [newModuleName, setNewModuleName] = useState("");
+  let [moduleName, setModuleName] = useState(modules.length > 0 ? [modules[0]] : []);
 
-  let [dryRun, setDryRun] = useState(false);
   let [reRun, setReRun] = useState(false);
   let [parallel, setParallel] = useState(false);
 
@@ -52,13 +37,6 @@ export default function Configuration(props) {
   let [validateTextArea, setValidateTextArea] = useState(false);
   let [validateModuleList, setModuleList] = useState(false);
 
-  //   const updateFieldChanged = e => {
-  //     console.log("hey: ",items);
-  //     let newArr = [...items]; // copying the old datas array
-  //     newArr[newArr.length] = e.selectedItem; // replace e.target.value with whatever you want to change it to
-  //     setRegion(newArr); // ??
-  //     console.log("hello", items);
-  // }
   function IsJsonString(str) {
     try {
         JSON.parse(str);
@@ -74,57 +52,31 @@ export default function Configuration(props) {
     }
     else{
     e.preventDefault();
-    console.log(!jsonFile)
     console.log(Object.keys(jsonObject).length)
     console.log(typeof jsonObject)
-    if (
-      IsJsonString(jsonObject) === false ||
-      (Object.keys(jsonObject).length === 0 && !jsonFile)
-    ) {
+    if (IsJsonString(jsonObject) === false || Object.keys(jsonObject).length === 0) {
       console.log("ERROR!");
       setValidateTextArea(true);
     } 
-    if(selectedModule.length <= 1){
-      console.log("ERROR!", selectedModule.length);
+    if(moduleName.length <= 1){
+      console.log("ERROR!", moduleName.length);
       setModuleList(true)
     }
     else {
       setValidateTextArea(false);
       setModuleList(false)
-      jsonObject = JSON.parse(jsonObject || "{}");
-      let moduleName =
-        selectedModule.length > 0 ? selectedModule : newModuleName;
+      let configDataObject = JSON.parse(jsonObject || "{}");
       const dataBodyObj = {
         moduleName: moduleName
       };
-      const queryParamsObj = {
-        "re-run": reRun,
-        parallel: parallel
-      };
-
-      console.log("dataBodyObj: ", dataBodyObj);
-      console.log("queryParamsObj: ",queryParamsObj);
-
-      let data = {};
-      if (Object.keys(jsonObject).length === 0) {
-        data = jsonFile;
-      } else {
-        data = jsonObject;
-      }
-      console.log("data: ", data);
-
       axios
-        .post(
-          // `http://localhost:8080/api/v1/config?conf=${configFileName}`,
-          `http://localhost:8080/api/v1/config`,
-          data
-        )
+        .post(`http://localhost:8080/api/v1/config`,configDataObject)
         .then((res) => {
-          console.log("response111: ", res.data);
+          console.log("config response: ", res.data);
           axios
             .post(`http://localhost:8080/api/v1/execute?re-run=${reRun}&parallel=${parallel}}`,dataBodyObj)
             .then((res) => {
-              console.log("response2222: ", res.data);
+              console.log("execute response: ", res.data);
               props.switchActiveTab("execution")
             })
             .catch((err) => {
@@ -158,25 +110,9 @@ export default function Configuration(props) {
   return (
     <div>
       <div style={{ marginBottom: "2%", marginTop: "2%" }}>
-        {/* <h1>Mozart</h1> */}
-        {/* <p>Subtext goes here</p> */}
       </div>
       <div style={{backgroundColor: "#f4f4f4", minWidth:"8rem", minHeight:"4rem", padding: "1.625rem 1.625rem 2.125rem 1.625rem"}}>
         <Form>
-          {/* <FormGroup>
-            <FormLabel>
-              <Tooltip triggerText="Config file name">
-                Create a suitable name for your YAML config file.
-              </Tooltip>
-            </FormLabel>
-            <TextInput
-              id="ibmConfiguration-textInput-newModuleName"
-              placeholder="Enter a name for your config/YAML file here"
-              onChange={(e) => {
-                setConfigFileName(e.target.value);
-              }}
-            />
-          </FormGroup> */}
 
           <FormGroup>
             <Tooltip triggerText="Config file details">
@@ -190,45 +126,7 @@ export default function Configuration(props) {
               }}
               {...validateTextArea ===true ? {...someProps} : ""}
             ></TextArea>
-            {/* <FileUploader
-              multiple
-              accept={[".json"]}
-              buttonKind="ghost"
-              buttonLabel="Upload .json files at 500mb or less"
-              filenameStatus="edit"
-              onChange={(e) => {
-                setJsonFile(e.target.files[0] || {});
-              }}
-            /> */}
           </FormGroup>
-
-          {/* <FormGroup>
-            <FormLabel>
-              <Tooltip triggerText="Select whether you want to create a new module or run an existing module">
-                Create a suitable name for your module.
-              </Tooltip>
-            </FormLabel>
-            <RadioButtonGroup defaultSelected="existing">
-              <RadioButton
-                value="existing"
-                labelText="existing module"
-                id="existing"
-                onClick={(e) => {
-                  setTypeOfModule(e.target.value);
-                }}
-              />
-              <RadioButton
-                value="new"
-                labelText="new module"
-                id="new"
-                onClick={(e) => {
-                  setTypeOfModule(e.target.value);
-                }}
-              />
-            </RadioButtonGroup>
-          </FormGroup> */}
-
-          {/* {typeOfModule === "existing" ? ( */}
             <FormGroup>
               <FormLabel>
                 <Tooltip triggerText="Module">
@@ -244,39 +142,12 @@ export default function Configuration(props) {
                 if (networkError.length > 0) {
                   setOpenModal(true);
                 }
-                  setSelectedModule(e.selectedItem);
+                  setModuleName(e.selectedItem);
                 }}
                 {...validateModuleList ===true ? {...propsForModuleName} : ""}
               />
             </FormGroup>
-          {/* ) : ( */}
-            {/* <FormGroup>
-              <FormLabel>
-                <Tooltip triggerText="New Module">
-                  Create a suitable name for your module.
-                </Tooltip>
-              </FormLabel>
-              <TextInput
-                id="ibmConfiguration-textInput-newModuleName"
-                placeholder="Enter new module name"
-                onChange={(e) => {
-                  setNewModuleName(e.target.value);
-                }}
-              />
-            </FormGroup> */}
-          {/* )} */}
-
           <FormGroup>
-            {/* <Tooltip triggerText="Type of execution">
-              Dry Run shows what scripts will run, but does not run the scripts.
-            </Tooltip>
-            <Checkbox
-              labelText="Dry Run"
-              id="dry-run"
-              onClick={(e) => {
-                dryRun === false ? setDryRun(true) :setDryRun(false)
-              }}
-            /> */}
             <Tooltip triggerText="Type of execution">
               Re Run runs all the scripts from initial state, ignoring
               previously saved state. (Check re-run if you have already ran your
