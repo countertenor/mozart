@@ -156,15 +156,16 @@ export default function Install(props, { notificationDispatch, uninstall }) {
     let countObj={}
     getStatus((err, data) => {
       if (err) {
-        notificationDispatch({
-          type: 'setNotification',
-          notification: {
-            title: 'Error',
-            subtitle: 'Unable to fetch the current status, will attemp to retry.',
-            caption: '',
-            kind: 'error',
-          }
-        });
+        console.log(err)
+        // notificationDispatch({
+        //   type: 'setNotification',
+        //   notification: {
+        //     title: 'Error',
+        //     subtitle: 'Unable to fetch the current status, will attemp to retry.',
+        //     caption: '',
+        //     kind: 'error',
+        //   }
+        // });
       }
       setSteps((data||{}).steps||[]);
       setState((data||{}).state||"")
@@ -253,7 +254,7 @@ export default function Install(props, { notificationDispatch, uninstall }) {
       clearInterval(intervalRef.current);
     }
 
-    const intervalId = {state} !== "completed" ? setInterval(getData, 3000) : intervalId;
+    const intervalId = setInterval(getData, 3000);
     console.log(`set interval: ${intervalId}`);
     intervalRef.current = intervalId;
   }, [getData]);
