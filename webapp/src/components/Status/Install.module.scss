@@ -1,0 +1,82 @@
+// @import '~@carbon/colors/scss/colors';
+
+.Install {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.625rem 1.625rem 2.125rem 1.625rem;
+
+  .module {
+    // width: 70%;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    .loadersHolder {
+      width: 100%;
+    }
+  }
+
+  h1 {
+    size: 1.75rem;
+    font-weight: 400;
+    margin-bottom: 2rem;
+  }
+}
+
+.Task {
+  width: 100%;
+  height: 3.5rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .statusMsg {
+    // > p:first-child {
+    //   margin-top: 10px; // to match loader
+    // }
+
+    > p:last-child {
+      font-size: 0.85rem;
+    //   color: $carbon--gray-60;
+    }
+  }
+
+  .successFilled {
+    fill: green;
+  }
+
+  .notStartedFilled {
+    fill: gray;
+  }
+
+  .errorFilled {
+    fill: red;
+  }
+
+  .loaderIconHolder {
+    // Dimensions set to match inline loader
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+.restartPromptHolder {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  > p {
+    color: red;
+  }
+}
+
+.codeSnippet {
+  width: 100%;
+  min-height: 300px;
+  max-height: 500px;
+  background: black;
+
+}

@@ -13,12 +13,12 @@ import {
   TextArea,
   FileUploader,
   Checkbox,
+  Modal,
 } from "carbon-components-react";
 import axios from "axios";
 
-export default function Configuration() {
+export default function Configuration(props) {
   let history = useHistory();
-
   const allSourceFileTypes = ["Bash", "Python"];
   const allOS = ["Darwin", "Linux"];
   const allTypesOfModules = ["existing", "new"];
@@ -31,7 +31,7 @@ export default function Configuration() {
   let [typeOfModule, setTypeOfModule] = useState(allTypesOfModules[0])
 
   let [modules, setModules] = useState([""]);
-  let [selectedModule, setSelectedModule] = useState(modules.length > 0 ? [modules[0]] : [""]);
+  let [selectedModule, setSelectedModule] = useState(modules.length > 0 ? [modules[0]] : []);
   const [newModuleName, setNewModuleName] = useState("");
 
   let [dryRun, setDryRun] = useState(false);
@@ -41,12 +41,21 @@ export default function Configuration() {
   let [source, setSourceFileTypes] = useState(allSourceFileTypes[0])
   let [os, setOS] = useState(allOS[0])
 
+  let [networkError, setNetworkError] = useState("");
+  let [openModal, setOpenModal] = useState(false);
+
   const someProps = {
     invalid: true,
     invalidText: "This value cannot be empty. You must enter a valid json object here.",
   };
 
+  const propsForModuleName = {
+    invalid: true,
+    invalidText: "This value cannot be empty. The module list is not populated. Refresh the page. If issue persists please contact Mozart team.",
+  };
+
   let [validateTextArea, setValidateTextArea] = useState(false);
+  let [validateModuleList, setModuleList] = useState(false);
 
   //   const updateFieldChanged = e => {
   //     console.log("hey: ",items);
@@ -65,6 +74,10 @@ export default function Configuration() {
 }
 
   const makeSampleAPICall = (e) => {
+    if (networkError.length > 0) {
+      setOpenModal(true);
+    }
+    else{
     e.preventDefault();
     console.log(!jsonFile)
     console.log(Object.keys(jsonObject).length)
@@ -75,25 +88,29 @@ export default function Configuration() {
     ) {
       console.log("ERROR!");
       setValidateTextArea(true);
-    } else {
+    } 
+    if(selectedModule.length <= 1){
+      console.log("ERROR!", selectedModule.length);
+      setModuleList(true)
+    }
+    else {
       setValidateTextArea(false);
+      setModuleList(false)
       jsonObject = JSON.parse(jsonObject || "{}");
       let moduleName =
         selectedModule.length > 0 ? selectedModule : newModuleName;
-
       const dataBodyObj = {
         moduleName: moduleName,
         os: os,
       };
       const queryParamsObj = {
         "re-run": reRun,
-        // "dry-run": dryRun,
         parallel: parallel,
         source: source.toLowerCase(),
       };
 
-      console.log(dataBodyObj);
-      console.log(queryParamsObj);
+      console.log("dataBodyObj: ", dataBodyObj);
+      console.log("queryParamsObj: ",queryParamsObj);
 
       let data = {};
       if (Object.keys(jsonObject).length === 0) {
@@ -114,12 +131,13 @@ export default function Configuration() {
           axios
             .post(
               // `http://localhost:8080/api/v1/execute?re-run=${reRun}&conf=${configFileName}&parallel=${parallel}&source=${source}&dry-run=${dryRun}`,
-              `http://localhost:8080/api/v1/execute?re-run=${reRun}&conf=${configFileName}&parallel=${parallel}&source=${source.toLowerCase()}`,
+              // `http://localhost:8080/api/v1/execute?re-run=${reRun}&conf=${configFileName}&parallel=${parallel}&source=${source.toLowerCase()}`,
               `http://localhost:8080/api/v1/execute?re-run=${reRun}&parallel=${parallel}&source=${source.toLowerCase()}`,
               dataBodyObj
-            )
+              )
             .then((res) => {
               console.log("response2222: ", res.data);
+              props.switchActiveTab("execution")
             })
             .catch((err) => {
               console.log(err);
@@ -129,6 +147,7 @@ export default function Configuration() {
           console.log(err);
         });
     }
+  }
   };
 
   const getModulesAPI = (e) => {
@@ -139,6 +158,7 @@ export default function Configuration() {
         setModules(res.data);
       })
       .catch((err) => {
+        setNetworkError("err");
         console.log(err);
       });
   };
@@ -148,12 +168,12 @@ export default function Configuration() {
   }, []);
 
   return (
-    <div style={{ marginLeft: "10%", width: "80%" }}>
-      <div style={{ marginBottom: "2%", marginTop: "2%", textAlign: "center" }}>
-        <h1>Mozart</h1>
+    <div>
+      <div style={{ marginBottom: "2%", marginTop: "2%" }}>
+        {/* <h1>Mozart</h1> */}
         {/* <p>Subtext goes here</p> */}
       </div>
-      <div>
+      <div style={{backgroundColor: "#f4f4f4", minWidth:"8rem", minHeight:"4rem", padding: "1.625rem 1.625rem 2.125rem 1.625rem"}}>
         <Form>
           {/* <FormGroup>
             <FormLabel>
@@ -176,6 +196,7 @@ export default function Configuration() {
             </Tooltip>
             <TextArea
               placeholder="Paste JSON here or upload json file"
+              defaultValue="{}"
               onChange={(e) => {
                 setJsonObject(e.target.value);
               }}
@@ -228,13 +249,16 @@ export default function Configuration() {
               </FormLabel>
               <Dropdown
                 items={modules}
-                // label="Select an existing module"
-                label={modules[0]}
+                label="Select a module to run"
                 defaultValue={modules[0]}
                 defaultSelected={modules[0]}
                 onChange={(e) => {
+                if (networkError.length > 0) {
+                  setOpenModal(true);
+                }
                   setSelectedModule(e.selectedItem);
                 }}
+                {...validateModuleList ===true ? {...propsForModuleName} : ""}
               />
             </FormGroup>
           {/* ) : ( */}
@@ -275,7 +299,7 @@ export default function Configuration() {
               labelText="Re Run"
               id="re-run"
               onClick={(e) => {
-                reRun === false ? setReRun(true) :setReRun(false)
+                reRun === false ? setReRun(true) : setReRun(false);
               }}
             />
           </FormGroup>
@@ -335,6 +359,26 @@ export default function Configuration() {
             <Button onClick={makeSampleAPICall}>Deploy</Button>
           </span>
         </div>
+      </div>
+      <div>
+        {openModal === true ? (
+          <div>
+            <Modal
+              className="error-modal"
+              iconDescription="Close"
+              modalHeading="NETWORK ERROR!"
+              onRequestClose={() => {
+                setOpenModal(false);
+              }}
+              open
+              passiveModal
+            >
+              <p>You are not connected to the server!</p>
+            </Modal>
+          </div>
+        ) : (
+          <div></div>
+        )}
       </div>
     </div>
   );

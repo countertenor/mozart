@@ -7,7 +7,7 @@ import {
 // Need to use hashrouter to serve as static html file
 
 import './App.scss';
-import Configuration from './components/Configuration/Configuration';
+import TabView from './components/TabView/TabView';
 
 export default function App() {
 
@@ -15,13 +15,10 @@ export default function App() {
     <Router>
       <div>
         <Switch>
-            {/* <Route path="/install">
-              <Install notificationDispatch={notificationDispatch} />
-            </Route> */}
-            <Route path="/">
-              <Configuration />
-            </Route>
-          </Switch>
+          <Route path="/">
+            <TabView/>
+          </Route>
+        </Switch>
       </div>
     </Router>
   );
