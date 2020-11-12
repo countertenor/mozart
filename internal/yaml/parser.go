@@ -13,7 +13,7 @@ func ParseFile(config map[string]interface{}, filename string) error {
 	fileData, err := ioutil.ReadFile(filename)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return fmt.Errorf("no yaml file called %v found. Run 'init' to generate the sample config yaml file", filename)
+			return nil
 		}
 		return fmt.Errorf("error while reading conf file %v : %v", filename, err)
 	}

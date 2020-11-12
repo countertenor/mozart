@@ -45,7 +45,7 @@ func ping(ws *websocket.Conn, done chan struct{}) {
 	}
 }
 
-func reader(ws *websocket.Conn) {
+func reader(ws *websocket.Conn, writer *io.PipeWriter) {
 	defer ws.Close()
 	ws.SetReadLimit(512)
 	ws.SetReadDeadline(time.Now().Add(pongWait))
@@ -57,6 +57,7 @@ func reader(ws *websocket.Conn) {
 		}
 	}
 	log.Println("exit reader")
+	writer.Close()
 }
 
 func pumpStdout(ws *websocket.Conn, r io.Reader, done chan struct{}) {
@@ -103,12 +104,11 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 	stdoutDone := make(chan struct{})
 	go pumpStdout(ws, pipeReader, stdoutDone)
 	go ping(ws, stdoutDone)
-	go reader(ws)
+	go reader(ws, pipeWriter)
 
 	go func() {
 		for range stdoutDone {
 		}
-		pipeWriter.Close()
 		if err := cmd.Process.Kill(); err != nil {
 			log.Fatal("failed to kill process: ", err)
 		}
