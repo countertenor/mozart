@@ -253,7 +253,7 @@ export default function Install(props, { notificationDispatch, uninstall }) {
       clearInterval(intervalRef.current);
     }
 
-    const intervalId = setInterval(getData, 3000);
+    const intervalId = {state} !== "completed" ? setInterval(getData, 3000) : intervalId;
     console.log(`set interval: ${intervalId}`);
     intervalRef.current = intervalId;
   }, [getData]);
