@@ -1,21 +1,23 @@
 build:
-	go build -ldflags "-X github.com/countertenor/mozart/cmd.gitCommitHash=`git rev-parse HEAD` -X github.com/countertenor/mozart/cmd.buildTime=`date -u '+%Y-%m-%d--%H:%M:%S%p'` -X github.com/countertenor/mozart/cmd.gitBranch=`git branch --show-current` -X github.com/countertenor/mozart/cmd.tagVersion=`git describe --tags --long`" -o bin/mozart main.go
+	go build -ldflags "-X github.com/countertenor/mozart/cmd.gitCommitHash=`git rev-parse HEAD` -X github.com/countertenor/mozart/cmd.buildTime=`date -u '+%Y-%m-%d--%H:%M:%S%p'` -X github.com/countertenor/mozart/cmd.gitBranch=`git branch --show-current`" -o bin/mozart main.go
 build-w-clean: clean build
 build-linux: # example: make build-linux DB_PATH=/dir/to/db
-	env GOOS=linux GOARCH=amd64 go build -ldflags "-X github.com/countertenor/mozart/internal/command.stateDBPathFromEnv=/tmp -X github.com/countertenor/mozart/internal/command.logDirPathFromEnv=/var/log/mozart -X github.com/countertenor/mozart/cmd.gitCommitHash=`git rev-parse HEAD` -X github.com/countertenor/mozart/cmd.buildTime=`date -u '+%Y-%m-%d--%H:%M:%S%p'` -X github.com/countertenor/mozart/cmd.gitBranch=`git branch --show-current` -X github.com/countertenor/mozart/cmd.tagVersion=`git describe --tags --long`" -o bin/mozart main.go
+	env GOOS=linux GOARCH=amd64 go build -ldflags "-X github.com/countertenor/mozart/internal/command.stateDBPathFromEnv=/tmp -X github.com/countertenor/mozart/internal/command.logDirPathFromEnv=/var/log/mozart -X github.com/countertenor/mozart/cmd.gitCommitHash=`git rev-parse HEAD` -X github.com/countertenor/mozart/cmd.buildTime=`date -u '+%Y-%m-%d--%H:%M:%S%p'` -X github.com/countertenor/mozart/cmd.gitBranch=`git branch --show-current`" -o bin/mozart main.go
 clean:
 	rm -f bin/mozart
 	rm -rf generated
 	rm -rf logs
 	rm -f *.db
 	rm -f *.log
+npm-install:
+	(cd webapp; npm install)
+ui: npm-install
+	(cd webapp; npm run build)
 install: add-static clean
 	go install
 add-static: #add static code to binary. if error: do 'go get github.com/rakyll/statik'
 	statik -src resources -ns template -dest=statik/tmpl -f
 	statik -src webapp/build -ns webapp -dest=statik/web -f
-run-help:
-	go run main.go --help
 run-server: install
 	mozart server
 server-live: # go get -u github.com/cosmtrek/air
@@ -34,5 +36,3 @@ upload: add-tag install build-linux #make upload tag=v0.x.x, install --> brew in
 	goreleaser --rm-dist
 test:
 	go test -v ./...
-start-ws:
-	go run ws/ws.go
