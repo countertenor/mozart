@@ -7,15 +7,17 @@
         {
             "name": "Go debug",
             "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}",
-            "args": ["server"]
+
+            //Attach
             // "request": "attach",
             // "mode": "local",
-            // "processId": 0,
-            // "program": "${workspaceFolder}/bin/mozart",
-            // "args": ["execute", "test-module"]
+            // "processId": 22933,
+
+            //Launch
+            // "request": "launch",
+            // "mode": "auto",
+            // "program": "${workspaceFolder}",
+            // "args": ["server"],
         }
     ]
 }
