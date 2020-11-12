@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"runtime"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -18,16 +18,6 @@ var waitGroup sync.WaitGroup
 
 //Init the execution instance
 func (i *Instance) Init() {
-	switch i.ExecutionSource {
-	case "bash":
-		i.ExecutionSource = "/bin/bash"
-		i.ExecFileExtension = ".sh"
-	case "python":
-		i.ExecutionSource = "python"
-		i.ExecFileExtension = ".py"
-	default:
-		i.ExecFileExtension = "." + i.ExecFileExtension
-	}
 	i.WaitGroup = &waitGroup
 	i.DirExecStatusMap = makeStatusMap()
 	i.initState()
@@ -75,42 +65,34 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	if i.DoRunParallel {
 		defer i.WaitGroup.Done()
 	}
-	i.PrintSeparator()
-	fmt.Printf("\nRunning file : %v\n\n", fullDirPath+"/"+filename)
-	//precautionary step so that scripts don't run locally
-	osRunning := runtime.GOOS
-	if osRunning != i.OS { //scripts run only on OS defined
-		fmt.Printf("(Skipping execution since OS is %v. Scripts only run on %v)\n", osRunning, i.OS)
-		return nil
-	}
 	if i.DirExecStatusMap[fullDirPath][filename].State == RunningState {
 		return fmt.Errorf("Already running")
 	}
 	if !i.ReRun && i.DirExecStatusMap[fullDirPath][filename].State == SuccessState {
-		fmt.Println("Skipping file since it ran successfully in last execution.")
+		fmt.Printf("Skipping %v since it ran successfully in last execution.\n", filename)
 		return nil
 	}
 	if i.DryRunEnabled {
-		fmt.Printf("(Skipping execution because dry-run was selected)\n")
 		i.updateNotStartedState(fullDirPath, filename, "")
 		return nil
 	}
 	if i.Error != nil {
-		fmt.Println("Skipping file since previous file had errors or was terminated.")
+		fmt.Printf("Skipping %v since previous file had errors or was terminated.\n", filename)
 		i.updateSkipState(fullDirPath, filename, "")
 		return nil
 	}
-
+	i.PrintSeparator()
+	fmt.Printf("\nRunning file : %v\n\n", fullDirPath+"/"+filename)
 	args := []string{fullDirPath + "/" + filename}
 	ctx, cancelFunc := context.WithTimeout(context.Background(), i.TimeoutInterval)
 	defer cancelFunc()
 	cancelRunningCommandFunc = cancelFunc
 
-	command := exec.CommandContext(ctx, i.ExecutionSource, args...)
+	command := exec.CommandContext(ctx, getSource(filename), args...)
 
-	logFile, err := createLogFile(filename, i.LogDir, i.ExecFileExtension)
+	logFile, logfilePath, err := createLogFile(filename, i.LogDir)
 	if err != nil {
-		i.updateErrorState(fullDirPath, filename, logFile.Name())
+		i.updateErrorState(fullDirPath, filename, logfilePath)
 		return err
 	}
 	defer logFile.Close()
@@ -124,24 +106,24 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		command.Stderr = writeToStdOutputAndFile
 	}
 
-	i.updateRunningStatus(fullDirPath, filename, logFile.Name())
+	i.updateRunningStatus(fullDirPath, filename, logfilePath)
 	err = command.Run()
 	if err != nil {
 		errMessage := ""
 		if ctx.Err() == context.DeadlineExceeded {
-			i.updateTimeoutState(fullDirPath, filename, logFile.Name())
+			i.updateTimeoutState(fullDirPath, filename, logfilePath)
 			errMessage = "script timeout"
 		} else if ctx.Err() == context.Canceled {
-			i.updateCancelState(fullDirPath, filename, logFile.Name())
+			i.updateCancelState(fullDirPath, filename, logfilePath)
 			errMessage = "script canceled"
 		} else {
-			i.updateErrorState(fullDirPath, filename, logFile.Name())
+			i.updateErrorState(fullDirPath, filename, logfilePath)
 		}
 		return fmt.Errorf("error while running script %v, %v, err: %v", filename, errMessage, err)
 	}
 	i.PrintSeparator()
 	fmt.Printf("File ran successfully : %v\n", filename)
-	i.updateSuccessState(fullDirPath, filename, logFile.Name())
+	i.updateSuccessState(fullDirPath, filename, logfilePath)
 	return nil
 }
 
@@ -155,23 +137,40 @@ func (i *Instance) StopRunningCmd() {
 	return
 }
 
-func createLogFile(filename, logDir, fileExt string) (*os.File, error) {
+func createLogFile(filename, logDir string) (*os.File, string, error) {
 
 	//check if log dir exists
 	if _, err := os.Stat(logDir); os.IsNotExist(err) {
 		err := os.MkdirAll(logDir, 0755)
 		if err != nil {
-			return nil, fmt.Errorf("error while creating log dir %v, err : %v", logDir, err)
+			return nil, "", fmt.Errorf("error while creating log dir %v, err : %v", logDir, err)
 		}
 	}
 
 	//create log file
 	timeNow := time.Now().Format("2006-01-02--15-04-05.000")
-	logFile, err := os.Create(logDir + timeNow + "-" + strings.TrimSuffix(filename, fileExt) + ".log")
+	logfilePath := logDir + timeNow + "-" + filename[:strings.LastIndex(filename, ".")] + ".log"
+
+	absPath, err := filepath.Abs(logfilePath)
 	if err != nil {
-		return nil, fmt.Errorf("cannot write to logfile, err : %v", err)
+		return nil, "", fmt.Errorf("error while getting absolute dir for logfile %v, err : %v", filename, err)
 	}
-	return logFile, nil
+	logFile, err := os.Create(logfilePath)
+	if err != nil {
+		return nil, "", fmt.Errorf("cannot create logfile for %v, err : %v", logfilePath, err)
+	}
+	return logFile, absPath, nil
+}
+
+func getSource(filename string) (source string) {
+	fileExt := filename[strings.LastIndex(filename, "."):]
+	switch fileExt {
+	case ".sh":
+		source = "/bin/bash"
+	case ".py":
+		source = "python"
+	}
+	return
 }
 
 //PrintSeparator prints a separator
