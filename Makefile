@@ -18,8 +18,6 @@ install: add-static clean
 add-static: #add static code to binary. if error: do 'go get github.com/rakyll/statik'
 	statik -src resources -ns template -dest=statik/tmpl -f
 	statik -src webapp/build -ns webapp -dest=statik/web -f
-run-help:
-	go run main.go --help
 run-server: install
 	mozart server
 server-live: # go get -u github.com/cosmtrek/air
@@ -38,5 +36,3 @@ upload: add-tag install build-linux #make upload tag=v0.x.x, install --> brew in
 	goreleaser --rm-dist
 test:
 	go test -v ./...
-start-ws:
-	go run ws/ws.go
