@@ -11,7 +11,6 @@ import (
 var versionInJSON bool
 
 var gitCommitHash string
-var tagVersion string
 var buildTime string
 var gitBranch string
 
@@ -27,7 +26,6 @@ var versionCmd = &cobra.Command{
 		versionMap["Git commit hash"] = gitCommitHash
 		versionMap["Build time"] = buildTime
 		versionMap["Git branch"] = gitBranch
-		versionMap["Git tag"] = tagVersion
 
 		if versionInJSON {
 			jsonData, err := json.MarshalIndent(versionMap, "", "  ")
