@@ -146,7 +146,7 @@ func GetState(w http.ResponseWriter, r *http.Request) {
 		stepList = append(stepList, stepInstance)
 	}
 	stateJSON.Steps = stepList
-	if stateOfExecution == "" {
+	if stateOfExecution == "" && len(stepList) > 0 {
 		stateOfExecution = "completed"
 	}
 	stateJSON.State = stateOfExecution
