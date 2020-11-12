@@ -95,6 +95,9 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 
 	var filename string
 	filename = r.FormValue("filename")
+	if filename == "" {
+		return
+	}
 
 	cmd := exec.Command("tail", "-f", "-n", "+1", filename)
 	pipeReader, pipeWriter := io.Pipe()
@@ -110,7 +113,7 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 		for range stdoutDone {
 		}
 		if err := cmd.Process.Kill(); err != nil {
-			log.Fatal("failed to kill process: ", err)
+			log.Printf("failed to kill process: %v", err)
 		}
 		log.Println("process killed")
 	}()
