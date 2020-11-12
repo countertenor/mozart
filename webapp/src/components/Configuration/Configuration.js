@@ -19,8 +19,6 @@ import axios from "axios";
 
 export default function Configuration(props) {
   let history = useHistory();
-  const allSourceFileTypes = ["Bash", "Python"];
-  const allOS = ["Darwin", "Linux"];
   const allTypesOfModules = ["existing", "new"];
 
   let [configFileName, setConfigFileName] = useState("mozart-test.yaml")
@@ -37,9 +35,6 @@ export default function Configuration(props) {
   let [dryRun, setDryRun] = useState(false);
   let [reRun, setReRun] = useState(false);
   let [parallel, setParallel] = useState(false);
-
-  let [source, setSourceFileTypes] = useState(allSourceFileTypes[0])
-  let [os, setOS] = useState(allOS[0])
 
   let [networkError, setNetworkError] = useState("");
   let [openModal, setOpenModal] = useState(false);
@@ -100,13 +95,11 @@ export default function Configuration(props) {
       let moduleName =
         selectedModule.length > 0 ? selectedModule : newModuleName;
       const dataBodyObj = {
-        moduleName: moduleName,
-        os: os,
+        moduleName: moduleName
       };
       const queryParamsObj = {
         "re-run": reRun,
-        parallel: parallel,
-        source: source.toLowerCase(),
+        parallel: parallel
       };
 
       console.log("dataBodyObj: ", dataBodyObj);
@@ -129,12 +122,7 @@ export default function Configuration(props) {
         .then((res) => {
           console.log("response111: ", res.data);
           axios
-            .post(
-              // `http://localhost:8080/api/v1/execute?re-run=${reRun}&conf=${configFileName}&parallel=${parallel}&source=${source}&dry-run=${dryRun}`,
-              // `http://localhost:8080/api/v1/execute?re-run=${reRun}&conf=${configFileName}&parallel=${parallel}&source=${source.toLowerCase()}`,
-              `http://localhost:8080/api/v1/execute?re-run=${reRun}&parallel=${parallel}&source=${source.toLowerCase()}`,
-              dataBodyObj
-              )
+            .post(`http://localhost:8080/api/v1/execute?re-run=${reRun}&parallel=${parallel}}`,dataBodyObj)
             .then((res) => {
               console.log("response2222: ", res.data);
               props.switchActiveTab("execution")
@@ -315,38 +303,6 @@ export default function Configuration(props) {
               id="parallel"
               onClick={(e) => {
                 parallel === false ? setParallel(true) :setParallel(false)
-              }}
-            />
-          </FormGroup>
-          
-          <FormGroup>
-            <FormLabel>
-              <Tooltip triggerText="Source file type">
-                Select source file type [python, bash]
-              </Tooltip>
-            </FormLabel>
-            <Dropdown
-              items={allSourceFileTypes}
-              // label="Select your source file type"
-              label={allSourceFileTypes[0]}
-              defaultValue={allSourceFileTypes[0]}
-              onChange={(e) => {
-                setSourceFileTypes(e.selectedItem);
-              }}
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <FormLabel>
-              <Tooltip triggerText="OS">Select OS [Darwin, Linux]</Tooltip>
-            </FormLabel>
-            <Dropdown
-              items={allOS}
-              // label="Select your OS"
-              label={allOS[0]}
-              defaultValue={allOS[0]}
-              onChange={(e) => {
-                setOS(e.selectedItem);
               }}
             />
           </FormGroup>
