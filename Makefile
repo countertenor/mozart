@@ -9,6 +9,10 @@ clean:
 	rm -rf logs
 	rm -f *.db
 	rm -f *.log
+npm-install:
+	(cd webapp; npm install)
+ui: npm-install
+	(cd webapp; npm run build)
 install: add-static clean
 	go install
 add-static: #add static code to binary. if error: do 'go get github.com/rakyll/statik'
