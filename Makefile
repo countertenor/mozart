@@ -1,8 +1,8 @@
 build:
-	go build -ldflags "-X github.com/countertenor/mozart/cmd.gitCommitHash=`git rev-parse HEAD` -X github.com/countertenor/mozart/cmd.buildTime=`date -u '+%Y-%m-%d--%H:%M:%S%p'` -X github.com/countertenor/mozart/cmd.gitBranch=`git branch --show-current` -X github.com/countertenor/mozart/cmd.tagVersion=`git describe --tags --long`" -o bin/mozart main.go
+	go build -ldflags "-X github.com/countertenor/mozart/cmd.gitCommitHash=`git rev-parse HEAD` -X github.com/countertenor/mozart/cmd.buildTime=`date -u '+%Y-%m-%d--%H:%M:%S%p'` -X github.com/countertenor/mozart/cmd.gitBranch=`git branch --show-current`" -o bin/mozart main.go
 build-w-clean: clean build
 build-linux: # example: make build-linux DB_PATH=/dir/to/db
-	env GOOS=linux GOARCH=amd64 go build -ldflags "-X github.com/countertenor/mozart/internal/command.stateDBPathFromEnv=/tmp -X github.com/countertenor/mozart/internal/command.logDirPathFromEnv=/var/log/mozart -X github.com/countertenor/mozart/cmd.gitCommitHash=`git rev-parse HEAD` -X github.com/countertenor/mozart/cmd.buildTime=`date -u '+%Y-%m-%d--%H:%M:%S%p'` -X github.com/countertenor/mozart/cmd.gitBranch=`git branch --show-current` -X github.com/countertenor/mozart/cmd.tagVersion=`git describe --tags --long`" -o bin/mozart main.go
+	env GOOS=linux GOARCH=amd64 go build -ldflags "-X github.com/countertenor/mozart/internal/command.stateDBPathFromEnv=/tmp -X github.com/countertenor/mozart/internal/command.logDirPathFromEnv=/var/log/mozart -X github.com/countertenor/mozart/cmd.gitCommitHash=`git rev-parse HEAD` -X github.com/countertenor/mozart/cmd.buildTime=`date -u '+%Y-%m-%d--%H:%M:%S%p'` -X github.com/countertenor/mozart/cmd.gitBranch=`git branch --show-current`" -o bin/mozart main.go
 clean:
 	rm -f bin/mozart
 	rm -rf generated
