@@ -32,7 +32,7 @@ jobs:
     - name: Build
       env:
         GOPROXY: "https://proxy.golang.org"
-        GOSUMDB: off
+        GOPRIVATE: "github.com/countertenor/mozart"
       run: go build .
 
     - name: Test
