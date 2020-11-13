@@ -32,6 +32,7 @@ jobs:
     - name: Build
       env:
         GOPROXY: "https://proxy.golang.org"
+        GOSUMDB: off
       run: go build .
 
     - name: Test
