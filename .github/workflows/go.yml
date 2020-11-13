@@ -31,7 +31,6 @@ jobs:
 
     - name: Build
       env:
-        GOPROXY: "https://proxy.golang.org"
         GOPRIVATE: "github.com/countertenor/mozart"
       run: go build .
 
