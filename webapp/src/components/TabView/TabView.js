@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useReducer } from "react";
-import { useHistory } from "react-router-dom";
-import { Button, Modal, ToastNotification } from "carbon-components-react";
+import React, { useState, useReducer } from "react";
+import { Button } from "carbon-components-react";
 import "./TabView.scss";
-import axios from "axios";
-import { server_hostname, server_port } from "../../constants/Constants";
+// import { server_hostname, server_port } from "../../constants/Constants";
 import Configuration from "../Configuration/Configuration";
 import Execution from "../Status/Install";
 import { NOTIFICATION_INIT, NOTIFICATION_REDUCER } from '../../constants/reducer-constants';
@@ -37,7 +35,7 @@ export default function TabView (){
     return (
       <div className="screen-style">
         <h2 className="heading">Mozart</h2>
-        <div class="left-col"></div>
+        <div className="left-col"></div>
         <div className="form-style">
           <div className="button-toggle">
             {activeTab === "configuration" ? (
@@ -60,7 +58,7 @@ export default function TabView (){
             <div></div>
           )}
         </div>
-        <div class="right-col">
+        <div className="right-col">
         </div>
         <div className="footer"></div>
       </div>
