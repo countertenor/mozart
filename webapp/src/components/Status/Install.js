@@ -154,7 +154,8 @@ export default function Install(props, { notificationDispatch, uninstall }) {
   const getData = useCallback(async () => {
     // let obj ={};
     let countObj={}
-    getStatus((err, data) => {
+    let moduleName = props.getModuleName()
+    getStatus(moduleName, (err, data) => {
       if (err) {
         console.log(err)
         // notificationDispatch({
@@ -173,9 +174,6 @@ export default function Install(props, { notificationDispatch, uninstall }) {
       setCurStatus(''); // TODO: Figure out
       ((data||{}).steps||[]).map( e => {
 
-        // obj = {...obj,
-        //   [e.module]: e.tasks.length
-        // }
         countObj = {...countObj,
             [e.module]: 0
         }

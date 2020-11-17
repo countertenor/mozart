@@ -10,9 +10,10 @@ import { NOTIFICATION_INIT, NOTIFICATION_REDUCER } from '../../constants/reducer
 
 export default function TabView (){
   let [activeTab, setActiveTab] = useState("configuration")
+  let [moduleName, setModuleName] = useState("")
 
   let switchActiveTab = (tab) => {
-    if(tab == "execution" || tab == "configuration"){
+    if(tab === "execution" || tab === "configuration"){
       setActiveTab(tab)
       console.log("heyyyyyy: ", tab)
     }
@@ -21,6 +22,15 @@ export default function TabView (){
       console.log("heyyyyyy: ", tab.target.value)
     }
   };
+
+  let passModuleName = (moduleName) => {
+      setModuleName(moduleName)
+      console.log("moduleName: ", moduleName)
+  };
+
+  let getModuleName = () =>{
+    return moduleName;
+  }
 
   const [notification, notificationDispatch] = useReducer(NOTIFICATION_REDUCER, NOTIFICATION_INIT);
 
@@ -43,9 +53,9 @@ export default function TabView (){
           </div>
           <hr />
           {activeTab === "configuration" ? (
-            <Configuration switchActiveTab={switchActiveTab} />
+            <Configuration switchActiveTab={switchActiveTab} passModuleName={passModuleName}/>
           ) : activeTab === "execution" ? (
-            <Execution notificationDispatch={notificationDispatch} switchActiveTab={switchActiveTab} />
+            <Execution notificationDispatch={notificationDispatch} switchActiveTab={switchActiveTab} getModuleName={getModuleName} />
           ) : (
             <div></div>
           )}
