@@ -64,12 +64,18 @@ func (i *Instance) handleRunScripts(fullDirPath string) {
 }
 
 func (i *Instance) runScript(fullDirPath, filename string) error {
+
+	fileMetadata := fileMetadata{
+		fullDirPath: fullDirPath,
+		filename:    filename,
+	}
+
 	if i.DoRunParallel {
 		defer i.WaitGroup.Done()
 	}
 	if i.DirExecStatusMap[fullDirPath][filename].State == RunningState {
 		if time.Since(i.DirExecStatusMap[fullDirPath][filename].StartTime) > i.TimeoutInterval {
-			i.updateTimeoutState(fullDirPath, filename, "")
+			i.updateTimeoutState(fileMetadata)
 		} else {
 			return fmt.Errorf("Already running")
 		}
@@ -79,12 +85,12 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		return nil
 	}
 	if i.DryRunEnabled {
-		i.updateNotStartedState(fullDirPath, filename, "")
+		i.updateNotStartedState(fileMetadata)
 		return nil
 	}
 	if i.Error != nil {
 		fmt.Printf("Skipping %v since previous file had errors or was terminated.\n", filename)
-		i.updateSkipState(fullDirPath, filename, "")
+		i.updateSkipState(fileMetadata)
 		return nil
 	}
 	i.PrintSeparator()
@@ -98,11 +104,12 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 
 	logFile, logfilePath, err := createLogFile(filename, i.LogDir)
 	if err != nil {
-		i.updateErrorState(fullDirPath, filename, logfilePath)
+		i.updateErrorState(fileMetadata)
 		return err
 	}
 	defer logFile.Close()
 
+	fileMetadata.logfilePath = logfilePath
 	if i.DoRunParallel {
 		command.Stdout = logFile
 		command.Stderr = logFile
@@ -112,33 +119,34 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		command.Stderr = writeToStdOutputAndFile
 	}
 
-	done := make(chan struct{})
-	i.updateRunningStatus(fullDirPath, filename, logfilePath)
-	i.startRunning(done)
+	i.updateRunningStatus(fileMetadata)
+
+	done := i.configureInterrupter() //done to catch interrupt error
 	err = command.Run()
 	if err != nil {
 		errMessage := ""
 		if ctx.Err() == context.DeadlineExceeded {
-			i.updateTimeoutState(fullDirPath, filename, logfilePath)
+			i.updateTimeoutState(fileMetadata)
 			errMessage = "script timeout"
-		} else if ctx.Err() == context.Canceled {
-			i.updateCancelState(fullDirPath, filename, logfilePath)
+		} else if ctx.Err() == context.Canceled || strings.Contains(err.Error(), "interrupt") {
+			i.updateCancelState(fileMetadata)
 			errMessage = "script canceled"
 		} else {
-			i.updateErrorState(fullDirPath, filename, logfilePath)
+			i.updateErrorState(fileMetadata)
 		}
 		return fmt.Errorf("error while running script %v, %v, err: %v", filename, errMessage, err)
 	}
 	i.PrintSeparator()
 	fmt.Printf("File ran successfully : %v\n", filename)
-	i.updateSuccessState(fullDirPath, filename, logfilePath)
+	i.updateSuccessState(fileMetadata)
 	done <- struct{}{}
 	return nil
 }
 
-func (i *Instance) startRunning(done chan struct{}) {
+func (i *Instance) configureInterrupter() chan struct{} {
 
 	c := make(chan os.Signal)
+	done := make(chan struct{})
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		select {
@@ -150,6 +158,7 @@ func (i *Instance) startRunning(done chan struct{}) {
 			return
 		}
 	}()
+	return done
 }
 
 //StopRunningCmd stops currently running command
@@ -203,35 +212,35 @@ func (i *Instance) PrintSeparator() {
 	fmt.Println("=================================================================================================================")
 }
 
-func (i *Instance) updateRunningStatus(directory, filename, logFilePath string) {
-	i.updateState(directory, filename, logFilePath, RunningState)
+func (i *Instance) updateRunningStatus(fileMetadata fileMetadata) {
+	i.updateState(fileMetadata, RunningState)
 }
 
-func (i *Instance) updateSkipState(directory, filename, logFilePath string) {
-	i.updateState(directory, filename, logFilePath, skipped)
+func (i *Instance) updateSkipState(fileMetadata fileMetadata) {
+	i.updateState(fileMetadata, skipped)
 }
 
-func (i *Instance) updateNotStartedState(directory, filename, logFilePath string) {
-	i.updateState(directory, filename, logFilePath, notStarted)
+func (i *Instance) updateNotStartedState(fileMetadata fileMetadata) {
+	i.updateState(fileMetadata, notStarted)
 }
 
-func (i *Instance) updateErrorState(directory, filename, logFilePath string) {
-	i.updateState(directory, filename, logFilePath, ErrorState)
+func (i *Instance) updateErrorState(fileMetadata fileMetadata) {
+	i.updateState(fileMetadata, ErrorState)
 }
 
-func (i *Instance) updateTimeoutState(directory, filename, logFilePath string) {
-	i.updateState(directory, filename, logFilePath, timeout)
+func (i *Instance) updateTimeoutState(fileMetadata fileMetadata) {
+	i.updateState(fileMetadata, timeout)
 }
 
-func (i *Instance) updateCancelState(directory, filename, logFilePath string) {
-	i.updateState(directory, filename, logFilePath, canceled)
+func (i *Instance) updateCancelState(fileMetadata fileMetadata) {
+	i.updateState(fileMetadata, canceled)
 }
 
-func (i *Instance) updateSuccessState(directory, filename, logFilePath string) {
-	i.updateState(directory, filename, logFilePath, SuccessState)
+func (i *Instance) updateSuccessState(fileMetadata fileMetadata) {
+	i.updateState(fileMetadata, SuccessState)
 }
 
-func (i *Instance) updateState(directory, filename, logFilePath string, state stateType) {
+func (i *Instance) updateState(fileMetadata fileMetadata, state stateType) {
 	dirExecStatusMap := i.DirExecStatusMap //will update according to execution
 	// fmt.Println("dirExecStatusMap : ", dirExecStatusMap)
 
@@ -239,8 +248,8 @@ func (i *Instance) updateState(directory, filename, logFilePath string, state st
 	defer i.Mutex.Unlock()
 
 	var fileExecStatus FileExecStatus
-	if fileExecStatusMap, exists := dirExecStatusMap[directory]; exists {
-		fileExecStatus = fileExecStatusMap[filename]
+	if fileExecStatusMap, exists := dirExecStatusMap[fileMetadata.fullDirPath]; exists {
+		fileExecStatus = fileExecStatusMap[fileMetadata.filename]
 	}
 	if state == SuccessState {
 		fileExecStatus.LastSuccessTime = time.Now().String()
@@ -252,14 +261,14 @@ func (i *Instance) updateState(directory, filename, logFilePath string, state st
 		fileExecStatus.StartTime = time.Now()
 	}
 	fileExecStatus.State = state
-	fileExecStatus.LogFilePath = logFilePath
+	fileExecStatus.LogFilePath = fileMetadata.logfilePath
 
-	if fileExecStatusMap, exists := dirExecStatusMap[directory]; exists {
-		fileExecStatusMap[filename] = fileExecStatus
+	if fileExecStatusMap, exists := dirExecStatusMap[fileMetadata.fullDirPath]; exists {
+		fileExecStatusMap[fileMetadata.filename] = fileExecStatus
 	} else {
 		fileExecStatusMap := make(map[string]FileExecStatus)
-		fileExecStatusMap[filename] = fileExecStatus
-		dirExecStatusMap[directory] = fileExecStatusMap
+		fileExecStatusMap[fileMetadata.filename] = fileExecStatus
+		dirExecStatusMap[fileMetadata.fullDirPath] = fileExecStatusMap
 	}
 
 	i.saveState()
