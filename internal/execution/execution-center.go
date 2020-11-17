@@ -23,6 +23,7 @@ func (i *Instance) Init() {
 	i.WaitGroup = &waitGroup
 	i.DirExecStatusMap = makeStatusMap()
 	i.initState()
+	i.C = i.configureInterrupter()
 }
 
 //RunScriptsInDir handles running of script files inside a directory
@@ -101,6 +102,7 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	cancelRunningCommandFunc = cancelFunc
 
 	command := exec.CommandContext(ctx, getSource(filename), args...)
+	// command.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	logFile, logfilePath, err := createLogFile(filename, i.LogDir)
 	if err != nil {
@@ -121,44 +123,48 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 
 	i.updateRunningStatus(fileMetadata)
 
-	done := i.configureInterrupter() //done to catch interrupt error
+	// done := i.configureInterrupter(fileMetadata) //done to catch interrupt error
 	err = command.Run()
 	if err != nil {
 		errMessage := ""
 		if ctx.Err() == context.DeadlineExceeded {
 			i.updateTimeoutState(fileMetadata)
 			errMessage = "script timeout"
-		} else if ctx.Err() == context.Canceled || strings.Contains(err.Error(), "interrupt") {
+		} else if ctx.Err() == context.Canceled {
 			i.updateCancelState(fileMetadata)
 			errMessage = "script canceled"
 		} else {
 			i.updateErrorState(fileMetadata)
 		}
+		// done <- struct{}{}
+		signal.Stop(i.C)
 		return fmt.Errorf("error while running script %v, %v, err: %v", filename, errMessage, err)
 	}
 	i.PrintSeparator()
 	fmt.Printf("File ran successfully : %v\n", filename)
 	i.updateSuccessState(fileMetadata)
-	done <- struct{}{}
+	// done <- struct{}{}
 	return nil
 }
 
-func (i *Instance) configureInterrupter() chan struct{} {
-
+func (i *Instance) configureInterrupter() chan os.Signal {
 	c := make(chan os.Signal)
-	done := make(chan struct{})
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		select {
-		case <-c:
-			fmt.Println("canceling")
-			return
-		case <-done:
-			fmt.Println("finished")
-			return
+		case m := <-c:
+			fmt.Println("canceling due to : ", m)
+			// i.updateCancelState(fileMetadataStr)
+			i.StopRunningCmd()
+			// return
+			// os.Exit(0)
+			// case <-done:
+			// 	fmt.Println("finished")
+			// 	return
 		}
+		// signal.Stop(c)
 	}()
-	return done
+	return c
 }
 
 //StopRunningCmd stops currently running command
@@ -272,4 +278,5 @@ func (i *Instance) updateState(fileMetadata fileMetadata, state stateType) {
 	}
 
 	i.saveState()
+	// fmt.Println("saved")
 }
