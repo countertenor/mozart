@@ -7,9 +7,11 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -66,7 +68,11 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		defer i.WaitGroup.Done()
 	}
 	if i.DirExecStatusMap[fullDirPath][filename].State == RunningState {
-		return fmt.Errorf("Already running")
+		if time.Since(i.DirExecStatusMap[fullDirPath][filename].StartTime) > i.TimeoutInterval {
+			i.updateTimeoutState(fullDirPath, filename, "")
+		} else {
+			return fmt.Errorf("Already running")
+		}
 	}
 	if !i.ReRun && i.DirExecStatusMap[fullDirPath][filename].State == SuccessState {
 		fmt.Printf("Skipping %v since it ran successfully in last execution.\n", filename)
@@ -106,7 +112,9 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		command.Stderr = writeToStdOutputAndFile
 	}
 
+	done := make(chan struct{})
 	i.updateRunningStatus(fullDirPath, filename, logfilePath)
+	i.startRunning(done)
 	err = command.Run()
 	if err != nil {
 		errMessage := ""
@@ -124,7 +132,24 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	i.PrintSeparator()
 	fmt.Printf("File ran successfully : %v\n", filename)
 	i.updateSuccessState(fullDirPath, filename, logfilePath)
+	done <- struct{}{}
 	return nil
+}
+
+func (i *Instance) startRunning(done chan struct{}) {
+
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		select {
+		case <-c:
+			fmt.Println("canceling")
+			return
+		case <-done:
+			fmt.Println("finished")
+			return
+		}
+	}()
 }
 
 //StopRunningCmd stops currently running command
