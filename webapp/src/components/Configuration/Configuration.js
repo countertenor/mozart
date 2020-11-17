@@ -74,9 +74,11 @@ export default function Configuration(props) {
         .then((res) => {
           console.log("config response: ", res.data);
           axios
-            .post(`http://localhost:8080/api/v1/execute?re-run=${reRun}&parallel=${parallel}}`,dataBodyObj)
+            .post(`http://localhost:8080/api/v1/execute?re-run=${reRun}&parallel=${parallel}`,dataBodyObj)
             .then((res) => {
               console.log("execute response: ", res.data);
+              console.log("props: ",props);
+              props.passModuleName(moduleName);
               props.switchActiveTab("execution")
             })
             .catch((err) => {
