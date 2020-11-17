@@ -13,7 +13,7 @@ import {
 import axios from "axios";
 
 export default function Configuration(props) {
-  let [jsonObject, setJsonObject] = useState("")
+  let [jsonObject, setJsonObject] = useState("{}")
 
   let [modules, setModules] = useState([""]);
   let [moduleName, setModuleName] = useState(modules.length > 0 ? [modules[0]] : []);
@@ -39,11 +39,14 @@ export default function Configuration(props) {
 
   function IsJsonString(str) {
     try {
-        JSON.parse(str);
+        const jsonObj = JSON.parse(str);
+        if (typeof jsonObj === "object" && jsonObj !== null) {
+          return true;
+        }
     } catch (e) {
         return false;
     }
-    return true;
+  return false;
 }
 
   const makeSampleAPICall = (e) => {
@@ -52,15 +55,24 @@ export default function Configuration(props) {
     }
     else{
     e.preventDefault();
-    console.log(Object.keys(jsonObject).length)
-    console.log(typeof jsonObject)
-    if (IsJsonString(jsonObject) === false || Object.keys(jsonObject).length === 0) {
-      console.log("ERROR!");
+    console.log(Object.keys(jsonObject).length) //2, 15
+    console.log(typeof jsonObject)     //string, string
+    console.log(jsonObject)           //"{}", "{"hello": "hi"}"
+    console.log(IsJsonString(jsonObject));  //true, true
+    console.log(Object.entries(jsonObject).length)  //2
+    console.log(jsonObject.constructor) //string
+
+    if (IsJsonString(jsonObject) === false && moduleName.length <= 1){
       setValidateTextArea(true);
+      setModuleList(true);
     } 
-    if(moduleName.length <= 1){
-      console.log("ERROR!", moduleName.length);
-      setModuleList(true)
+    else if(IsJsonString(jsonObject) === false && !moduleName.length <= 1){
+      setValidateTextArea(true);
+      setModuleList(false);
+    }
+    else if(!IsJsonString(jsonObject) === false && moduleName.length <= 1){
+      setValidateTextArea(false);
+      setModuleList(true);
     }
     else {
       setValidateTextArea(false);
@@ -124,6 +136,7 @@ export default function Configuration(props) {
               placeholder="Paste JSON here or upload json file"
               defaultValue="{}"
               onChange={(e) => {
+                console.log(e.target.value)
                 setJsonObject(e.target.value);
               }}
               {...validateTextArea ===true ? {...someProps} : ""}
@@ -139,7 +152,6 @@ export default function Configuration(props) {
                 items={modules}
                 label="Select a module to run"
                 defaultValue={modules[0]}
-                defaultSelected={modules[0]}
                 onChange={(e) => {
                 if (networkError.length > 0) {
                   setOpenModal(true);
