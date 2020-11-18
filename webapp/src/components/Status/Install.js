@@ -154,7 +154,13 @@ export default function Install(props) {
         console.log(err)
       }
       setSteps((data||{}).steps||[]);
-      setState((data||{}).state||"")
+      const st = (data||{}).state||"";
+      console.log(st, " :: ", intervalRef.current)     //every 3 seconds
+      setState(st)
+      //write another useeffect and make it listen to the state and call clear interval when state changes
+      if(st === "completed"){
+        clearInterval(intervalRef.current);
+      }
       console.log("hello",(data||{}).steps||[])
       setCurStatus(''); // TODO: Figure out
       ((data||{}).steps||[]).map( e => {
@@ -199,7 +205,7 @@ export default function Install(props) {
     console.log(`set interval: ${intervalId}`);
     intervalRef.current = intervalId;
   }, [getData]);
-  
+
   useEffect(() => {
     getData();        //gets data.steps array of tasks
     setStatusInterval();
