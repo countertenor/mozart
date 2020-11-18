@@ -48,7 +48,7 @@ type Instance struct {
 	TemplateDir     string
 	Error           error
 	DoRunParallel   bool
-	C               chan os.Signal
+	Interrupter     chan os.Signal
 	WaitGroup       *sync.WaitGroup
 	Mutex           sync.RWMutex
 	TimeoutInterval time.Duration

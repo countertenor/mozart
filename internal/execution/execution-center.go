@@ -23,7 +23,7 @@ func (i *Instance) Init() {
 	i.WaitGroup = &waitGroup
 	i.DirExecStatusMap = makeStatusMap()
 	i.initState()
-	i.C = i.configureInterrupter()
+	i.Interrupter = i.configureInterrupter()
 }
 
 //RunScriptsInDir handles running of script files inside a directory
@@ -102,7 +102,6 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	cancelRunningCommandFunc = cancelFunc
 
 	command := exec.CommandContext(ctx, getSource(filename), args...)
-	// command.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 
 	logFile, logfilePath, err := createLogFile(filename, i.LogDir)
 	if err != nil {
@@ -123,7 +122,6 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 
 	i.updateRunningStatus(fileMetadata)
 
-	// done := i.configureInterrupter(fileMetadata) //done to catch interrupt error
 	err = command.Run()
 	if err != nil {
 		errMessage := ""
@@ -136,14 +134,12 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		} else {
 			i.updateErrorState(fileMetadata)
 		}
-		// done <- struct{}{}
-		signal.Stop(i.C)
+		signal.Stop(i.Interrupter)
 		return fmt.Errorf("error while running script %v, %v, err: %v", filename, errMessage, err)
 	}
 	i.PrintSeparator()
 	fmt.Printf("File ran successfully : %v\n", filename)
 	i.updateSuccessState(fileMetadata)
-	// done <- struct{}{}
 	return nil
 }
 
@@ -154,15 +150,8 @@ func (i *Instance) configureInterrupter() chan os.Signal {
 		select {
 		case m := <-c:
 			fmt.Println("canceling due to : ", m)
-			// i.updateCancelState(fileMetadataStr)
 			i.StopRunningCmd()
-			// return
-			// os.Exit(0)
-			// case <-done:
-			// 	fmt.Println("finished")
-			// 	return
 		}
-		// signal.Stop(c)
 	}()
 	return c
 }
