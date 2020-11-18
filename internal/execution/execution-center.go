@@ -267,5 +267,4 @@ func (i *Instance) updateState(fileMetadata fileMetadata, state stateType) {
 	}
 
 	i.saveState()
-	// fmt.Println("saved")
 }
