@@ -98,6 +98,7 @@ export default function Install(props) {
   const logRef = useRef('');
   const [steps, setSteps] = useState([]);
   const [state, setState] = useState("");
+  const [moduleName] = useState(props.getModuleName()+"");
   let stringPrint=" - "
   for(let i=0; i<55; i++){
     stringPrint+=" - "
@@ -148,8 +149,9 @@ export default function Install(props) {
 
   const getData = useCallback(async () => {
     let countObj={}
-    let moduleName = props.getModuleName()
+    // let moduleName = props.getModuleName()
     getStatus(moduleName, (err, data) => {
+      console.log("check props?: ",moduleName)
       if (err) {
         console.log(err)
       }
@@ -214,7 +216,7 @@ export default function Install(props) {
 
   const header = (
     <h6>
-      Status: {state}
+      Status: {state} {moduleName}
     </h6>
   );
 
