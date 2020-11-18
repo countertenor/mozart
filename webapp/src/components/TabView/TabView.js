@@ -4,7 +4,6 @@ import "./TabView.scss";
 // import { server_hostname, server_port } from "../../constants/Constants";
 import Configuration from "../Configuration/Configuration";
 import Execution from "../Status/Install";
-import { NOTIFICATION_INIT, NOTIFICATION_REDUCER } from '../../constants/reducer-constants';
 
 export default function TabView (){
   let [activeTab, setActiveTab] = useState("configuration")
@@ -30,8 +29,6 @@ export default function TabView (){
     return moduleName;
   }
 
-  const [notification, notificationDispatch] = useReducer(NOTIFICATION_REDUCER, NOTIFICATION_INIT);
-
     return (
       <div className="screen-style">
         <h2 className="heading">Mozart</h2>
@@ -53,7 +50,7 @@ export default function TabView (){
           {activeTab === "configuration" ? (
             <Configuration switchActiveTab={switchActiveTab} passModuleName={passModuleName}/>
           ) : activeTab === "execution" ? (
-            <Execution notificationDispatch={notificationDispatch} switchActiveTab={switchActiveTab} getModuleName={getModuleName} />
+            <Execution switchActiveTab={switchActiveTab} getModuleName={getModuleName} />
           ) : (
             <div></div>
           )}
