@@ -7,7 +7,7 @@ export function getStatus(moduleName, callback) { // eslint-disable-line
   if (USE_MOCK) {
     callback(null, STATUS_DUMMY);
   } else {
-    axios.get(`http://localhost:8080/api/v1/state?module=${moduleName}`).then((res) => {
+    axios.get(`http://localhost:8080/api/v1/state`, {params:{"module":moduleName}}).then((res) => {
       callback(null, res.data);
     }).catch((err) => {
       console.log(err);
