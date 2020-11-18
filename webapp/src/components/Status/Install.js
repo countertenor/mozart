@@ -100,7 +100,7 @@ export default function Install(props) {
   const [state, setState] = useState("");
   const [moduleName] = useState(props.getModuleName()+"");
   let stringPrint=" - "
-  for(let i=0; i<55; i++){
+  for(let i=0; i<35; i++){
     stringPrint+=" - "
   }
   const [print] = useState(stringPrint)
@@ -167,13 +167,13 @@ export default function Install(props) {
       setCurStatus(''); // TODO: Figure out
       ((data||{}).steps||[]).map( e => {
         countObj = {...countObj,
-            [e.module]: 0
+            [e.directory]: 0
         }
         let count = 0;
         e.tasks.map(item =>{
           if(item.status.state === "success"){
             countObj = {...countObj,
-              [e.module]: Math.trunc(++count * 100/e.tasks.length)
+              [e.directory]: Math.trunc(++count * 100/e.tasks.length)
             }
           }
         })
@@ -234,8 +234,8 @@ export default function Install(props) {
             <Accordion size="xl" align="start">
               {steps.map((module) => {
                 return (
-                  <div key={module.module} className={styles.module}>
-                    <AccordionItem title= {module.module+print+percentage[module.module]+"% complete"}>
+                  <div key={module.directory} className={styles.module}>
+                    <AccordionItem title= {module.directory+print+percentage[module.directory]+"% complete"}>
                       {module.tasks.map((task) => (
                         <ul
                           className={styles.loadersHolder}
