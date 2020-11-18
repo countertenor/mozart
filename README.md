@@ -290,6 +290,7 @@ A sample UI wireframe:
 
 - https://medium.com/@vCabbage/go-timeout-commands-with-os-exec-commandcontext-ba0c861ed738
 - https://stackoverflow.com/a/58572436
+- https://medium.com/@matryer/make-ctrl-c-cancel-the-context-context-bd006a8ad6ff
 
 ### Error stack
 
