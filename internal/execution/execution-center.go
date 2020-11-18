@@ -210,6 +210,9 @@ func (i *Instance) updateState(directory, filename, logFilePath string, state st
 	dirExecStatusMap := i.DirExecStatusMap //will update according to execution
 	// fmt.Println("dirExecStatusMap : ", dirExecStatusMap)
 
+	i.Mutex.Lock()
+	defer i.Mutex.Unlock()
+
 	var fileExecStatus FileExecStatus
 	if fileExecStatusMap, exists := dirExecStatusMap[directory]; exists {
 		fileExecStatus = fileExecStatusMap[filename]

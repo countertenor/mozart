@@ -42,6 +42,7 @@ type Instance struct {
 	Error           error
 	DoRunParallel   bool
 	WaitGroup       *sync.WaitGroup
+	Mutex           sync.RWMutex
 	TimeoutInterval time.Duration
 	State
 }

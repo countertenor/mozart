@@ -96,12 +96,10 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 
 //GetState gets the state of a module
 func GetState(w http.ResponseWriter, r *http.Request) {
-
-	var moduleRequest moduleRequest
-	reqBody, _ := ioutil.ReadAll(r.Body)
-	json.Unmarshal(reqBody, &moduleRequest)
-
-	commandCenter := command.New(getFlags(r.URL.Query())).ReturnStateForDir(moduleRequest.getModuleName())
+	// fmt.Println("module : ", r.URL.Query().Get("module"))
+	moduleName := strings.Join(strings.Split(r.URL.Query().Get("module"), " "), "/")
+	commandCenter := command.New(getFlags(r.URL.Query())).
+		ReturnStateForDir(moduleName)
 	stateMap := commandCenter.ReturnStateMap
 
 	regexFile := regexp.MustCompile("([0-9]+-)")
