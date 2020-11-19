@@ -105,6 +105,7 @@ export default function Install(props) {
   }
   const [print] = useState(stringPrint)
   const [percentage, setPercentage] = useState({});
+  const [logs, setLogs] = useState("")
   
   // steps is an array of objects with keys directory, module, tasks
   // tasks is an array of objects with keys taskName and status
@@ -122,6 +123,7 @@ export default function Install(props) {
 
       logRef.current = logRef.current.concat(`${streamData}\n`);
       setLogModalIsOpen(true);
+      setLogs(logRef.current)
     });
 
     setLogSocket(socket);
@@ -266,7 +268,7 @@ export default function Install(props) {
         )}
         <LogModal
           open={logModalIsOpen}
-          log={logRef.current}
+          log={logs}
           onRequestClose={closeLogModal}
         />
       </Tile>
