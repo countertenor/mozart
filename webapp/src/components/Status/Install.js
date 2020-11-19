@@ -161,10 +161,6 @@ export default function Install(props) {
       const st = (data||{}).state||"";
       console.log(st, " :: ", intervalRef.current)     //every 3 seconds
       setState(st)
-      //write another useeffect and make it listen to the state and call clear interval when state changes
-      if(st === "completed"){
-        clearInterval(intervalRef.current);
-      }
       console.log("hello",(data||{}).steps||[])
       setCurStatus(''); // TODO: Figure out
       ((data||{}).steps||[]).map( e => {
@@ -215,6 +211,12 @@ export default function Install(props) {
     setStatusInterval();
     return clearStatusInterval;
   }, []); // eslint-disable-line
+
+  useEffect(() => {
+    if(state === "completed"){
+      clearStatusInterval();
+    }
+  }, [state])
 
   const header = (
     <h6>
