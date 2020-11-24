@@ -151,6 +151,7 @@ func (i *Instance) configureInterrupter() chan os.Signal {
 		case m := <-c:
 			fmt.Println("canceling due to : ", m)
 			i.StopRunningCmd()
+			signal.Stop(c)
 		}
 	}()
 	return c
