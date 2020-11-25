@@ -4,4 +4,4 @@ echo "{{.values.value1}} {{.values.value2}}"
 pwd	
 ls
 
-sleep 2
+sleep 3

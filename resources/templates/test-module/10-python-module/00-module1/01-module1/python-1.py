@@ -1,0 +1,1 @@
+print '{{.values.value1}} {{.values.value2}}'

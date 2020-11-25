@@ -6,6 +6,7 @@ import {
 import { CheckmarkFilled16, Misuse16, View16 } from '@carbon/icons-react';
 import styles from './Install.module.scss';
 import { getStatus, setupWS } from './InstallUtils';
+import _ from 'lodash';
 
 function LogModal({ onRequestClose, open, log }) {
   return (
@@ -224,6 +225,115 @@ export default function Install(props) {
     </h6>
   );
 
+  // root : test-module
+    // child1 : 00-bash-module
+      // child11 : 00-module1
+      // child12 : 00-module2
+      // child13 : 00-module3
+    // child2 : 10-python-module
+      // child21 : 00-module1
+        // child211 : 01-module1
+      // child22 : 00-module2
+    // child3 : 20-random-module
+
+  // [test-module, 00-bash-module, 00-module1]
+  // test-module/00-bash-module/01-module2
+  // test-module/00-bash-module/02-module3
+  // test-module/10-python-module/00-module1
+  // test-module/10-python-module/00-module1/01-module1
+  // test-module/10-python-module/10-module2
+  // test-module/20-random-module
+
+  // let ob = {
+  //   "test-module": {
+  //     "00-bash-module": {
+  //       "00-module1": {},
+  //       "01-module2":{},
+  //       "02-module3":{}
+  //     },
+  //     "10-python-module":{
+  //       "00-module1":{
+  //         "hasFile":true,
+  //         "01-module1":{}
+  //       }
+  //     }
+  //   },
+  // };
+
+  let o = {
+    "test-module": {
+      "00-bash-module": {
+        "00-module1": {},
+        "01-module2": {},
+        "02-module3": {},
+      },
+      "10-python-module": {
+        "00-module1": { 
+          "01-module1": {} 
+        },
+        "10-module2": {},
+      },
+      "20-random-module": {},
+    },
+  };
+
+  let nested_obj ={}
+  let nestedObject = steps.map((module) => {
+    let hierarchy = module.directory.split("/");    //[test-module, 00-bash-module,00-module1], test-module/00-bash-module/01-module2
+    let result = hierarchy.reverse().reduce((res, key) => ({[key]: res}), {});
+    nested_obj = _.merge(nested_obj, result)
+  })
+  console.log(JSON.stringify(nested_obj));
+
+  function NestedAccordions ({ k, v }) {
+    if (Object.keys(v).length === 0) {
+      return  (
+        <AccordionItem title={k} k={module} v={v[module]}>
+          {[
+                {
+                    "taskName": "step1",
+                    "status": {
+                        "startTime": "2020-11-18T17:11:13.816348-08:00",
+                        "timeTaken": "3.020846466s",
+                        "lastSuccessTime": "2020-11-18 17:11:16.837249 -0800 PST m=+18.470463882",
+                        "lastErrorTime": "",
+                        "state": "success",
+                        "logFilePath": "/Users/tosha.kamath@ibm.com/IBM/new/mozart/logs/2020-11-18--17-11-13.816-00-step1.log"
+                    }
+                },
+                {
+                    "taskName": "step2",
+                    "status": {
+                        "startTime": "2020-11-18T17:11:16.837818-08:00",
+                        "timeTaken": "2.017150379s",
+                        "lastSuccessTime": "2020-11-18 17:11:18.855009 -0800 PST m=+20.488177611",
+                        "lastErrorTime": "",
+                        "state": "success",
+                        "logFilePath": "/Users/tosha.kamath@ibm.com/IBM/new/mozart/logs/2020-11-18--17-11-16.837-10-step2.log"
+                    }
+                }
+            ].map((task) => (
+            <ul className={styles.loadersHolder} key={task.taskName}>
+              <Task
+                duration="TODO"
+                taskName={task.taskName}
+                logFilePath={task.status.logFilePath}
+                state={task.status.state}
+                openLogModal={openLogModal}
+                closeLogModal={closeLogModal}
+              />
+            </ul>
+          ))}
+        </AccordionItem>
+      );
+    } else {
+      const nestedAcc = Object.keys(v).map((module) => {
+      return <AccordionItem title={module}><NestedAccordions k={module} v={v[module]}/></AccordionItem>;
+      });
+      return <Accordion size="xl" align="start">{nestedAcc}</Accordion>;
+    }
+  };
+
   return (
     <div style={{ marginBottom: "2%", marginTop: "2%" }}>
       <Tile className={styles.Install}>
@@ -236,10 +346,14 @@ export default function Install(props) {
           <>
             {header}
             <Accordion size="xl" align="start">
-              {steps.map((module) => {
-                return (
+              {/* {steps.map((module) => { */}
+                {/* return ( */}
                   <div key={module.directory} className={styles.module}>
-                    <AccordionItem title= {module.directory+print+percentage[module.directory]+"% complete"}>
+                    <NestedAccordions k="" v={nested_obj}/>
+                    {/* {nestedAccordions({k:null, v:nested_obj})} */}
+                        {/* for (const [key, value] of Object.entries(nested_obj)) {
+                        console.log(`${key}: ${value}`); */}
+                    {/* <AccordionItem title= {module.directory+print+percentage[module.directory]+"% complete"}>
                       {module.tasks.map((task) => (
                         <ul
                           className={styles.loadersHolder}
@@ -255,10 +369,10 @@ export default function Install(props) {
                           />
                         </ul>
                       ))}
-                    </AccordionItem>
+                    </AccordionItem> */}
                   </div>
-                );
-              })}
+                {/* ); */}
+              {/* })} */}
             </Accordion>
             <br />
             <div className="ButtonRow">
