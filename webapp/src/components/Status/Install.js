@@ -253,6 +253,11 @@ export default function Install(props) {
                             openLogModal={openLogModal}
                             closeLogModal={closeLogModal}
                           />
+                          <div>Time Taken: {task.status.timeTaken}</div>
+                          {task.status.state === "success" ? 
+                          <div>Last Success Time: {task.status.lastSuccessTime}</div>
+                          :
+                          <div>Last Error Time: {task.status.lastErrorTime}</div>}
                         </ul>
                       ))}
                     </AccordionItem>
