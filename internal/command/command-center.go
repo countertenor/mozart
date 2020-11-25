@@ -175,10 +175,8 @@ func (i *Instance) RunScripts() *Instance {
 	fullPath := generatedDir + i.ConfigDir
 	// fmt.Println("fullPath : ", fullPath)
 
-	if i.Config["logs"] != nil {
-		logPath := i.Config["logs"].(map[interface{}]interface{})["log_path"]
-		i.LogDir = i.LogDir + parsePath(logPath.(string))
-		// fmt.Println("log : ", i.LogDir)
+	if i.Config["log_path"] != nil {
+		i.LogDir = i.LogDir + parsePath(i.Config["log_path"].(string))
 	}
 	if i.DryRunEnabled {
 		i.RunScriptsInDir(fullPath)
