@@ -175,6 +175,11 @@ func (i *Instance) RunScripts() *Instance {
 	fullPath := generatedDir + i.ConfigDir
 	// fmt.Println("fullPath : ", fullPath)
 
+	if i.Config["logs"] != nil {
+		logPath := i.Config["logs"].(map[interface{}]interface{})["log_path"]
+		i.LogDir = i.LogDir + parsePath(logPath.(string))
+		// fmt.Println("log : ", i.LogDir)
+	}
 	if i.DryRunEnabled {
 		i.RunScriptsInDir(fullPath)
 		fmt.Println("Skipping all files since dry-run was selected")
