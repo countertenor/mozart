@@ -100,7 +100,7 @@ export default function Install(props) {
   const [state, setState] = useState("");
   const [moduleName] = useState(props.getModuleName()+"");
   let stringPrint=" - "
-  for(let i=0; i<35; i++){
+  for(let i=0; i<30; i++){
     stringPrint+=" - "
   }
   const [print] = useState(stringPrint)
@@ -239,7 +239,7 @@ export default function Install(props) {
               {steps.map((module) => {
                 return (
                   <div key={module.directory} className={styles.module}>
-                    <AccordionItem title= {module.directory+print+percentage[module.directory]+"% complete"}>
+                    <AccordionItem title= {<div>{module.directory.split("/").slice(1).join(" | ")}<span style={{float:"right"}}>{percentage[module.directory]+"% complete"}</span></div>}>
                       {module.tasks.map((task) => (
                         <ul
                           className={styles.loadersHolder}
