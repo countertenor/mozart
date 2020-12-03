@@ -21,6 +21,7 @@ Mozart is a simple utility to convert your independent, messy bunch of scripts i
     - [1. Initial setup](#1-initial-setup)
     - [2. Modularize](#2-modularize)
     - [3. (Optional) Use templating](#3-optional-use-templating)
+      - [Log sub-directory](#log-sub-directory)
     - [4. Build the binary](#4-build-the-binary)
 - [CLI](#cli)
   - [Mozart commands](#mozart-commands)
@@ -83,7 +84,10 @@ There is already a sample module present called `test-module` under `resources/t
 
 #### 1. Initial setup
 
-1. Clone the repo.
+1. Install go - https://golang.org/doc/install
+1. Clone repo - https://github.com/countertenor/mozart
+1. Run the command `export PATH=$PATH:$(go env GOPATH)/bin`) (_Please note_ - to make it persistent, you will have to add the command to your .bashrc)
+1. Run `go get github.com/rakyll/statik`
 1. Create a new directory inside `resources/templates`. This will be the base module under which all your modules will exist.
 
 #### 2. Modularize
@@ -140,11 +144,23 @@ When you execute the corresponding module that contains the above script, you wi
 echo hello world
 ```
 
+##### Log sub-directory
+
+By default, log files are stored in `/var/log/mozart` directory, but if for some reason you want to add a sub-directory, you can do so by adding one line to the `mozart-sample.yaml` file:
+
+```
+log_path: my-log-dir
+```
+
+Then all the logs will go to:
+
+```
+var/log/mozart/my-log-dir
+```
+
 #### 4. Build the binary
 
-`make build` -> for Darwin (Mac)
-
-`make build-linux` -> for Linux
+`make build-all` - builds binaries for linux, mac and centOS environments, inside bin directory.
 
 Voila! You have a single orchestrator binary with all your scripts in it.
 
