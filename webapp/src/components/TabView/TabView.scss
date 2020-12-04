@@ -2,9 +2,8 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
     min-width: 100vh;
-    background-color: #32CCB9;
-    background: rgb(2,0,36);
-    background: radial-gradient(circle, rgba(2,0,36,1) 0%, rgba(44,44,121,1) 35%, rgba(0,212,255,1) 100%);
+    background-color: #485461;
+    background-image: linear-gradient(315deg, #485461 0%, #28313b 74%);
 }
 .form-style {
     padding-top: 10px;
@@ -93,14 +92,16 @@
     background-color: rgb(255, 255, 255);
 }
 .bx--modal-container {
-    width: 40%;
-    height: 50%;
+    width: 60%;
+    height: 80%;
     border-radius: 10px;
     position: absolute;
     top: 10%;
-    left: 30%;
+    left: 20%;
+    right: 20%;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
+
 html {
     overflow: hidden;
     height: 100%;
@@ -158,3 +159,19 @@ body {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-weight: lighter;
   }
+ 
+.bx--modal-container .bx--modal-header, .bx--modal-container .bx--modal-content, .bx--modal-container .bx--modal-content__regular-content {
+    padding-right: 2%;
+}
+.bx--modal-container--lg .bx--modal-content, .bx--modal-container--lg .bx--modal-content__regular-content, .bx--modal-container--lg .bx--modal-content--with-form {
+    padding-right: 2%;
+}
+.bx--modal-container--lg .bx--modal-header, .bx--modal-container--lg .bx--modal-content, .bx--modal-container--lg .bx--modal-content__regular-content {
+    padding-right: 2%;
+}
+.bx--snippet.bx--snippet--light, .bx--snippet.bx--snippet--light .bx--snippet-button, .bx--snippet.bx--snippet--light .bx--snippet-btn--expand, .bx--snippet.bx--snippet--light .bx--copy-btn {
+    background-color: #f4f4f4;
+}
+.bx--snippet.bx--snippet--light.bx--snippet--single::after, .bx--snippet.bx--snippet--light.bx--snippet--multi .bx--snippet-container pre::after {
+    background-image: none;
+}
