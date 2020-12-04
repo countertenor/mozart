@@ -105,6 +105,7 @@ export default function Install(props) {
   }
   const [print] = useState(stringPrint)
   const [percentage, setPercentage] = useState({});
+  const [moduleState, setModuleState] = useState({});
   const [logs, setLogs] = useState("")
   
   // steps is an array of objects with keys directory, module, tasks
@@ -151,6 +152,7 @@ export default function Install(props) {
 
   const getData = useCallback(async () => {
     let countObj={}
+    let moduleStateObj={}
     // let moduleName = props.getModuleName()
     getStatus(moduleName, (err, data) => {
       console.log("check props?: ",moduleName)
@@ -167,6 +169,9 @@ export default function Install(props) {
         countObj = {...countObj,
             [e.directory]: 0
         }
+        moduleStateObj = {...moduleStateObj,
+          [e.directory]: "pending"
+        }
         let count = 0;
         e.tasks.map(item =>{
           if(item.status.state === "success"){
@@ -174,12 +179,31 @@ export default function Install(props) {
               [e.directory]: Math.trunc(++count * 100/e.tasks.length)
             }
           }
+          if(["error","timeout","skipped","canceled"].indexOf(moduleStateObj[e.directory])<0){
+            if(!!item.status.state){
+              moduleStateObj = {...moduleStateObj,
+                [e.directory]: item.status.state
+              }
+            }
+          }
         })
       })
+      setModuleState(moduleStateObj)
       setPercentage(countObj);
     });
   }, [clearStatusInterval]);
 
+  // task1        task2           module
+  // "running"    ""              "running"
+  // "error"      "running"       "error"     - done
+
+  // task1        task2           module
+  // "running"    ""              "running"
+  // "success"    "running"       "running"
+
+  // task1        task2           module
+  // "running"    "running"       "running"
+  // "running"    "error"         "error"     - done
 
   const cancel = (e) =>{
     console.log("Cancel pressed!", props)
@@ -239,7 +263,7 @@ export default function Install(props) {
               {steps.map((module) => {
                 return (
                   <div key={module.directory} className={styles.module}>
-                    <AccordionItem title= {<div>{module.directory.split("/").slice(1).join(" | ")}<span style={{float:"right"}}>{percentage[module.directory]+"% complete"}</span></div>}>
+                    <AccordionItem title= {<div>{module.directory.split("/").slice(1).join(" | ")}<span style={{float:"right"}}>{moduleState[module.directory]+ " | "}{percentage[module.directory]+"% complete"}</span></div>}>
                       {module.tasks.map((task) => (
                         <ul
                           className={styles.loadersHolder}
@@ -258,6 +282,7 @@ export default function Install(props) {
                           <div>Last Success Time: {task.status.lastSuccessTime}</div>
                           :
                           <div>Last Error Time: {task.status.lastErrorTime}</div>}
+                          <div>Status: {task.status.state}</div>
                         </ul>
                       ))}
                     </AccordionItem>
