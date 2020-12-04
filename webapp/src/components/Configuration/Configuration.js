@@ -11,6 +11,7 @@ import {
   Modal,
 } from "carbon-components-react";
 import axios from "axios";
+import './Configuration.scss'
 
 export default function Configuration(props) {
   let [jsonObject, setJsonObject] = useState("{}")
@@ -36,6 +37,7 @@ export default function Configuration(props) {
 
   let [validateTextArea, setValidateTextArea] = useState(false);
   let [validateModuleList, setModuleList] = useState(false);
+  let [handleBadRequest, setHandleBadRequest] = useState(false);
 
   function IsJsonString(str) {
     try {
@@ -94,6 +96,7 @@ export default function Configuration(props) {
               props.switchActiveTab("execution")
             })
             .catch((err) => {
+              setHandleBadRequest(true);
               console.log(err);
             });
         })
@@ -215,6 +218,24 @@ export default function Configuration(props) {
               passiveModal
             >
               <p>You are not connected to the server!</p>
+            </Modal>
+          </div>
+        ) : (
+          <div></div>
+        )}
+        {handleBadRequest === true ? (
+          <div className="modalCheck">
+            <Modal
+              className="error-modal"
+              iconDescription="Close"
+              modalHeading="ERROR!"
+              onRequestClose={() => {
+                setHandleBadRequest(false);
+              }}
+              open
+              passiveModal
+            >
+              <p style={{color:"black", fontWeight:"bold"}}>Previous installation is still running! Please go to Execution tab to view progress.</p>
             </Modal>
           </div>
         ) : (
