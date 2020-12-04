@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {
   Button, CodeSnippet, InlineLoading, Loading, Modal, Tile, Accordion, AccordionItem
 } from 'carbon-components-react';
-import { CheckmarkFilled16, Misuse16, View16 } from '@carbon/icons-react';
+import { CheckmarkFilled16, Misuse16, View16, WarningAltFilled16 } from '@carbon/icons-react';
 import styles from './Install.module.scss';
 import { getStatus, setupWS } from './InstallUtils';
 
@@ -39,10 +39,14 @@ function Task({
   let statusIcon = null;
   switch (state) {
   case 'running':
-    statusIcon = <div className={styles.loaderIconHolder}><InlineLoading /></div>;
+    statusIcon = (
+      <div className={styles.loaderIconHolder}>
+        <InlineLoading />
+      </div>
+    );
     break;
 
-  case 'failed':
+  case 'error':
     statusIcon = (
       <div className={styles.loaderIconHolder}>
         <Misuse16 className={styles.errorFilled} />
@@ -56,7 +60,20 @@ function Task({
       </div>
     );
     break;
-  case 'notstarted':
+  case 'timeout':
+    statusIcon = (
+      <div className={styles.loaderIconHolder}>
+        <WarningAltFilled16 className={styles.warningFilled} />
+      </div>
+    );
+    break;
+  case 'skipped':
+    statusIcon = (
+      <div className={styles.loaderIconHolder}>
+        <Misuse16 className={styles.notStartedFilled} />
+      </div>
+    );
+    break;
   default:
     statusIcon = (
       <div className={styles.loaderIconHolder}>
@@ -153,7 +170,6 @@ export default function Install(props) {
   const getData = useCallback(async () => {
     let countObj={}
     let moduleStateObj={}
-    // let moduleName = props.getModuleName()
     getStatus(moduleName, (err, data) => {
       console.log("check props?: ",moduleName)
       if (err) {
@@ -192,18 +208,6 @@ export default function Install(props) {
       setPercentage(countObj);
     });
   }, [clearStatusInterval]);
-
-  // task1        task2           module
-  // "running"    ""              "running"
-  // "error"      "running"       "error"     - done
-
-  // task1        task2           module
-  // "running"    ""              "running"
-  // "success"    "running"       "running"
-
-  // task1        task2           module
-  // "running"    "running"       "running"
-  // "running"    "error"         "error"     - done
 
   const cancel = (e) =>{
     console.log("Cancel pressed!", props)
