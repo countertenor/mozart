@@ -51,6 +51,9 @@
   .errorFilled {
     fill: red;
   }
+  .warningFilled{
+    fill: darkgoldenrod
+  }
 
   .loaderIconHolder {
     // Dimensions set to match inline loader
@@ -73,10 +76,4 @@
   }
 }
 
-.codeSnippet {
-  width: 100%;
-  min-height: 300px;
-  max-height: 500px;
-  background: black;
 
-}

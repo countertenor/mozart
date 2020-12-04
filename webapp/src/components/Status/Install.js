@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {
   Button, CodeSnippet, InlineLoading, Loading, Modal, Tile, Accordion, AccordionItem
 } from 'carbon-components-react';
-import { CheckmarkFilled16, Misuse16, View16 } from '@carbon/icons-react';
+import { CheckmarkFilled16, Misuse16, View16, WarningAltFilled16 } from '@carbon/icons-react';
 import styles from './Install.module.scss';
 import { getStatus, setupWS } from './InstallUtils';
 
@@ -39,10 +39,14 @@ function Task({
   let statusIcon = null;
   switch (state) {
   case 'running':
-    statusIcon = <div className={styles.loaderIconHolder}><InlineLoading /></div>;
+    statusIcon = (
+      <div className={styles.loaderIconHolder}>
+        <InlineLoading />
+      </div>
+    );
     break;
 
-  case 'failed':
+  case 'error':
     statusIcon = (
       <div className={styles.loaderIconHolder}>
         <Misuse16 className={styles.errorFilled} />
@@ -56,7 +60,20 @@ function Task({
       </div>
     );
     break;
-  case 'notstarted':
+  case 'timeout':
+    statusIcon = (
+      <div className={styles.loaderIconHolder}>
+        <WarningAltFilled16 className={styles.warningFilled} />
+      </div>
+    );
+    break;
+  case 'skipped':
+    statusIcon = (
+      <div className={styles.loaderIconHolder}>
+        <Misuse16 className={styles.notStartedFilled} />
+      </div>
+    );
+    break;
   default:
     statusIcon = (
       <div className={styles.loaderIconHolder}>
@@ -105,6 +122,7 @@ export default function Install(props) {
   }
   const [print] = useState(stringPrint)
   const [percentage, setPercentage] = useState({});
+  const [moduleState, setModuleState] = useState({});
   const [logs, setLogs] = useState("")
   
   // steps is an array of objects with keys directory, module, tasks
@@ -151,7 +169,7 @@ export default function Install(props) {
 
   const getData = useCallback(async () => {
     let countObj={}
-    // let moduleName = props.getModuleName()
+    let moduleStateObj={}
     getStatus(moduleName, (err, data) => {
       console.log("check props?: ",moduleName)
       if (err) {
@@ -167,6 +185,9 @@ export default function Install(props) {
         countObj = {...countObj,
             [e.directory]: 0
         }
+        moduleStateObj = {...moduleStateObj,
+          [e.directory]: "pending"
+        }
         let count = 0;
         e.tasks.map(item =>{
           if(item.status.state === "success"){
@@ -174,12 +195,19 @@ export default function Install(props) {
               [e.directory]: Math.trunc(++count * 100/e.tasks.length)
             }
           }
+          if(["error","timeout","skipped","canceled"].indexOf(moduleStateObj[e.directory])<0){
+            if(!!item.status.state){
+              moduleStateObj = {...moduleStateObj,
+                [e.directory]: item.status.state
+              }
+            }
+          }
         })
       })
+      setModuleState(moduleStateObj)
       setPercentage(countObj);
     });
   }, [clearStatusInterval]);
-
 
   const cancel = (e) =>{
     console.log("Cancel pressed!", props)
@@ -239,7 +267,7 @@ export default function Install(props) {
               {steps.map((module) => {
                 return (
                   <div key={module.directory} className={styles.module}>
-                    <AccordionItem title= {<div>{module.directory.split("/").slice(1).join(" | ")}<span style={{float:"right"}}>{percentage[module.directory]+"% complete"}</span></div>}>
+                    <AccordionItem title= {<div>{module.directory.split("/").slice(1).join(" | ")}<span style={{float:"right"}}>{moduleState[module.directory]+ " | "}{percentage[module.directory]+"% complete"}</span></div>}>
                       {module.tasks.map((task) => (
                         <ul
                           className={styles.loadersHolder}
@@ -258,6 +286,7 @@ export default function Install(props) {
                           <div>Last Success Time: {task.status.lastSuccessTime}</div>
                           :
                           <div>Last Error Time: {task.status.lastErrorTime}</div>}
+                          <div>Status: {task.status.state}</div>
                         </ul>
                       ))}
                     </AccordionItem>
