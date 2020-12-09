@@ -281,12 +281,16 @@ export default function Install(props) {
                             openLogModal={openLogModal}
                             closeLogModal={closeLogModal}
                           />
-                          <div>Time Taken: {task.status.timeTaken}</div>
                           {task.status.state === "success" ? 
-                          <div>Last Success Time: {task.status.lastSuccessTime}</div>
+                          <div>Last Success Time: {new Date(task.status.lastSuccessTime.split(".")[0]).toLocaleString()}
+                          <div>Time Taken: {task.status.timeTaken}</div>
+                          </div>
                           :
-                          <div>Last Error Time: {task.status.lastErrorTime}</div>}
-                          <div>Status: {task.status.state}</div>
+                          task.status.state === "error" ? 
+                          <div>Last Error Time: {task.status.lastErrorTime}
+                          <div>Time Taken: {task.status.timeTaken}</div>
+                          </div>
+                          :null}
                         </ul>
                       ))}
                     </AccordionItem>
