@@ -290,7 +290,10 @@ export default function Install(props) {
                           <div>Last Error Time: {task.status.lastErrorTime}
                           <div>Time Taken: {task.status.timeTaken}</div>
                           </div>
-                          :null}
+                          :
+                          <div>Last Executed Time: {task.status.lastErrorTime}
+                          <div>Time Taken: {task.status.timeTaken}</div>
+                          </div>}
                         </ul>
                       ))}
                     </AccordionItem>
