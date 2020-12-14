@@ -6,6 +6,7 @@ import {
 import { CheckmarkFilled16, Misuse16, View16, WarningAltFilled16 } from '@carbon/icons-react';
 import styles from './Install.module.scss';
 import { getStatus, setupWS } from './InstallUtils';
+import axios from "axios";
 
 function LogModal({ onRequestClose, open, log }) {
   return (
@@ -209,18 +210,30 @@ export default function Install(props) {
     });
   }, [clearStatusInterval]);
 
+  // const getModulesAPI = (e) => {
+  //   axios
+  //     .get("http://localhost:8080/api/v1/modules")
+  //     .then((res) => {
+  //       console.log(res.data);
+  //       setModules(res.data);
+  //     })
+  //     .catch((err) => {
+  //       setNetworkError("err");
+  //       console.log(err);
+  //     });
+  // };
+
   const cancel = (e) =>{
     console.log("Cancel pressed!", props)
-    props.switchActiveTab("configuration")
     // e.preventDefault();
-    // axios
-    // .put(`http://localhost:8080/api/v1/cancel`)
-    // .then((res) => {
-    //   console.log("response cancel??: ", res.data);
-    // })
-    // .catch((err) => {
-    //   console.log("error cancel",err);
-    // });
+    axios
+    .put(`http://localhost:8080/api/v1/cancel`)
+    .then((res) => {
+      console.log("response cancel??: ", res.data);
+    })
+    .catch((err) => {
+      console.log("error cancel",err);
+    });
   }
 
   const setStatusInterval = useCallback(() => {
@@ -246,11 +259,14 @@ export default function Install(props) {
     }
   }, [state])
 
-  const header = (
-    <h6>
-      Status: {state} {moduleName}
-    </h6>
-  );
+  const header =
+    steps.length > 0 ? (
+      <h6>
+        Status: {state} {moduleName}
+      </h6>
+    ) : <h6>
+    Go to Configuration tab to run your script, you will then see the status here.
+  </h6>;
 
   return (
     <div style={{ marginBottom: "2%", marginTop: "2%" }}>
@@ -287,11 +303,11 @@ export default function Install(props) {
                           </div>
                           :
                           task.status.state === "error" ? 
-                          <div>Last Error Time: {task.status.lastErrorTime}
+                          <div>Last Error Time: {new Date(task.status.lastErrorTime.split(".")[0]).toLocaleString()}
                           <div>Time Taken: {task.status.timeTaken}</div>
                           </div>
                           :
-                          <div>Last Executed Time: {task.status.lastErrorTime}
+                          <div>Last Executed Time: {new Date(task.status.lastErrorTime.split(".")[0]).toLocaleString()}
                           <div>Time Taken: {task.status.timeTaken}</div>
                           </div>}
                         </ul>
@@ -302,11 +318,14 @@ export default function Install(props) {
               })}
             </Accordion>
             <br />
+            {steps.length>0 ?
             <div className="ButtonRow">
               <Button onClick={cancel} kind="secondary">
                 Cancel
               </Button>
             </div>
+            :null
+            }
           </>
         )}
         <LogModal
