@@ -2,7 +2,7 @@
 
 An orchestrator for scripts. (Python and Bash scripts supported for now).
 
-Mozart is a simple utility to convert your independent, messy bunch of scripts into a well defined, orchestrated program!
+Mozart is a simple utility to convert your independent, messy bunch of scripts into a well defined, orchestrated program complete with a CLI and UI!
 
 **Note:** No Golang code changes required, it is a simple drop-in type utility for your scripts.
 
