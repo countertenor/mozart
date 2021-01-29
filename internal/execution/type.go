@@ -1,6 +1,7 @@
 package execution
 
 import (
+	"os"
 	"sync"
 	"time"
 )
@@ -32,6 +33,12 @@ type FileExecStatus struct {
 	LogFilePath     string    `json:"logFilePath"`
 }
 
+type fileMetadata struct {
+	fullDirPath string
+	filename    string
+	logfilePath string
+}
+
 //Instance is the main struct for execution configs
 type Instance struct {
 	DryRunEnabled   bool
@@ -41,6 +48,7 @@ type Instance struct {
 	TemplateDir     string
 	Error           error
 	DoRunParallel   bool
+	Interrupter     chan os.Signal
 	WaitGroup       *sync.WaitGroup
 	Mutex           sync.RWMutex
 	TimeoutInterval time.Duration
