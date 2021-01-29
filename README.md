@@ -267,11 +267,10 @@ State: {
 
 ## UI
 
-_Under development by Tosha Kamath_.
+Developed by @toshakamath
 
-A sample UI wireframe:
-
-![](https://user-images.githubusercontent.com/36335212/97355431-214dd300-1854-11eb-9103-0a39fcf3cf87.png)
+![](https://github.com/countertenor/mozart/blob/master/gh%20images/1.jpg)
+![](https://github.com/countertenor/mozart/blob/master/gh%20images/2.jpg)
 
 ## Helpful resources
 
