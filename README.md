@@ -1,8 +1,35 @@
 # Mozart
 
-An orchestrator for scripts. (Python and Bash scripts supported for now).
+Run scripts in style!
 
-Mozart is a simple utility to convert your independent, messy bunch of scripts into a well defined, orchestrated program complete with a CLI and UI!
+Instead of the boring old method of running your script,
+
+```
+╭─prashants-mbp@ ~/Documents
+╰$ ./installer.sh
+
+installing component ...
+
+step 1 ...
+
+step 2 ...
+
+step 3 ...
+
+step 4 ...
+
+step 5 ...
+
+fin.
+```
+
+change it to this!
+
+![](https://github.com/countertenor/mozart/blob/master/gh%20images/execution.jpg)
+
+## What is mozart?
+
+Mozart is a simple drop-in (no go-coding required) utility to attach a CLI and a UI to your scripts, making your independent, messy bunch of scripts into a well defined, orchestrated program complete with a CLI and UI!
 
 **Note:** No Golang code changes required, it is a simple drop-in type utility for your scripts.
 
@@ -12,6 +39,7 @@ Mozart is a simple utility to convert your independent, messy bunch of scripts i
 
 <!-- code_chunk_output -->
 
+- [What is mozart?](#what-is-mozart)
 - [Table of Contents](#table-of-contents)
 - [What exactly does an orchestrator do?](#what-exactly-does-an-orchestrator-do)
   - [Life without an orchestrator](#life-without-an-orchestrator)
@@ -160,7 +188,7 @@ var/log/mozart/my-log-dir
 
 #### 4. Build the binary
 
-`make build-all` - builds binaries for linux, mac and centOS environments, inside bin directory.
+`make` - builds binaries for linux, mac and centOS environments, inside bin directory.
 
 Voila! You have a single orchestrator binary with all your scripts in it.
 

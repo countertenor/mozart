@@ -34,12 +34,12 @@ func ping(ws *websocket.Conn, done chan struct{}) {
 	for {
 		select {
 		case <-ticker.C:
-			log.Println("ping ticker")
+			// log.Println("ping ticker")
 			if err := ws.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(writeWait)); err != nil {
-				log.Println("ping err:", err)
+				// log.Println("ping err:", err)
 			}
 		case <-done:
-			log.Println("exit ping")
+			// log.Println("exit ping")
 			return
 		}
 	}
@@ -56,14 +56,14 @@ func reader(ws *websocket.Conn, writer *io.PipeWriter) {
 			break
 		}
 	}
-	log.Println("exit reader")
+	// log.Println("exit reader")
 	writer.Close()
 }
 
 func pumpStdout(ws *websocket.Conn, r io.Reader, done chan struct{}) {
 	defer func() {
 	}()
-	log.Println("new : ", r)
+	// log.Println("new : ", r)
 	s := bufio.NewScanner(r)
 	for s.Scan() {
 		ws.SetWriteDeadline(time.Now().Add(writeWait))
@@ -73,9 +73,9 @@ func pumpStdout(ws *websocket.Conn, r io.Reader, done chan struct{}) {
 		}
 	}
 	if s.Err() != nil {
-		log.Println("scan:", s.Err())
+		// log.Println("scan error:", s.Err())
 	}
-	log.Println("exit pumpStdout")
+	// log.Println("exit pumpStdout")
 	close(done)
 
 	ws.SetWriteDeadline(time.Now().Add(writeWait))
@@ -88,7 +88,7 @@ func pumpStdout(ws *websocket.Conn, r io.Reader, done chan struct{}) {
 func ServeWs(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("upgrade:", err)
+		// log.Println("upgrade:", err)
 		return
 	}
 	defer ws.Close()
@@ -115,13 +115,13 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 		if err := cmd.Process.Kill(); err != nil {
 			log.Printf("failed to kill process: %v", err)
 		}
-		log.Println("process killed")
+		// log.Println("process killed")
 	}()
 
 	cmd.Start()
 	cmd.Wait()
 
-	log.Println("fin.")
+	// log.Println("fin.")
 
 }
 
