@@ -27,7 +27,7 @@ change it to this!
 
 ![](https://github.com/countertenor/mozart/blob/master/gh%20images/execution.jpg)
 
-##
+## What is mozart?
 
 Mozart is a simple drop-in (no go-coding required) utility to attach a CLI and a UI to your scripts, making your independent, messy bunch of scripts into a well defined, orchestrated program complete with a CLI and UI!
 
