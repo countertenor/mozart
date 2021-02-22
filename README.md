@@ -39,7 +39,7 @@ Mozart is a simple drop-in (no go-coding required) utility to attach a CLI and a
 
 <!-- code_chunk_output -->
 
-- [](#)
+- [What is mozart?](#what-is-mozart)
 - [Table of Contents](#table-of-contents)
 - [What exactly does an orchestrator do?](#what-exactly-does-an-orchestrator-do)
   - [Life without an orchestrator](#life-without-an-orchestrator)
