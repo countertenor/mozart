@@ -27,6 +27,19 @@ change it to this!
 
 ![](https://github.com/countertenor/mozart/blob/master/gh%20images/execution.jpg)
 
+or CLI:
+
+**Available CLI commands**:
+
+```
+mozart execute installer-module
+mozart execute installer-module step1
+mozart execute installer-module step2
+mozart execute installer-module step3
+mozart execute installer-module step4
+mozart execute installer-module step5
+```
+
 ## What is mozart?
 
 Mozart is a simple drop-in (no go-coding required) utility to attach a CLI and a UI to your scripts, making your independent, messy bunch of scripts into a well defined, orchestrated program complete with a CLI and UI!
