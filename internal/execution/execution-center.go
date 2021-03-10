@@ -208,7 +208,7 @@ func (i *Instance) getSource(filename string) (fileExt, source string) {
 	case "sh":
 		source = "/bin/bash"
 	case "py":
-		source = "python"
+		source = "/usr/bin/python"
 	}
 	return
 }
