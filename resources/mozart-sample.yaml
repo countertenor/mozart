@@ -1,3 +1,6 @@
 values:
   value1: hello
   value2: world
+# exec_source:
+#   py: /usr/bin/python
+# log_path: my_dir

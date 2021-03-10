@@ -175,8 +175,11 @@ func (i *Instance) RunScripts() *Instance {
 	fullPath := generatedDir + i.ConfigDir
 	// fmt.Println("fullPath : ", fullPath)
 
-	if i.Config["log_path"] != nil {
-		i.LogDir = i.LogDir + parsePath(i.Config["log_path"].(string))
+	//optional values from config file
+	err := i.parseConfigFile()
+	if err != nil {
+		i.Error = err
+		return i
 	}
 
 	if i.DryRunEnabled {
@@ -290,4 +293,38 @@ func parsePath(path string) string {
 		path += "/"
 	}
 	return path
+}
+
+func (i *Instance) parseConfigFile() error {
+	if i.Config["log_path"] != nil {
+		logPath, parseOk := i.Config["log_path"].(string)
+		if parseOk {
+			i.LogDir = i.LogDir + parsePath(logPath)
+		} else {
+			return fmt.Errorf("could not parse log file path in config file")
+		}
+	}
+
+	if i.Config["exec_source"] != nil {
+		errorMsg := "could not parse exec_source in config file"
+		source, parseOk := i.Config["exec_source"].(map[interface{}]interface{})
+		if parseOk {
+			// fmt.Println("source : ", source)
+			for key, val := range source {
+				// fmt.Printf("key %v val %v", key, val)
+				if key != nil && val != nil {
+					keyStr, parseKeyOk := key.(string)
+					valStr, parseValOk := val.(string)
+					if parseKeyOk && parseValOk {
+						i.ExecutionSource[keyStr] = valStr
+					} else {
+						return fmt.Errorf(errorMsg)
+					}
+				}
+			}
+		} else {
+			return fmt.Errorf(errorMsg)
+		}
+	}
+	return nil
 }

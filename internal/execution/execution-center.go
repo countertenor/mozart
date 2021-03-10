@@ -22,6 +22,7 @@ var waitGroup sync.WaitGroup
 func (i *Instance) Init() {
 	i.WaitGroup = &waitGroup
 	i.DirExecStatusMap = makeStatusMap()
+	i.ExecutionSource = make(map[string]string)
 	i.initState()
 	i.Interrupter = i.configureInterrupter()
 }
@@ -101,7 +102,12 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	defer cancelFunc()
 	cancelRunningCommandFunc = cancelFunc
 
-	command := exec.CommandContext(ctx, getSource(filename), args...)
+	fileExt, source := i.getSource(filename)
+	if source == "" {
+		i.updateErrorState(fileMetadata)
+		return fmt.Errorf("could not find source for %v, please provide 'exec_source' in config file", fileExt)
+	}
+	command := exec.CommandContext(ctx, source, args...)
 
 	logFile, logfilePath, err := createLogFile(filename, i.LogDir)
 	if err != nil {
@@ -192,12 +198,16 @@ func createLogFile(filename, logDir string) (*os.File, string, error) {
 	return logFile, absPath, nil
 }
 
-func getSource(filename string) (source string) {
-	fileExt := filename[strings.LastIndex(filename, "."):]
+func (i *Instance) getSource(filename string) (fileExt, source string) {
+	fileExt = filename[strings.LastIndex(filename, ".")+1:]
+	if val, exists := i.ExecutionSource[fileExt]; exists {
+		source = val
+		return
+	}
 	switch fileExt {
-	case ".sh":
+	case "sh":
 		source = "/bin/bash"
-	case ".py":
+	case "py":
 		source = "python"
 	}
 	return
