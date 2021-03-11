@@ -101,6 +101,12 @@ func (i *Instance) ParseConfig() *Instance {
 		i.Error = fmt.Errorf("error while parsing YAML file: %v", err)
 		return i
 	}
+	//optional values from config file
+	err = i.parseConfigParams()
+	if err != nil {
+		i.Error = err
+		return i
+	}
 	if getBoolFlagValue(i.Flags, flag.Verbose) {
 		fmt.Println("config : ", i.Config)
 	}
@@ -174,13 +180,6 @@ func (i *Instance) RunScripts() *Instance {
 	}
 	fullPath := generatedDir + i.ConfigDir
 	// fmt.Println("fullPath : ", fullPath)
-
-	//optional values from config file
-	err := i.parseConfigFile()
-	if err != nil {
-		i.Error = err
-		return i
-	}
 
 	if i.DryRunEnabled {
 		i.RunScriptsInDir(fullPath)
@@ -295,7 +294,7 @@ func parsePath(path string) string {
 	return path
 }
 
-func (i *Instance) parseConfigFile() error {
+func (i *Instance) parseConfigParams() error {
 	if i.Config["log_path"] != nil {
 		logPath, parseOk := i.Config["log_path"].(string)
 		if parseOk {

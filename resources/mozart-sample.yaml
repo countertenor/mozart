@@ -1,6 +1,9 @@
 values:
   value1: hello
   value2: world
+
+# Optional configuration params
+
 # exec_source:
 #   py: /usr/bin/python
 # log_path: my_dir
