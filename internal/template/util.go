@@ -106,7 +106,7 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 		config1 := make(map[string]interface{})
 		err = yaml.Unmarshal(templateFileContents, &config1)
 		if err != nil {
-			return fmt.Errorf("error while unmarshalling yaml %v: %v", templateFile, err)
+			return fmt.Errorf("error while unmarshalling yaml %v: %v", scriptFileName, err)
 		}
 		for key, val := range config1 {
 			config[key] = val
