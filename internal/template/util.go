@@ -12,6 +12,7 @@ import (
 	"github.com/Masterminds/sprig"
 	"github.com/countertenor/mozart/statik"
 	"github.com/rakyll/statik/fs"
+	"gopkg.in/yaml.v2"
 )
 
 type templateInstance struct {
@@ -68,8 +69,13 @@ func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstan
 		if !info.IsDir() {
 			fileName := info.Name()
 			fileExt := fileName[strings.LastIndex(fileName, "."):]
+			scriptName := fileName
+			if fileExt != ".yaml" {
+				// fmt.Println("yaml file found!")
+				scriptName = strings.TrimSuffix(fileName, fileExt)
+			}
 			templateInstance := templateInstance{
-				scriptName:       strings.TrimSuffix(fileName, fileExt),
+				scriptName:       scriptName,
 				scriptFileName:   strings.TrimPrefix(path, templateDir),
 				templateFileName: path,
 			}
@@ -95,7 +101,18 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 	if err != nil {
 		return fmt.Errorf("error reading content from file %v err: %v", templateFileName, err)
 	}
-
+	fileExt := scriptFileName[strings.LastIndex(scriptFileName, "."):]
+	if fileExt == ".yaml" {
+		config1 := make(map[string]interface{})
+		err = yaml.Unmarshal(templateFileContents, &config1)
+		if err != nil {
+			return fmt.Errorf("error while unmarshalling yaml %v: %v", templateFile, err)
+		}
+		for key, val := range config1 {
+			config[key] = val
+		}
+		return nil
+	}
 	//create script file
 	fileName := generatedDir + scriptFileName
 	splitVal := strings.Split(fileName, "/")
