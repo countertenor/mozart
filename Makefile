@@ -1,4 +1,4 @@
-build-all: ui build-bin
+build-all: ui build-all-binary
 build-all-binary: build-darwin build-linux build-centos
 build-darwin: add-static clean
 	go build -ldflags "-X github.com/countertenor/mozart/cmd.gitCommitHash=`git rev-parse HEAD` -X github.com/countertenor/mozart/cmd.buildTime=`date -u '+%Y-%m-%d--%H:%M:%S%p'` -X github.com/countertenor/mozart/cmd.gitBranch=`git branch --show-current`" -o bin/mozart-darwin main.go
