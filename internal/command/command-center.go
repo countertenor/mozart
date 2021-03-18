@@ -22,6 +22,7 @@ var stateDBPathFromEnv string //This will be set through the build command, see 
 //constants needed
 const (
 	sampleConfigFileName = "mozart-sample.yaml"
+	commonConfigFileName = "common.yaml"
 
 	defaultConfigFileName = "mozart-defaults.yaml"
 	stateFileDefaultName  = "mozart-state.db"
@@ -98,9 +99,21 @@ func (i *Instance) ParseConfig() *Instance {
 	confFile := getStringFlagValue(i.Flags, flag.ConfigurationFile)
 	err := yaml.ParseFile(i.Config, confFile)
 	if err != nil {
-		i.Error = fmt.Errorf("error while parsing YAML file: %v", err)
+		i.Error = fmt.Errorf("error while parsing %v YAML file: %v", confFile, err)
 		return i
 	}
+	//optional values from config file
+	err = i.parseConfigParams()
+	if err != nil {
+		i.Error = err
+		return i
+	}
+	err = yaml.ParseFileFromStatic(i.Config, commonConfigFileName)
+	if err != nil {
+		i.Error = fmt.Errorf("error while parsing %v YAML file: %v", commonConfigFileName, err)
+		return i
+	}
+
 	if getBoolFlagValue(i.Flags, flag.Verbose) {
 		fmt.Println("config : ", i.Config)
 	}
@@ -174,10 +187,6 @@ func (i *Instance) RunScripts() *Instance {
 	}
 	fullPath := generatedDir + i.ConfigDir
 	// fmt.Println("fullPath : ", fullPath)
-
-	if i.Config["log_path"] != nil {
-		i.LogDir = i.LogDir + parsePath(i.Config["log_path"].(string))
-	}
 
 	if i.DryRunEnabled {
 		i.RunScriptsInDir(fullPath)
@@ -290,4 +299,38 @@ func parsePath(path string) string {
 		path += "/"
 	}
 	return path
+}
+
+func (i *Instance) parseConfigParams() error {
+	if i.Config["log_path"] != nil {
+		logPath, parseOk := i.Config["log_path"].(string)
+		if parseOk {
+			i.LogDir = i.LogDir + parsePath(logPath)
+		} else {
+			return fmt.Errorf("could not parse log file path in config file")
+		}
+	}
+
+	if i.Config["exec_source"] != nil {
+		errorMsg := "could not parse exec_source in config file"
+		source, parseOk := i.Config["exec_source"].(map[interface{}]interface{})
+		if parseOk {
+			// fmt.Println("source : ", source)
+			for key, val := range source {
+				// fmt.Printf("key %v val %v", key, val)
+				if key != nil && val != nil {
+					keyStr, parseKeyOk := key.(string)
+					valStr, parseValOk := val.(string)
+					if parseKeyOk && parseValOk {
+						i.ExecutionSource[keyStr] = valStr
+					} else {
+						return fmt.Errorf(errorMsg)
+					}
+				}
+			}
+		} else {
+			return fmt.Errorf(errorMsg)
+		}
+	}
+	return nil
 }
