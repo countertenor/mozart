@@ -120,11 +120,28 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 		log.Fatalf("could not make %v file executable, err : %v", fileName, err)
 	}
 
+	delims := []string{"{{", "}}"}
+	if config["delims"] != nil {
+		delimsParsed, parseOk := config["delims"].([]interface{})
+		if parseOk && len(delimsParsed) == 2 {
+			delims0, parseOk0 := delimsParsed[0].(string)
+			delims1, parseOk1 := delimsParsed[1].(string)
+			if parseOk0 && parseOk1 {
+				delims[0] = delims0
+				delims[1] = delims1
+			} else {
+				return fmt.Errorf("could not parse delims in config file")
+			}
+		} else {
+			return fmt.Errorf("could not parse delims in config file")
+		}
+	}
 	t := template.Must(template.New(templateFileName).
 		Funcs(sprig.TxtFuncMap()).
 		Funcs(getLastStringSplit()).
 		Funcs(excludeFirstHost()).
 		Funcs(getFirstHost()).
+		Delims(delims[0], delims[1]).
 		Parse(string(templateFileContents)))
 
 	err = t.Execute(scriptFile, config)

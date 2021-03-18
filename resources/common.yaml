@@ -1,0 +1,8 @@
+# (OPTIONAL )Use this file to add common code blocks, which can be used
+# across different modules.
+
+# This function is used in 2 scripts, that's why it is 
+# inside the common.yaml.
+my_func: >
+  def my_func(str):
+    print(f'inside funct {str}')

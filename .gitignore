@@ -22,4 +22,4 @@ generated/*
 dist/
 
 # Sample files
-*.yaml
+mozart*.yaml

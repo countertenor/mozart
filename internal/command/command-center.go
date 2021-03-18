@@ -22,6 +22,7 @@ var stateDBPathFromEnv string //This will be set through the build command, see 
 //constants needed
 const (
 	sampleConfigFileName = "mozart-sample.yaml"
+	commonConfigFileName = "common.yaml"
 
 	defaultConfigFileName = "mozart-defaults.yaml"
 	stateFileDefaultName  = "mozart-state.db"
@@ -98,7 +99,7 @@ func (i *Instance) ParseConfig() *Instance {
 	confFile := getStringFlagValue(i.Flags, flag.ConfigurationFile)
 	err := yaml.ParseFile(i.Config, confFile)
 	if err != nil {
-		i.Error = fmt.Errorf("error while parsing YAML file: %v", err)
+		i.Error = fmt.Errorf("error while parsing %v YAML file: %v", confFile, err)
 		return i
 	}
 	//optional values from config file
@@ -107,6 +108,12 @@ func (i *Instance) ParseConfig() *Instance {
 		i.Error = err
 		return i
 	}
+	err = yaml.ParseFileFromStatic(i.Config, commonConfigFileName)
+	if err != nil {
+		i.Error = fmt.Errorf("error while parsing %v YAML file: %v", commonConfigFileName, err)
+		return i
+	}
+
 	if getBoolFlagValue(i.Flags, flag.Verbose) {
 		fmt.Println("config : ", i.Config)
 	}
