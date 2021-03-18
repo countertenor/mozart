@@ -1,5 +1,5 @@
 build-all: ui build-bin
-build-all-binary: add-static clean build-darwin build-linux build-centos
+build-all-binary: build-darwin build-linux build-centos
 build-darwin: add-static clean
 	go build -ldflags "-X github.com/countertenor/mozart/cmd.gitCommitHash=`git rev-parse HEAD` -X github.com/countertenor/mozart/cmd.buildTime=`date -u '+%Y-%m-%d--%H:%M:%S%p'` -X github.com/countertenor/mozart/cmd.gitBranch=`git branch --show-current`" -o bin/mozart-darwin main.go
 build-linux: add-static clean # example: make build-linux DB_PATH=/dir/to/db
