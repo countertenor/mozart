@@ -59,13 +59,13 @@ Mozart is a simple drop-in (no go-coding required) utility to attach a CLI and a
     - [2. Modularize](#2-modularize)
     - [3. (Optional) Use templating](#3-optional-use-templating)
     - [4. Build the binary](#4-build-the-binary)
-  - [Mozart yaml file](#mozart-yaml-file)
-    - [Templating](#templating)
-    - [Using common snippets across scripts](#using-common-snippets-across-scripts)
-    - [Optional configuration parameters](#optional-configuration-parameters)
-      - [Log sub-directory](#log-sub-directory)
-      - [Exec source](#exec-source)
-      - [Delims](#delims)
+- [Mozart yaml file](#mozart-yaml-file)
+  - [Templating](#templating)
+  - [Using common snippets across scripts](#using-common-snippets-across-scripts)
+  - [Optional configuration parameters](#optional-configuration-parameters)
+    - [Log sub-directory](#log-sub-directory)
+    - [Exec source](#exec-source)
+    - [Delims](#delims)
 - [CLI](#cli)
   - [Mozart commands](#mozart-commands)
   - [Executing modules](#executing-modules)
@@ -195,7 +195,7 @@ Run `make` - builds binaries for linux, mac and centOS environments, inside bin 
 
 Voila! You have a single orchestrator binary with all your scripts in it.
 
-### Mozart yaml file
+## Mozart yaml file
 
 Providing a yaml file at runtime lets you enable certain templating features and configuration changes.
 
@@ -207,7 +207,7 @@ A sample blank configuration file can be generated from the binary itself, using
 Generated sample file :  mozart-sample.yaml
 ```
 
-#### Templating
+### Templating
 
 You can use the above `yaml` file to help with templating. If you refer to the `test-module` under `resources/templates`, you can see some examples of templating.
 
@@ -233,7 +233,7 @@ values:
 
 Mozart will substitute these values at runtime.
 
-#### Using common snippets across scripts
+### Using common snippets across scripts
 
 There might be a scenario in which some scripts have a lot of common code. It is never a good idea to duplicate logic across scripts (DRY principle).
 
@@ -274,11 +274,11 @@ You can then access this function in any script, using
 
 **Note 2:** The only difference between the `common.yaml` and the main `yaml` file for Mozart config is that the `common.yaml` is more for compile time deduplication, whereas the main `yaml` file is for runtime changes. For example, functions that are duplicated will never need to be changed at runtime (common.yaml), whereas username and password should never be saved at compile time, instead should be provided at runtime.
 
-#### Optional configuration parameters
+### Optional configuration parameters
 
 There are certain configuration parameters also that you can change using the same `yaml` file as above.
 
-##### Log sub-directory
+#### Log sub-directory
 
 By default, log files are stored in `/var/log/mozart` directory (For linux and centOS), but if for some reason you want to add a sub-directory, you can do so by adding one line to the `yaml` file:
 
@@ -294,7 +294,7 @@ Then all the logs will go to:
 var/log/mozart/my-log-dir
 ```
 
-##### Exec source
+#### Exec source
 
 This lets you choose the execution environment of any type of script that you include.
 
@@ -304,15 +304,15 @@ The format is `file_ext: source`
 
 ```
 exec_source:
-py: /usr/bin/python3
+py: /usr/bin/python
 sh: /bin/bash
 ```
 
 This lets Mozart know that if you place any file with the extension of `.sh`, then run it using `/bin/bash`. If you place any file with the extension `.py`, then run it using `/usr/bin/python`.
 
-These are the only 2 extensions added by default in Mozart. If you add any other type of script apart from python or bash, you will need to add the execution source in the `yaml`.
+**Note:** These are the only 2 extensions added by default in Mozart. If you add any other type of script apart from python or bash, you will need to add the execution source in the `yaml`.
 
-##### Delims
+#### Delims
 
 This lets you change the default delimiters (default - `{{`, `}}`)
 
