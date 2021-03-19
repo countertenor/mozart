@@ -131,7 +131,7 @@ There is already a sample module present called `test-module` under `resources/t
 1. Run the command `export PATH=$PATH:$(go env GOPATH)/bin`) (_Please note_ - to make it persistent, you will have to add the command to your .bashrc)
 1. Run `go get github.com/rakyll/statik`
 1. Create a new directory inside `resources/templates`. This will be the base module under which all your modules will exist.
-1. (Optional) Delete the existing `test-module` inside `resources/templates` if you want a clean slate. That folder is only for reference. Leaving that folder will not mean any harm, it will just be included in the final binary.
+1. (Optional) Delete the existing `test-module` inside `resources/templates` if you want a clean slate. That folder is only for reference. Leaving that folder as it is will not do any harm.
 
 #### 2. Modularize
 
@@ -170,12 +170,11 @@ You can do something like this within any script:
 echo "{{.values.value1}} {{.values.value2}}"
 ```
 
-These values are going to be fetched from a yaml file that you supply while invoking the CLI or the UI. (discussed later)
+These values are going to be fetched from a `yaml` file that you supply while invoking the CLI or the UI. (discussed later)
 
-The yaml file will look something like this for the example above:
+The `yaml` file should have something like this for the example above:
 
 ```
-$ cat mozart-sample.yaml
 values:
   value1: hello
   value2: world
@@ -209,7 +208,7 @@ Generated sample file :  mozart-sample.yaml
 
 #### Templating
 
-You can use the above yaml file to help with templating. If you refer to the `test-module` under `resources/templates`, you can see some examples of templating.
+You can use the above `yaml` file to help with templating. If you refer to the `test-module` under `resources/templates`, you can see some examples of templating.
 
 This idea is similar to helm.
 
@@ -223,7 +222,7 @@ In the file `step1.sh`, you see this:
 echo "{{.values.value1}} {{.values.value2}}"
 ```
 
-The values in the brackets are the values that will be fetched from the yaml at runtime. So if you want to substitute some values at runtime, you replace the values with the `{{ }}` notation as you see above, and in the yaml file, add:
+The values in the brackets are the values that will be fetched from the `yaml` at runtime. So if you want to substitute some values at runtime, you replace the values with the `{{ }}` notation as you see above, and in the `yaml` file, add:
 
 ```
 values:
@@ -269,7 +268,7 @@ sh: /bin/bash
 
 This lets Mozart know that if you place any file with the extension of `.sh`, then run it using `/bin/bash`. If you place any file with the extension `.py`, then run it using `/usr/bin/python`.
 
-These are the only 2 extensions added by default in Mozart. If you add any other type of script apart from python or bash, you will need to add the execution source in the yaml.
+These are the only 2 extensions added by default in Mozart. If you add any other type of script apart from python or bash, you will need to add the execution source in the `yaml`.
 
 ##### - Delims
 
