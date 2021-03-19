@@ -1,43 +1,39 @@
 # Mozart
 
-Run scripts in style!
-
-Instead of the boring old method of running your script,
+If you struggle with maintaining a lot of scripts:
 
 ```
-╭─prashants-mbp@ ~/Documents
-╰$ ./installer.sh
-
-installing component ...
-
-step 1 ...
-
-step 2 ...
-
-step 3 ...
-
-step 4 ...
-
-step 5 ...
-
-fin.
+╰$ tree scripts
+scripts
+└── my-service
+    ├── install
+    │   ├── install-component1.sh
+    │   ├── install-component2.sh
+    │   └── install-component3.sh
+    └── test
+        ├── test-component1.sh
+        ├── test-component2.sh
+        └── test-component3.sh
 ```
 
-change it to this!
+Mozart lets you change that to all this - with 0 lines of code!
 
 ![](https://github.com/countertenor/mozart/blob/master/gh%20images/execution.jpg)
 
-or CLI:
-
-**Available CLI commands**:
+**Including a CLI !**:
 
 ```
-mozart execute installer-module
-mozart execute installer-module step1
-mozart execute installer-module step2
-mozart execute installer-module step3
-mozart execute installer-module step4
-mozart execute installer-module step5
+Available CLI commands:
+
+mozart execute my-service
+mozart execute my-service install
+mozart execute my-service install install-component1
+mozart execute my-service install install-component2
+mozart execute my-service install install-component3
+mozart execute my-service test
+mozart execute my-service test test-component1
+mozart execute my-service test test-component2
+mozart execute my-service test test-component3
 ```
 
 ## What is mozart?
