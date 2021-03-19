@@ -1,6 +1,10 @@
-values:
-  value1: hello
-  value2: world
+# This is the file that gets generated when you run 
+# ./mozart init
+
+# Optional templating values
+# values:
+#   value1: 
+#   value2:
 
 # Optional configuration params
 # ------------------------------

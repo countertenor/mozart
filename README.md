@@ -61,6 +61,7 @@ Mozart is a simple drop-in (no go-coding required) utility to attach a CLI and a
     - [4. Build the binary](#4-build-the-binary)
   - [Mozart yaml file](#mozart-yaml-file)
     - [Templating](#templating)
+    - [Using common snippets across scripts](#using-common-snippets-across-scripts)
     - [Optional configuration parameters](#optional-configuration-parameters)
       - [- Log sub-directory](#-log-sub-directory)
       - [- Exec source](#-exec-source)
@@ -231,6 +232,51 @@ values:
 ```
 
 Mozart will substitute these values at runtime.
+
+#### Using common snippets across scripts
+
+There might be a scenario in which some scripts have a lot of common code. It is never a good idea to duplicate logic across scripts (DRY principle).
+
+To tackle this, you can make use of the `common.yaml` file that is present in the `resources` folder. This file has one purpose and one purpose only - to hold common snippets of information that will be needed by more than one script.
+
+You can take a look at the `resources/templates/test-module/10-python-module/00-module1/python-1.py` file for an example.
+
+**Example:**
+
+Suppose if you have a function that you want in more than one script, say
+
+```
+def my_func(str):
+  print(f'inside funct {str}')
+```
+
+Instead of having this function be duplicated across scripts, you add this function in the `common.yaml` file:
+
+```
+my_func: >
+  def my_func(str):
+    print(f'inside funct {str}')
+```
+
+The `key` is `my_func`, and the value is the function itself.
+
+You can then access this function in any script, using
+
+```
+{{.my_func}}
+```
+
+**Note 1:** Sometimes you might want to add indentation to the above substituted lines of code (It is essential in python scripts). You can do so by using `nindent` (courtesy of [sprig functions](http://masterminds.github.io/sprig/strings.html))
+
+```
+{{.my_func | nindent 4}}
+```
+
+**Note 2:** Sometimes you might want to add indentation to the above substituted lines of code (It is essential in python scripts). You can do so by using `nindent` (courtesy of [sprig functions](http://masterminds.github.io/sprig/strings.html))
+
+```
+{{.my_func | nindent 4}}
+```
 
 #### Optional configuration parameters
 
