@@ -272,11 +272,7 @@ You can then access this function in any script, using
 {{.my_func | nindent 4}}
 ```
 
-**Note 2:** Sometimes you might want to add indentation to the above substituted lines of code (It is essential in python scripts). You can do so by using `nindent` (courtesy of [sprig functions](http://masterminds.github.io/sprig/strings.html))
-
-```
-{{.my_func | nindent 4}}
-```
+**Note 2:** The only difference between the `common.yaml` and the main `yaml` file for Mozart config is that the `common.yaml` is more for compile time deduplication, whereas the main `yaml` file is for runtime changes. For example, functions that are duplicated will never need to be changed at runtime (common.yaml), whereas username and password should never be saved at compile time, instead should be provided at runtime.
 
 #### Optional configuration parameters
 
