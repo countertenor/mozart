@@ -278,7 +278,7 @@ You can then access this function in any script, using
 
 There are certain configuration parameters also that you can change using the same `yaml` file as above.
 
-##### - Log sub-directory
+##### Log sub-directory
 
 By default, log files are stored in `/var/log/mozart` directory (For linux and centOS), but if for some reason you want to add a sub-directory, you can do so by adding one line to the `yaml` file:
 
@@ -294,7 +294,7 @@ Then all the logs will go to:
 var/log/mozart/my-log-dir
 ```
 
-##### - Exec source
+##### Exec source
 
 This lets you choose the execution environment of any type of script that you include.
 
@@ -312,7 +312,7 @@ This lets Mozart know that if you place any file with the extension of `.sh`, th
 
 These are the only 2 extensions added by default in Mozart. If you add any other type of script apart from python or bash, you will need to add the execution source in the `yaml`.
 
-##### - Delims
+##### Delims
 
 This lets you change the default delimiters (default - `{{`, `}}`)
 
