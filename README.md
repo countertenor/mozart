@@ -1,43 +1,39 @@
 # Mozart
 
-Run scripts in style!
-
-Instead of the boring old method of running your script,
+If you struggle with maintaining a lot of scripts:
 
 ```
-╭─prashants-mbp@ ~/Documents
-╰$ ./installer.sh
-
-installing component ...
-
-step 1 ...
-
-step 2 ...
-
-step 3 ...
-
-step 4 ...
-
-step 5 ...
-
-fin.
+╰$ tree scripts
+scripts
+└── my-service
+    ├── install
+    │   ├── install-component1.sh
+    │   ├── install-component2.sh
+    │   └── install-component3.sh
+    └── test
+        ├── test-component1.sh
+        ├── test-component2.sh
+        └── test-component3.sh
 ```
 
-change it to this!
+Mozart lets you change that to all this - with 0 lines of code!
 
 ![](https://github.com/countertenor/mozart/blob/master/gh%20images/execution.jpg)
 
-or CLI:
-
-**Available CLI commands**:
+**Including a CLI**:
 
 ```
-mozart execute installer-module
-mozart execute installer-module step1
-mozart execute installer-module step2
-mozart execute installer-module step3
-mozart execute installer-module step4
-mozart execute installer-module step5
+Available CLI commands:
+
+mozart execute my-service
+mozart execute my-service install
+mozart execute my-service install install-component1
+mozart execute my-service install install-component2
+mozart execute my-service install install-component3
+mozart execute my-service test
+mozart execute my-service test test-component1
+mozart execute my-service test test-component2
+mozart execute my-service test test-component3
 ```
 
 ## What is mozart?
@@ -62,8 +58,14 @@ Mozart is a simple drop-in (no go-coding required) utility to attach a CLI and a
     - [1. Initial setup](#1-initial-setup)
     - [2. Modularize](#2-modularize)
     - [3. (Optional) Use templating](#3-optional-use-templating)
-      - [Log sub-directory](#log-sub-directory)
     - [4. Build the binary](#4-build-the-binary)
+  - [Mozart yaml file](#mozart-yaml-file)
+    - [Templating](#templating)
+    - [Using common snippets across scripts](#using-common-snippets-across-scripts)
+    - [Optional configuration parameters](#optional-configuration-parameters)
+      - [- Log sub-directory](#-log-sub-directory)
+      - [- Exec source](#-exec-source)
+      - [- Delims](#-delims)
 - [CLI](#cli)
   - [Mozart commands](#mozart-commands)
   - [Executing modules](#executing-modules)
@@ -130,6 +132,7 @@ There is already a sample module present called `test-module` under `resources/t
 1. Run the command `export PATH=$PATH:$(go env GOPATH)/bin`) (_Please note_ - to make it persistent, you will have to add the command to your .bashrc)
 1. Run `go get github.com/rakyll/statik`
 1. Create a new directory inside `resources/templates`. This will be the base module under which all your modules will exist.
+1. (Optional) Delete the existing `test-module` inside `resources/templates` if you want a clean slate. That folder is only for reference. Leaving that folder as it is will not do any harm.
 
 #### 2. Modularize
 
@@ -168,12 +171,11 @@ You can do something like this within any script:
 echo "{{.values.value1}} {{.values.value2}}"
 ```
 
-These values are going to be fetched from a yaml file that you supply while invoking the CLI or the UI. (discussed later)
+These values are going to be fetched from a `yaml` file that you supply while invoking the CLI or the UI. (discussed later)
 
-The yaml file will look something like this for the example above:
+The `yaml` file should have something like this for the example above:
 
 ```
-$ cat mozart-sample.yaml
 values:
   value1: hello
   value2: world
@@ -185,9 +187,102 @@ When you execute the corresponding module that contains the above script, you wi
 echo hello world
 ```
 
-##### Log sub-directory
+This is discussed in detail below.
 
-By default, log files are stored in `/var/log/mozart` directory, but if for some reason you want to add a sub-directory, you can do so by adding one line to the `mozart-sample.yaml` file:
+#### 4. Build the binary
+
+Run `make` - builds binaries for linux, mac and centOS environments, inside bin directory.
+
+Voila! You have a single orchestrator binary with all your scripts in it.
+
+### Mozart yaml file
+
+Providing a yaml file at runtime lets you enable certain templating features and configuration changes.
+
+A sample blank configuration file can be generated from the binary itself, using the `init` command.
+
+```
+./bin/mozart init
+
+Generated sample file :  mozart-sample.yaml
+```
+
+#### Templating
+
+You can use the above `yaml` file to help with templating. If you refer to the `test-module` under `resources/templates`, you can see some examples of templating.
+
+This idea is similar to helm.
+
+**Example:**
+
+In the file `step1.sh`, you see this:
+
+```
+#!/bin/bash
+
+echo "{{.values.value1}} {{.values.value2}}"
+```
+
+The values in the brackets are the values that will be fetched from the `yaml` at runtime. So if you want to substitute some values at runtime, you replace the values with the `{{ }}` notation as you see above, and in the `yaml` file, add:
+
+```
+values:
+  value1: hello
+  value2: world
+```
+
+Mozart will substitute these values at runtime.
+
+#### Using common snippets across scripts
+
+There might be a scenario in which some scripts have a lot of common code. It is never a good idea to duplicate logic across scripts (DRY principle).
+
+To tackle this, you can make use of the `common.yaml` file that is present in the `resources` folder. This file has one purpose and one purpose only - to hold common snippets of information that will be needed by more than one script.
+
+You can take a look at the `resources/templates/test-module/10-python-module/00-module1/python-1.py` file for an example.
+
+**Example:**
+
+Suppose if you have a function that you want in more than one script, say
+
+```
+def my_func(str):
+  print(f'inside funct {str}')
+```
+
+Instead of having this function be duplicated across scripts, you add this function in the `common.yaml` file:
+
+```
+my_func: >
+  def my_func(str):
+    print(f'inside funct {str}')
+```
+
+The `key` is `my_func`, and the value is the function itself.
+
+You can then access this function in any script, using
+
+```
+{{.my_func}}
+```
+
+**Note 1:** Sometimes you might want to add indentation to the above substituted lines of code (It is essential in python scripts). You can do so by using `nindent` (courtesy of [sprig functions](http://masterminds.github.io/sprig/strings.html))
+
+```
+{{.my_func | nindent 4}}
+```
+
+**Note 2:** The only difference between the `common.yaml` and the main `yaml` file for Mozart config is that the `common.yaml` is more for compile time deduplication, whereas the main `yaml` file is for runtime changes. For example, functions that are duplicated will never need to be changed at runtime (common.yaml), whereas username and password should never be saved at compile time, instead should be provided at runtime.
+
+#### Optional configuration parameters
+
+There are certain configuration parameters also that you can change using the same `yaml` file as above.
+
+##### - Log sub-directory
+
+By default, log files are stored in `/var/log/mozart` directory (For linux and centOS), but if for some reason you want to add a sub-directory, you can do so by adding one line to the `yaml` file:
+
+**Example:**
 
 ```
 log_path: my-log-dir
@@ -199,19 +294,61 @@ Then all the logs will go to:
 var/log/mozart/my-log-dir
 ```
 
-#### 4. Build the binary
+##### - Exec source
 
-`make` - builds binaries for linux, mac and centOS environments, inside bin directory.
+This lets you choose the execution environment of any type of script that you include.
 
-Voila! You have a single orchestrator binary with all your scripts in it.
+The format is `file_ext: source`
+
+**Example:**
+
+```
+exec_source:
+py: /usr/bin/python3
+sh: /bin/bash
+```
+
+This lets Mozart know that if you place any file with the extension of `.sh`, then run it using `/bin/bash`. If you place any file with the extension `.py`, then run it using `/usr/bin/python`.
+
+These are the only 2 extensions added by default in Mozart. If you add any other type of script apart from python or bash, you will need to add the execution source in the `yaml`.
+
+##### - Delims
+
+This lets you change the default delimiters (default - `{{`, `}}`)
+
+**Example 1:**
+
+```
+delims: ["[[", "]]"]
+```
+
+Adding this line in the `yaml` file changes the delimiters to `[[ ]]`. So after this, you can use templating like:
+
+```
+echo "[[.values.value1]] [[.values.value2]]"
+```
+
+**Example 2:**
+
+```
+delims: ["<<", ">>"]
+```
+
+Adding this line in the `yaml` file changes the delimiters to `<< >> `. So after this, you can use templating like:
+
+```
+echo "<<.values.value1>> <<.values.value2>>"
+```
 
 ## CLI
 
 ### Mozart commands
 
 ```
+- init          Generate a blank sample config yaml file for the orchestrator
 - execute       (executes all scripts in specified directory)
 - state         (displays install state of all components, accepts optional args)
+- server        Starts the REST server
 - version       (displays version info for the application)
   --json                (gives output in JSON)
 
@@ -230,8 +367,9 @@ Global flags
 Running the binary built in the earlier step, you will see something like this:
 
 ```
-$ ./bin/mozart execute
+$ ./bin/mozart execute -h
 
+Execute scripts inside any folder.
 *****************************************
 Available commands:
 
