@@ -5,4 +5,4 @@
 # inside the common.yaml.
 my_func: >
   def my_func(str):
-    print(f'inside funct {str}')
+    print('inside funct - ' + str)
