@@ -183,7 +183,7 @@ func (i *Instance) createLogFile(fileMetadata fileMetadata) (*os.File, string, e
 	}
 	dirToCreate := strings.Join(splitVal[startSplit:], "/")
 	logfilePath := i.LogDir + dirToCreate
-	fmt.Println("logfilePath : ", logfilePath)
+	// fmt.Println("logfilePath : ", logfilePath)
 
 	if _, err := os.Stat(logfilePath); os.IsNotExist(err) {
 		err := os.MkdirAll(logfilePath, 0755)
