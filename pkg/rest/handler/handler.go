@@ -76,20 +76,68 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 	}
 
 	errChan := make(chan error)
-	go func(errChan chan error) {
-		errChan <- commandCenter.RunScripts().Error
-	}(errChan)
+	// go func(errChan chan error) {
+	// err := commandCenter.RunScripts().Error
+	// if err != nil {
+	// 	errChan <- err
+	// }
 
-	select {
-	case err := <-errChan:
+	// 	select {
+	// 	case err := commandCenter.RunScripts().Error:
+	// 		if err != nil {
+	// 			http.Error(w, err.Error(), http.StatusBadRequest)
+	// 			return
+	// 		}
+	// 		break
+	// 	case <-time.After(time.Second * 2):
+	// 		close(errChan)
+	// 		break
+	// 	}
+
+	// 	errChan <- commandCenter.RunScripts().Error
+	// }(errChan)
+
+	// for err := range errChan {
+	// 	if err != nil {
+	// 		http.Error(w, err.Error(), http.StatusBadRequest)
+	// 		return
+	// 	}
+	// }
+
+	errChan1 := make(chan error)
+	go func() {
+		err := commandCenter.RunScripts().Error
+		errChan1 <- err
+	}()
+
+	go func() {
+		timer := time.NewTimer(time.Second)
+		timerDone := false
+		for {
+			select {
+			case <-timer.C:
+				fmt.Println("time to close")
+				close(errChan)
+				timer.Stop()
+				timerDone = true
+			case err := <-errChan1:
+				if !timerDone {
+					errChan <- err
+				}
+				return
+			}
+		}
+	}()
+
+	for err := range errChan {
 		if err != nil {
+			fmt.Println("returned error : ", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		break
-	case <-time.After(time.Second * 2):
-		break
 	}
+	fmt.Println("done")
+
 	fmt.Fprint(w, "Success!")
 	return
 }

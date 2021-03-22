@@ -187,17 +187,8 @@ func (i *Instance) RunScripts() *Instance {
 	}
 	fullPath := generatedDir + i.ConfigDir
 	// fmt.Println("fullPath : ", fullPath)
+	i.RunScriptsInDir(fullPath)
 
-	if i.DryRunEnabled {
-		i.RunScriptsInDir(fullPath)
-		fmt.Println("Skipping all files since dry-run was selected")
-	} else {
-		//skip execution the first time to populate state obj
-		i.DryRunEnabled = true
-		i.RunScriptsInDir(fullPath)
-		i.DryRunEnabled = false
-		i.RunScriptsInDir(fullPath)
-	}
 	i.Error = i.Instance.Error
 	i.PrintSeparator()
 	return i
