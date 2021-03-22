@@ -3,6 +3,7 @@ package route
 import (
 	"log"
 	"net/http"
+	"net/http/pprof"
 
 	"github.com/countertenor/mozart/pkg/rest/handler"
 	"github.com/countertenor/mozart/statik"
@@ -21,6 +22,7 @@ type routes []route
 //UIRouter creates a router for the UI
 func UIRouter() *mux.Router {
 	router := mux.NewRouter()
+	attachProfiler(router)
 	statikFS, err := statik.GetStaticFS(statik.Webapp)
 	if err != nil {
 		log.Fatalf("could not get static files for UI, err : %v", err)
@@ -44,6 +46,18 @@ func RestRouter() *mux.Router {
 			Handler(route.HandlerFunc)
 	}
 	return router
+}
+
+func attachProfiler(router *mux.Router) {
+	router.HandleFunc("/debug/pprof/", pprof.Index)
+	router.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	router.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	router.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	// Manually add support for paths linked to by index page at /debug/pprof/
+	router.Handle("/debug/pprof/goroutine", pprof.Handler("goroutine"))
+	router.Handle("/debug/pprof/heap", pprof.Handler("heap"))
+	router.Handle("/debug/pprof/threadcreate", pprof.Handler("threadcreate"))
+	router.Handle("/debug/pprof/block", pprof.Handler("block"))
 }
 
 var routesForApp = routes{
