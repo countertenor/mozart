@@ -83,6 +83,24 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 		errChanPipe <- err
 	}()
 
+	/*
+		This go function is created so that the go function above
+		can exit successfully. The above go function needs a
+		valid, open channel to send its message to once it completes,
+		otherwise it will be stuck in sending state forever (or panic if
+		trying to send to closed channel).
+
+		We cannot entrust the above go function to close the channel
+		since it is busy executing the main function.
+
+		This go function starts a timer, and makes sure that the above go function
+		only gets to propagate its error if it returns before the timer
+		finishes. If not, this go function takes the err and discards it, since
+		the error is irrelevant at this stage.
+
+		Both cases in this go function need to close the main error channel,
+		since the response is waiting for that channel to close.
+	*/
 	go func() {
 		timer := time.NewTimer(time.Second)
 		timerDone := false
@@ -98,6 +116,7 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 					errChanMain <- err
 					close(errChanMain)
 				}
+				//else discard error
 				return
 			}
 		}
