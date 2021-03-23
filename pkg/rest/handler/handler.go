@@ -75,39 +75,12 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	errChan := make(chan error)
-	// go func(errChan chan error) {
-	// err := commandCenter.RunScripts().Error
-	// if err != nil {
-	// 	errChan <- err
-	// }
+	errChanMain := make(chan error)
+	errChanPipe := make(chan error)
 
-	// 	select {
-	// 	case err := commandCenter.RunScripts().Error:
-	// 		if err != nil {
-	// 			http.Error(w, err.Error(), http.StatusBadRequest)
-	// 			return
-	// 		}
-	// 		break
-	// 	case <-time.After(time.Second * 2):
-	// 		close(errChan)
-	// 		break
-	// 	}
-
-	// 	errChan <- commandCenter.RunScripts().Error
-	// }(errChan)
-
-	// for err := range errChan {
-	// 	if err != nil {
-	// 		http.Error(w, err.Error(), http.StatusBadRequest)
-	// 		return
-	// 	}
-	// }
-
-	errChan1 := make(chan error)
 	go func() {
 		err := commandCenter.RunScripts().Error
-		errChan1 <- err
+		errChanPipe <- err
 	}()
 
 	go func() {
@@ -116,27 +89,28 @@ func ExecuteDir(w http.ResponseWriter, r *http.Request) {
 		for {
 			select {
 			case <-timer.C:
-				fmt.Println("time to close")
-				close(errChan)
+				// fmt.Println("time to close")
+				close(errChanMain)
 				timer.Stop()
 				timerDone = true
-			case err := <-errChan1:
+			case err := <-errChanPipe:
 				if !timerDone {
-					errChan <- err
+					errChanMain <- err
+					close(errChanMain)
 				}
 				return
 			}
 		}
 	}()
 
-	for err := range errChan {
+	for err := range errChanMain {
 		if err != nil {
-			fmt.Println("returned error : ", err)
+			// fmt.Println("returned error : ", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 	}
-	fmt.Println("done")
+	// fmt.Println("done")
 
 	fmt.Fprint(w, "Success!")
 	return
