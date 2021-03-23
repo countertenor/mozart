@@ -300,6 +300,5 @@ func (i *Instance) updateState(fileMetadata fileMetadata, state stateType) {
 		dirExecStatusMap[fileMetadata.fullDirPath] = fileExecStatusMap
 	}
 
-	signal.Stop(i.Interrupter)
 	i.saveState()
 }
