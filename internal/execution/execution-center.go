@@ -32,6 +32,10 @@ func (i *Instance) RunScriptsInDir(fullDirPath string) {
 	if i.Error != nil {
 		return
 	}
+
+	i.configureInterrupter()
+	defer i.disableInterrupter()
+
 	if i.DryRunEnabled {
 		i.handleRunScripts(fullDirPath)
 		fmt.Println("Skipping all files since dry-run was selected")
@@ -45,8 +49,6 @@ func (i *Instance) RunScriptsInDir(fullDirPath string) {
 	if i.DoRunParallel {
 		i.WaitGroup.Wait()
 	}
-	i.Interrupter <- syscall.SIGQUIT
-	signal.Stop(i.Interrupter)
 }
 
 //recursively run all scripts inside the directory
@@ -84,9 +86,6 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 
 	if i.DoRunParallel {
 		defer i.WaitGroup.Done()
-	}
-	if i.Interrupter == nil {
-		i.Interrupter = i.configureInterrupter()
 	}
 	if i.DirExecStatusMap[fullDirPath][filename].State == RunningState {
 		if time.Since(i.DirExecStatusMap[fullDirPath][filename].StartTime) > i.TimeoutInterval {
@@ -162,8 +161,7 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	return nil
 }
 
-func (i *Instance) configureInterrupter() chan os.Signal {
-	fmt.Println("configuring interrupterf")
+func (i *Instance) configureInterrupter() {
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -174,7 +172,12 @@ func (i *Instance) configureInterrupter() chan os.Signal {
 			signal.Stop(c)
 		}
 	}()
-	return c
+	i.Interrupter = c
+}
+
+func (i *Instance) disableInterrupter() {
+	i.Interrupter <- syscall.SIGQUIT
+	signal.Stop(i.Interrupter)
 }
 
 //StopRunningCmd stops currently running command
