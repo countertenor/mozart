@@ -167,7 +167,7 @@ func (i *Instance) configureInterrupter() {
 	go func() {
 		select {
 		case m := <-c:
-			fmt.Println("canceling due to : ", m)
+			fmt.Printf("Program %v \n", m)
 			i.StopRunningCmd()
 			signal.Stop(c)
 		}
