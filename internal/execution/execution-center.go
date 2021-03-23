@@ -109,7 +109,7 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	}
 	command := exec.CommandContext(ctx, source, args...)
 
-	logFile, logfilePath, err := createLogFile(filename, i.LogDir)
+	logFile, logfilePath, err := i.createLogFile(fileMetadata)
 	if err != nil {
 		i.updateErrorState(fileMetadata)
 		return err
@@ -173,23 +173,32 @@ func (i *Instance) StopRunningCmd() {
 	return
 }
 
-func createLogFile(filename, logDir string) (*os.File, string, error) {
+func (i *Instance) createLogFile(fileMetadata fileMetadata) (*os.File, string, error) {
 
 	//check if log dir exists
-	if _, err := os.Stat(logDir); os.IsNotExist(err) {
-		err := os.MkdirAll(logDir, 0755)
+	splitVal := strings.Split(fileMetadata.fullDirPath, "/")
+	startSplit := 0
+	if splitVal[0] == i.GeneratedDir {
+		startSplit = 1
+	}
+	dirToCreate := strings.Join(splitVal[startSplit:], "/")
+	logfilePath := i.LogDir + dirToCreate
+	// fmt.Println("logfilePath : ", logfilePath)
+
+	if _, err := os.Stat(logfilePath); os.IsNotExist(err) {
+		err := os.MkdirAll(logfilePath, 0755)
 		if err != nil {
-			return nil, "", fmt.Errorf("error while creating log dir %v, err : %v", logDir, err)
+			return nil, "", fmt.Errorf("error while creating log dir %v, err : %v", logfilePath, err)
 		}
 	}
 
 	//create log file
 	timeNow := time.Now().Format("2006-01-02--15-04-05.000")
-	logfilePath := logDir + timeNow + "-" + filename[:strings.LastIndex(filename, ".")] + ".log"
+	logfilePath += "/" + timeNow + "-" + fileMetadata.filename[:strings.LastIndex(fileMetadata.filename, ".")] + ".log"
 
 	absPath, err := filepath.Abs(logfilePath)
 	if err != nil {
-		return nil, "", fmt.Errorf("error while getting absolute dir for logfile %v, err : %v", filename, err)
+		return nil, "", fmt.Errorf("error while getting absolute dir for logfile %v, err : %v", fileMetadata.filename, err)
 	}
 	logFile, err := os.Create(logfilePath)
 	if err != nil {
