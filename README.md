@@ -16,11 +16,11 @@ scripts
         └── test-component3.sh
 ```
 
-Mozart lets you change that to all this - with 0 lines of code!
+Mozart converts all to a single binary, along with a CLI and and UI to manage them, with ZERO lines of code!
 
 ![](https://github.com/countertenor/mozart/blob/master/gh%20images/execution.jpg)
 
-**Including a CLI**:
+**CLI**:
 
 ```
 Available CLI commands:
@@ -38,9 +38,19 @@ mozart execute my-service test test-component3
 
 ## What is mozart?
 
-Mozart is a simple drop-in (no go-coding required) utility to attach a CLI and a UI to your scripts, making your independent, messy bunch of scripts into a well defined, orchestrated program complete with a CLI and UI!
+Mozart is a simple drop-in (no go-coding required) utility to orchestrate and attach a CLI and a UI to your scripts, making your independent, messy bunch of scripts into a well defined, orchestrated program complete with a CLI and UI!
 
-**Note:** No Golang code changes required, it is a simple drop-in type utility for your scripts.
+**Within minutes**, instead of having hundreds of different scripts, you can have a **single binary**, complete with a CLI and a UI, which includes all those scripts. All you need to do is to drop the scripts into a folder structure (explained below). That's it!
+
+**Note:** No code changes required, it is a simple drop-in type utility for your scripts.
+
+## What mozart is not
+
+Mozart is **NOT** a replacement for tools like Ansible or Chef, it is not that mature (yet). Instead, think of Mozart as a simple utility to manage a bunch of scripts.
+
+If you have a bunch of scripts lying about which you use to test out a particular component - think of Mozart.
+
+If you have a bunch of scripts which let you deploy a particular program on some remote server - think of Mozart.
 
 ## Table of Contents
 
@@ -49,6 +59,7 @@ Mozart is a simple drop-in (no go-coding required) utility to attach a CLI and a
 <!-- code_chunk_output -->
 
 - [What is mozart?](#what-is-mozart)
+- [What mozart is not](#what-mozart-is-not)
 - [Table of Contents](#table-of-contents)
 - [What exactly does an orchestrator do?](#what-exactly-does-an-orchestrator-do)
   - [Life without an orchestrator](#life-without-an-orchestrator)
@@ -70,6 +81,8 @@ Mozart is a simple drop-in (no go-coding required) utility to attach a CLI and a
   - [Mozart commands](#mozart-commands)
   - [Executing modules](#executing-modules)
   - [Checking the state](#checking-the-state)
+    - [State of all modules](#state-of-all-modules)
+    - [State of specific module](#state-of-specific-module)
 - [UI](#ui)
 - [Helpful resources](#helpful-resources)
   - [Good links for templating](#good-links-for-templating)
@@ -88,14 +101,14 @@ Simply speaking, an orchestrator manages execution of all of your scripts.
 
 ### Life without an orchestrator
 
-Suppose you had 2 bash scripts which let you install and uninstall a particular component respectively. Without an orchestrator:
+Suppose you had 2 bash scripts which you use to test 2 different components. Without an orchestrator:
 
 1. You would have to ship both files to anyone who wants to use them. (imagine if you had 10 scripts, you would have to tar them up and send all).
-1. If running on a shared system, you can never know if another person already ran the install script (unless actually going through the effort of seeing if the component was actually installed).
+1. If running on a shared system, you can never know if another person already ran the scripts (unless actually going through the effort of seeing if the tests ran).
 1. Tendency to use lesser number of scripts for easy script execution management, but that makes each script huge. Breaking them down into multiple smaller scripts makes it easy to manage the code but it becomes harder to manage execution of all scripts.
-1. No way of using common variables across the scripts (like version of the component being managed).
+1. No way of using common variables across the scripts (like version of the component being tested).
 1. No way for one developer to look at the logs of a script executed by a second developer (unless the second developer explicitly routes the logs to an external file).
-1. No way of accidentally preventing execution of a script more than once (like prevent install script from running again if it already ran once).
+1. No way of accidentally preventing execution of a script more than once (like prevent first script from running again if it already ran once).
 1. Manually execute each script through bash or python (no CLI or UI)
 
 ### Benefits of using Mozart
@@ -103,7 +116,7 @@ Suppose you had 2 bash scripts which let you install and uninstall a particular 
 1. Simple migration to Mozart - `no Go code change necessary`. Just create a directory and dump your scripts in that - it's that easy. (Discussed in detail below)
 1. `Single binary file which contains all your scripts` AND brings with it the CLI along with the UI - so no need to send in bunch of scripts to anyone anymore.
 1. Lets you `modularize` the scripts, which means you can have more number of smaller scripts which do smaller tasks. No need to maintain huge bash files anymore. The smaller the scripts - the easier it is for you to manage and maintain them.
-1. Ability to use `templating` capabilities - similar to helm. Values in the yaml file are accessible by all scripts.
+1. Ability to use `templating` capabilities - similar to helm. Values in a `yaml` file are accessible by all scripts.
 1. `Public visibility of the state` of execution of scripts, so everyone has a clear idea of whether scripts were executed or not.
 1. `Central logs` for everyone to see.
 1. Make sure scripts are `executed just once` - the orchestrator will not allow you to run the same script again without explicitly mentioning a `Re-Run` flag, thereby preventing accidental execution of the same script.
@@ -136,56 +149,50 @@ There is already a sample module present called `test-module` under `resources/t
 
 #### 2. Modularize
 
-1. Look through your scripts, and identify the most basic steps that the scripts are supposed to be performing. Suppose I want to install a component called `Symphony`. I have one huge bash script for that. Some basic steps inside that bash script could be:
+1.  Look through your scripts, and identify the most basic steps that the scripts are supposed to be performing. Suppose I want to install a component called `Symphony`. I have one huge bash script for that. Some basic steps inside that bash script could be:
 
-   1. Pre-requisite check.
-   1. Installation of component.
-   1. Validation of install.
-   1. Uninstallation of component.
+    1. Pre-requisite check.
+    1. Installation of component.
+    1. Validation of install.
+    1. Uninstallation of component.
 
-1. For each identified step, create a module(directory) within the base directory and add that part of the script within that directory. For example, continuing with the above example, the directory structure should look like this:
+1.  For each identified step, create a module(directory) within the base directory and add that part of the script within that directory. For example, continuing with the above example, the directory structure should look like this:
 
-```
-resources/templates
-├── symphony                    (this is the base module)
-│   ├── 00-pre-req              (first sub-module)
-│   │   └── pre-req.sh
-│   ├── 10-install              (second sub-module)
-│   │   ├── 00-install-step1.sh
-│   │   └── 10-install-step2.sh
-│   ├── 20-validate             (third sub-module)
-│   │   └── validate.sh
-│   └── 30-uninstall            (fourth sub-module)
-│       └── uninstall.sh
-```
+        resources/templates
+        ├── symphony                    (this is the base module)
+        │   ├── 00-pre-req              (first sub-module)
+        │   │   └── pre-req.sh
+        │   ├── 10-install              (second sub-module)
+        │   │   ├── 00-install-step1.sh
+        │   │   └── 10-install-step2.sh
+        │   ├── 20-validate             (third sub-module)
+        │   │   └── validate.sh
+        │   └── 30-uninstall            (fourth sub-module)
+        │       └── uninstall.sh
 
-The huge bash script is now broken down into smaller scripts, each in its own module. This makes the script easy to manage, while giving the option to add more scripts in the future as needed.
+    The huge bash script is now broken down into smaller scripts, each in its own module. This makes the script easy to manage, while giving the option to add more scripts in the future as needed.
 
-**Note:** the `xx-`prefix before a module or script name is an optional prefix, through this you can control the order of execution of scripts/modules within the module.
+    **Note:** the `xx-`prefix before a module or script name is an optional prefix, through this you can control the order of execution of scripts/modules within the module.
+
+**Note:** In case you don't want to break down your script into smaller scripts, you can create only the base module and drop your script in that directory.
 
 #### 3. (Optional) Use templating
 
 You can do something like this within any script:
 
-```
-echo "{{.values.value1}} {{.values.value2}}"
-```
+    echo "{{.values.value1}} {{.values.value2}}"
 
 These values are going to be fetched from a `yaml` file that you supply while invoking the CLI or the UI. (discussed later)
 
 The `yaml` file should have something like this for the example above:
 
-```
-values:
-  value1: hello
-  value2: world
-```
+    values:
+    value1: hello
+    value2: world
 
 When you execute the corresponding module that contains the above script, you will see
 
-```
-echo hello world
-```
+    echo hello world
 
 This is discussed in detail below.
 
@@ -197,15 +204,13 @@ Voila! You have a single orchestrator binary with all your scripts in it.
 
 ## Mozart yaml file
 
-Providing a yaml file at runtime lets you enable certain templating features and configuration changes.
+Providing an optional yaml file at runtime lets you enable certain templating features and configuration changes. If you do not need any changes, you can skip this section.
 
 A sample blank configuration file can be generated from the binary itself, using the `init` command.
 
-```
-./bin/mozart init
+    ./bin/mozart init
 
-Generated sample file :  mozart-sample.yaml
-```
+    Generated sample file :  mozart-sample.yaml
 
 ### Templating
 
@@ -217,19 +222,15 @@ This idea is similar to helm.
 
 In the file `step1.sh`, you see this:
 
-```
-#!/bin/bash
+    #!/bin/bash
 
-echo "{{.values.value1}} {{.values.value2}}"
-```
+    echo "{{.values.value1}} {{.values.value2}}"
 
 The values in the brackets are the values that will be fetched from the `yaml` at runtime. So if you want to substitute some values at runtime, you replace the values with the `{{ }}` notation as you see above, and in the `yaml` file, add:
 
-```
-values:
-  value1: hello
-  value2: world
-```
+    values:
+    value1: hello
+    value2: world
 
 Mozart will substitute these values at runtime.
 
@@ -245,32 +246,24 @@ You can take a look at the `resources/templates/test-module/10-python-module/00-
 
 Suppose if you have a function that you want in more than one script, say
 
-```
-def my_func(str):
-  print(f'inside funct {str}')
-```
+    def my_func(str):
+    print(f'inside funct {str}')
 
 Instead of having this function be duplicated across scripts, you add this function in the `common.yaml` file:
 
-```
-my_func: >
-  def my_func(str):
-    print(f'inside funct {str}')
-```
+    my_func: >
+    def my_func(str):
+        print(f'inside funct {str}')
 
 The `key` is `my_func`, and the value is the function itself.
 
 You can then access this function in any script, using
 
-```
-{{.my_func}}
-```
+    {{.my_func}}
 
 **Note 1:** Sometimes you might want to add indentation to the above substituted lines of code (It is essential in python scripts). You can do so by using `nindent` (courtesy of [sprig functions](http://masterminds.github.io/sprig/strings.html))
 
-```
-{{.my_func | nindent 4}}
-```
+    {{.my_func | nindent 4}}
 
 **Note 2:** The only difference between the `common.yaml` and the main `yaml` file for Mozart config is that the `common.yaml` is more for compile time deduplication, whereas the main `yaml` file is for runtime changes. For example, functions that are duplicated will never need to be changed at runtime (common.yaml), whereas username and password should never be saved at compile time, instead should be provided at runtime.
 
@@ -284,15 +277,11 @@ By default, log files are stored in `/var/log/mozart` directory (For linux and c
 
 **Example:**
 
-```
-log_path: my-log-dir
-```
+    log_path: my-log-dir
 
 Then all the logs will go to:
 
-```
-var/log/mozart/my-log-dir
-```
+    var/log/mozart/my-log-dir
 
 #### Exec source
 
@@ -302,11 +291,9 @@ The format is `file_ext: source`
 
 **Example:**
 
-```
-exec_source:
-py: /usr/bin/python
-sh: /bin/bash
-```
+    exec_source:
+    py: /usr/bin/python
+    sh: /bin/bash
 
 This lets Mozart know that if you place any file with the extension of `.sh`, then run it using `/bin/bash`. If you place any file with the extension `.py`, then run it using `/usr/bin/python`.
 
@@ -318,49 +305,40 @@ This lets you change the default delimiters (default - `{{`, `}}`)
 
 **Example 1:**
 
-```
-delims: ["[[", "]]"]
-```
+    delims: ["[[", "]]"]
 
 Adding this line in the `yaml` file changes the delimiters to `[[ ]]`. So after this, you can use templating like:
 
-```
-echo "[[.values.value1]] [[.values.value2]]"
-```
+    echo "[[.values.value1]] [[.values.value2]]"
 
 **Example 2:**
 
-```
-delims: ["<<", ">>"]
-```
+    delims: ["<<", ">>"]
 
 Adding this line in the `yaml` file changes the delimiters to `<< >> `. So after this, you can use templating like:
 
-```
-echo "<<.values.value1>> <<.values.value2>>"
-```
+    echo "<<.values.value1>> <<.values.value2>>"
 
 ## CLI
 
+Once you build your binary, Mozart gives you a CLI:
+
 ### Mozart commands
 
-```
-- init          Generate a blank sample config yaml file for the orchestrator
-- execute       (executes all scripts in specified directory)
-- state         (displays install state of all components, accepts optional args)
-- server        Starts the REST server
-- version       (displays version info for the application)
-  --json                (gives output in JSON)
+    - init          Generate a blank sample config yaml file for the orchestrator
+    - execute       (executes all scripts in specified directory)
+    - state         (displays install state of all modules, accepts optional args [module name])
+    - server        Starts the REST server
+    - version       (displays version info for the application)
+    --json                (gives output in JSON)
 
-Global flags
-  -c                  (configuration file, defaults to 'mozart-sample.yaml')
-  -v                  (prints verbosely, useful for debugging)
-  -d, --dry-run       (optional) shows what scripts will run, but does not run the scripts
-  -n, --no-generate   (optional) do not generate bash scripts as part of execution, instead use the ones in generated folder. Useful for running local change to the scripts
-  -p, --parallel      (optional) Run all scripts in parallel
-  -r, --re-run        (optional) re-run script from initial state, ignoring previously saved state
-
-```
+    Global flags
+    -c                  (optional) (configuration file, defaults to 'mozart-sample.yaml')
+    -v                  (optional) (prints verbosely, useful for debugging)
+    -d, --dry-run       (optional) shows what scripts will run, but does not run the scripts
+    -n, --no-generate   (optional) do not generate bash scripts as part of execution, instead use the ones in generated folder. Useful for running local change to the scripts
+    -p, --parallel      (optional) Run all scripts in parallel
+    -r, --re-run        (optional) re-run script from initial state, ignoring previously saved state
 
 ### Executing modules
 
@@ -388,6 +366,8 @@ If you select a module that contains other modules, something like `mozart execu
 ### Checking the state
 
 Once you start the execution, the `state` command shows you the current state of execution of the various modules within Mozart, along with other information.
+
+#### State of all modules
 
 ```
 $ ./bin/mozart state
@@ -442,6 +422,26 @@ State: {
     }
   }
 }
+```
+
+#### State of specific module
+
+To get the state of a particular module:
+
+```
+./mozart state validate
+
+State: {
+  "generated/symphony-module/20-validate": {
+    "validate.sh": {
+      "startTime": "2020-11-04T15:08:12.625411-08:00",
+      "timeTaken": "7.542653ms",
+      "lastSuccessTime": "2020-11-04 15:08:12.632945 -0800 PST m=+0.043386468",
+      "lastErrorTime": "",
+      "state": "success",
+      "logFilePath": "logs/2020-11-04--15-08-12.625-validate.log"
+    }
+  }
 ```
 
 ## UI
