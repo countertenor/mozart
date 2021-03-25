@@ -160,22 +160,26 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 }
 
 func (i *Instance) configureInterrupter() {
-	c := make(chan os.Signal)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		select {
-		case m := <-c:
-			fmt.Printf("Program %v \n", m)
-			i.StopRunningCmd()
-			signal.Stop(c)
-		}
-	}()
-	i.Interrupter = c
+	if i.Interrupter == nil {
+		c := make(chan os.Signal)
+		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+		go func() {
+			select {
+			case m := <-c:
+				fmt.Printf("Program %v \n", m)
+				i.StopRunningCmd()
+				signal.Stop(c)
+			}
+		}()
+		i.Interrupter = c
+	}
 }
 
 func (i *Instance) disableInterrupter() {
-	i.Interrupter <- syscall.SIGQUIT
-	signal.Stop(i.Interrupter)
+	if i.Interrupter != nil {
+		i.Interrupter <- syscall.SIGQUIT
+		signal.Stop(i.Interrupter)
+	}
 }
 
 //StopRunningCmd stops currently running command
