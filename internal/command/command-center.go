@@ -1,6 +1,7 @@
 package command
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -23,6 +24,7 @@ var stateDBPathFromEnv string //This will be set through the build command, see 
 const (
 	sampleConfigFileName = "mozart-sample.yaml"
 	commonConfigFileName = "common.yaml"
+	commonDirName        = "/common-files"
 
 	defaultConfigFileName = "mozart-defaults.yaml"
 	stateFileDefaultName  = "mozart-state.db"
@@ -108,14 +110,21 @@ func (i *Instance) ParseConfig() *Instance {
 		i.Error = err
 		return i
 	}
+	//common yaml file
 	err = yaml.ParseFileFromStatic(i.Config, commonConfigFileName)
 	if err != nil {
 		i.Error = fmt.Errorf("error while parsing %v YAML file: %v", commonConfigFileName, err)
 		return i
 	}
+	//common folder files
+	err = yaml.ParseCommonFolder(i.Config, commonDirName)
+	if err != nil {
+		i.Error = fmt.Errorf("error while parsing %v common dir: %v", commonDirName, err)
+		return i
+	}
 
 	if getBoolFlagValue(i.Flags, flag.Verbose) {
-		fmt.Println("config : ", i.Config)
+		i.printConfig()
 	}
 	return i
 }
@@ -299,6 +308,20 @@ func parsePath(path string) string {
 		path += "/"
 	}
 	return path
+}
+
+func (i *Instance) printConfig() error {
+	// fmt.Printf("Config: \n\n")
+	// for key, val := range i.Config {
+	// 	fmt.Printf("%v: %v \n\n", key, val)
+	// }
+	// fmt.Println("")
+	jsonData, err := json.MarshalIndent(i.Config, "", "  ")
+	if err != nil {
+		return fmt.Errorf("unable to parse version, err : %v", err)
+	}
+	fmt.Printf("\nConfig %s\n", jsonData)
+	return nil
 }
 
 func (i *Instance) parseConfigParams() error {

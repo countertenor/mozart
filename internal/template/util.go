@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"text/template"
@@ -67,7 +68,7 @@ func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstan
 
 		if !info.IsDir() {
 			fileName := info.Name()
-			fileExt := fileName[strings.LastIndex(fileName, "."):]
+			fileExt := filepath.Ext(fileName)
 			templateInstance := templateInstance{
 				scriptName:       strings.TrimSuffix(fileName, fileExt),
 				scriptFileName:   strings.TrimPrefix(path, templateDir),
