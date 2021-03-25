@@ -33,13 +33,12 @@ func (i *Instance) RunScriptsInDir(fullDirPath string) {
 		return
 	}
 
-	i.configureInterrupter()
-	defer i.disableInterrupter()
-
 	if i.DryRunEnabled {
 		i.handleRunScripts(fullDirPath)
 		fmt.Println("Skipping all files since dry-run was selected")
 	} else {
+		i.configureInterrupter()
+		defer i.disableInterrupter()
 		//skip execution the first time to populate state obj
 		i.DryRunEnabled = true
 		i.handleRunScripts(fullDirPath)
