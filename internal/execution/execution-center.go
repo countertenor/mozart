@@ -151,7 +151,6 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		} else {
 			i.updateErrorState(fileMetadata)
 		}
-		signal.Stop(i.Interrupter)
 		return fmt.Errorf("error while running script %v, %v, err: %v", filename, errMessage, err)
 	}
 	i.PrintSeparator()
