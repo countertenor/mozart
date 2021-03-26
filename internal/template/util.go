@@ -156,8 +156,8 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 
 func writeFile() map[string]interface{} {
 	funcMap := template.FuncMap{
-		"writeFile": func(filename, fileData string) (string, error) {
-			err := ioutil.WriteFile(filename, []byte(fileData), 0644)
+		"writeContentToFile": func(fileContent, filename string) (string, error) {
+			err := ioutil.WriteFile(filename, []byte(fileContent), 0777)
 			if err != nil {
 				return "", fmt.Errorf("could not write to file %v, err : %v", filename, err)
 			}
