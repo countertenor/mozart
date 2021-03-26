@@ -71,12 +71,11 @@ func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstan
 	// }
 	// err := fs.WalkDir(staticFS, "resources"+templateDir+dirToGenerate, func(path string, info fs.DirEntry, err error) error {
 	// err := static.Walk(static.ResourceType, dir, )
-	err := static.Walk(static.ResourceType, templateDir+dirToGenerate, func(path string, info fs.DirEntry, err error) error {
+	fmt.Println("dirToGenerate : ", templateDir+"/"+dirToGenerate)
+	err := static.Walk(static.ResourceType, templateDir+"/"+dirToGenerate, func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println("path : ", path)
-		fmt.Println("info : ", info.Type())
 		if !info.IsDir() {
 			fileName := info.Name()
 			// fileExt := fileName[strings.LastIndex(fileName, "."):]
@@ -113,10 +112,9 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 
 	//create script file
 	fileName := generatedDir + "/" + scriptFileName
-	fmt.Println("filename : ", fileName)
 	splitVal := strings.Split(fileName, "/")
 	dirToCreate := strings.Join(splitVal[0:len(splitVal)-1], "/")
-	fmt.Println("dirToCreate : ", dirToCreate)
+	// fmt.Println("dirToCreate : ", dirToCreate)
 
 	if _, err := os.Stat(dirToCreate); os.IsNotExist(err) {
 		err := os.MkdirAll(dirToCreate, 0755)

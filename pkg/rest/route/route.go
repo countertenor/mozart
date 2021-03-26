@@ -28,8 +28,8 @@ func UIRouter() *mux.Router {
 	// sub, _ := fs.Sub(static.Webapp, "static")
 	// router.PathPrefix("/").Handler(http.FileServer(http.FS(sub)))
 
-	fsys := fs.FS(static.Webapp)
-	contentStatic, _ := fs.Sub(fsys, string(static.WebappBuild))
+	fsys := fs.FS(static.GetEmbedFS(static.WebappBuildType))
+	contentStatic, _ := fs.Sub(fsys, string(static.WebappBuildType))
 
 	router.PathPrefix("/").Handler(http.FileServer(http.FS(contentStatic)))
 	// router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.FS(static.Webapp))))
