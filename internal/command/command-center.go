@@ -28,7 +28,7 @@ const (
 	stateFileDefaultName  = "mozart-state.db"
 
 	generatedDir = "generated"
-	templateDir  = "/templates"
+	templateDir  = "templates"
 )
 
 func init() {
@@ -143,7 +143,7 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 	var configDir string
 	var err error
 	if dirToGenerateFrom != "" {
-		configDir, err = statik.GetActualDirName(statik.Template, dirToGenerateFrom, templateDir)
+		configDir, err = statik.GetActualDirName(statik.Template, dirToGenerateFrom, "/"+templateDir)
 		if err != nil {
 			i.Error = fmt.Errorf("could not get ActualDirName for dir %v, err : %v ", dirToGenerateFrom, err)
 			return i

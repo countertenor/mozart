@@ -30,3 +30,7 @@ func OpenFileFromStaticFS(staticType staticType, filename string) (fs.File, erro
 	}
 	return file, nil
 }
+
+func Walk(staticType staticType, dir string, fn fs.WalkDirFunc) error {
+	return fs.WalkDir(Resources, string(staticType)+"/"+dir, fn)
+}

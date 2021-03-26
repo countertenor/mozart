@@ -61,7 +61,7 @@ func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstan
 	// 	return nil, err
 	// }
 
-	staticFS := static.Resources
+	// staticFS := static.Resources
 	// fmt.Println("templateDir+dirToGenerate : ", "resources"+templateDir+dirToGenerate)
 	// fs1, _ := static.Resources.ReadDir("resources" + templateDir + dirToGenerate)
 	// for _, f := range fs1 {
@@ -70,8 +70,8 @@ func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstan
 	// 	fmt.Println("i : ", i)
 	// }
 	// err := fs.WalkDir(staticFS, "resources"+templateDir+dirToGenerate, func(path string, info fs.DirEntry, err error) error {
-	dir := "resources" + templateDir + dirToGenerate
-	err := fs.WalkDir(staticFS, dir, func(path string, info fs.DirEntry, err error) error {
+	// err := static.Walk(static.ResourceType, dir, )
+	err := static.Walk(static.ResourceType, templateDir+dirToGenerate, func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -82,8 +82,9 @@ func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstan
 			// fileExt := fileName[strings.LastIndex(fileName, "."):]
 			fileExt := filepath.Ext(fileName)
 			templateInstance := templateInstance{
-				scriptName:       strings.TrimSuffix(fileName, fileExt),
-				scriptFileName:   strings.TrimPrefix(path, templateDir),
+				scriptName: strings.TrimSuffix(fileName, fileExt),
+				// scriptFileName:   strings.TrimPrefix(path, templateDir),
+				scriptFileName:   strings.Join(strings.Split(path, "/")[2:], "/"),
 				templateFileName: path,
 			}
 			templates = append(templates, templateInstance)
@@ -111,7 +112,7 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 	}
 
 	//create script file
-	fileName := generatedDir + scriptFileName
+	fileName := generatedDir + "/" + scriptFileName
 	fmt.Println("filename : ", fileName)
 	splitVal := strings.Split(fileName, "/")
 	dirToCreate := strings.Join(splitVal[0:len(splitVal)-1], "/")
@@ -123,6 +124,23 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 			return fmt.Errorf("error while creating %v directory, err: %v", dirToCreate, err)
 		}
 	}
+
+	//create script file
+	// fileName := generatedDir + "/" + scriptFileName
+
+	// splitVal := strings.Split(scriptFileName, "/")
+	// fileName := generatedDir + "/" + strings.Join(splitVal[2:], "/")
+	// fmt.Println("filename : ", fileName)
+	// fmt.Println("scriptName : ", scriptName)
+	// dirToCreate :=
+	// 	fmt.Println("dirToCreate : ", dirToCreate)
+
+	// if _, err := os.Stat(dirToCreate); os.IsNotExist(err) {
+	// 	err := os.MkdirAll(dirToCreate, 0755)
+	// 	if err != nil {
+	// 		return fmt.Errorf("error while creating %v directory, err: %v", dirToCreate, err)
+	// 	}
+	// }
 	scriptFile, err := os.Create(fileName)
 	if err != nil {
 		return fmt.Errorf("error while generating %v script : %v", scriptName, err)
