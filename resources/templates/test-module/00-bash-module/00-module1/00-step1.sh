@@ -4,5 +4,4 @@ echo "{{.values.value1}} {{.values.value2}}"
 pwd	
 ls
 
-echo "{{.file3}}" > /tmp/a.sh
-bash /tmp/a.sh
+{{writeFile "/tmp/a.sh" .file3}}
