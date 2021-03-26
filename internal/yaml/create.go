@@ -1,24 +1,21 @@
 package yaml
 
 import (
-	"embed"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
 
+	"github.com/countertenor/mozart/static"
 	"gopkg.in/yaml.v2"
 )
-
-//go:embed mozart-sample.yaml
-var embedSampleFile embed.FS
 
 //CreateSampleConfigFile creates sample config file
 func CreateSampleConfigFile(sampleFileName string) error {
 
 	//Read sample file
-	// sampleFile, err := statik.OpenFileFromStaticFS(statik.Template, "/"+sampleFileName)
-	sampleFile, err := embedSampleFile.Open("mozart-sample.yaml")
+	// sampleFile, err := static.Resources.Open(string(static.ResourceType) + sampleFileName)
+	sampleFile, err := static.OpenFileFromStaticFS(static.ResourceType, sampleFileName)
 	if err != nil {
 		return err
 	}

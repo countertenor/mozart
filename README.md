@@ -496,3 +496,5 @@ Developed by @toshakamath
 
 - https://github.com/rakyll/statik/pull/101/files
 - https://github.com/golang/go/issues/41191
+- https://blog.carlmjohnson.net/post/2021/how-to-use-go-embed/
+- https://github.com/akmittal/go-embed (example for react app)

@@ -2,16 +2,17 @@ package template
 
 import (
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"text/template"
 
 	"github.com/Masterminds/sprig"
-	"github.com/countertenor/mozart/statik"
-	"github.com/rakyll/statik/fs"
+	"github.com/countertenor/mozart/static"
 )
 
 type templateInstance struct {
@@ -55,19 +56,31 @@ func Generate(conf map[string]interface{}, dirToGenerate, templateDir, generated
 func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstance, error) {
 	var templates []templateInstance
 
-	statikFS, err := statik.GetStaticFS(statik.Template)
-	if err != nil {
-		return nil, err
-	}
+	// statikFS, err := statik.GetStaticFS(statik.Template)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	err = fs.Walk(statikFS, templateDir+dirToGenerate, func(path string, info os.FileInfo, err error) error {
+	staticFS := static.Resources
+	// fmt.Println("templateDir+dirToGenerate : ", "resources"+templateDir+dirToGenerate)
+	// fs1, _ := static.Resources.ReadDir("resources" + templateDir + dirToGenerate)
+	// for _, f := range fs1 {
+	// 	fmt.Println("f : ", f.Name())
+	// 	i, _ := f.Info()
+	// 	fmt.Println("i : ", i)
+	// }
+	// err := fs.WalkDir(staticFS, "resources"+templateDir+dirToGenerate, func(path string, info fs.DirEntry, err error) error {
+	dir := "resources" + templateDir + dirToGenerate
+	err := fs.WalkDir(staticFS, dir, func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-
+		fmt.Println("path : ", path)
+		fmt.Println("info : ", info.Type())
 		if !info.IsDir() {
 			fileName := info.Name()
-			fileExt := fileName[strings.LastIndex(fileName, "."):]
+			// fileExt := fileName[strings.LastIndex(fileName, "."):]
+			fileExt := filepath.Ext(fileName)
 			templateInstance := templateInstance{
 				scriptName:       strings.TrimSuffix(fileName, fileExt),
 				scriptFileName:   strings.TrimPrefix(path, templateDir),
@@ -86,7 +99,8 @@ func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstan
 
 func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir string, config map[string]interface{}) error {
 
-	templateFile, err := statik.OpenFileFromStaticFS(statik.Template, templateFileName)
+	// templateFile, err := statik.OpenFileFromStaticFS(statik.Template, templateFileName)
+	templateFile, err := static.OpenFileFromStaticFS(static.ResourceType, templateFileName)
 	if err != nil {
 		return err
 	}
@@ -98,9 +112,10 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 
 	//create script file
 	fileName := generatedDir + scriptFileName
+	fmt.Println("filename : ", fileName)
 	splitVal := strings.Split(fileName, "/")
 	dirToCreate := strings.Join(splitVal[0:len(splitVal)-1], "/")
-	//fmt.Println("dirToCreate : ", dirToCreate)
+	fmt.Println("dirToCreate : ", dirToCreate)
 
 	if _, err := os.Stat(dirToCreate); os.IsNotExist(err) {
 		err := os.MkdirAll(dirToCreate, 0755)
