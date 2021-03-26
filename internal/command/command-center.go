@@ -144,7 +144,6 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 	var configDir string
 	var err error
 	if dirToGenerateFrom != "" {
-		// configDir, err = statik.GetActualDirName(statik.Template, dirToGenerateFrom, "/"+templateDir)
 		configDir, err = static.GetActualDirName(static.ResourceType, dirToGenerateFrom, templateDir)
 		if err != nil {
 			i.Error = fmt.Errorf("could not get ActualDirName for dir %v, err : %v ", dirToGenerateFrom, err)
@@ -187,7 +186,7 @@ func (i *Instance) RunScripts() *Instance {
 	if i.Error != nil {
 		return i
 	}
-	fullPath := generatedDir + "/" + i.ConfigDir
+	fullPath := filepath.Join(generatedDir, i.ConfigDir)
 	// fmt.Println("fullPath : ", fullPath)
 
 	if i.DryRunEnabled {

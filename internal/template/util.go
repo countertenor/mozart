@@ -56,23 +56,8 @@ func Generate(conf map[string]interface{}, dirToGenerate, templateDir, generated
 func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstance, error) {
 	var templates []templateInstance
 
-	// statikFS, err := statik.GetStaticFS(statik.Template)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// staticFS := static.Resources
-	// fmt.Println("templateDir+dirToGenerate : ", "resources"+templateDir+dirToGenerate)
-	// fs1, _ := static.Resources.ReadDir("resources" + templateDir + dirToGenerate)
-	// for _, f := range fs1 {
-	// 	fmt.Println("f : ", f.Name())
-	// 	i, _ := f.Info()
-	// 	fmt.Println("i : ", i)
-	// }
-	// err := fs.WalkDir(staticFS, "resources"+templateDir+dirToGenerate, func(path string, info fs.DirEntry, err error) error {
-	// err := static.Walk(static.ResourceType, dir, )
-	fmt.Println("dirToGenerate : ", templateDir+"/"+dirToGenerate)
-	err := static.Walk(static.ResourceType, templateDir+"/"+dirToGenerate, func(path string, info fs.DirEntry, err error) error {
+	// fmt.Println("dirToGenerate : ", filepath.Join(templateDir, dirToGenerate))
+	err := static.Walk(static.ResourceType, filepath.Join(templateDir, dirToGenerate), func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -111,7 +96,7 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 	}
 
 	//create script file
-	fileName := generatedDir + "/" + scriptFileName
+	fileName := filepath.Join(generatedDir, scriptFileName)
 	splitVal := strings.Split(fileName, "/")
 	dirToCreate := strings.Join(splitVal[0:len(splitVal)-1], "/")
 	// fmt.Println("dirToCreate : ", dirToCreate)
@@ -124,21 +109,6 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 	}
 
 	//create script file
-	// fileName := generatedDir + "/" + scriptFileName
-
-	// splitVal := strings.Split(scriptFileName, "/")
-	// fileName := generatedDir + "/" + strings.Join(splitVal[2:], "/")
-	// fmt.Println("filename : ", fileName)
-	// fmt.Println("scriptName : ", scriptName)
-	// dirToCreate :=
-	// 	fmt.Println("dirToCreate : ", dirToCreate)
-
-	// if _, err := os.Stat(dirToCreate); os.IsNotExist(err) {
-	// 	err := os.MkdirAll(dirToCreate, 0755)
-	// 	if err != nil {
-	// 		return fmt.Errorf("error while creating %v directory, err: %v", dirToCreate, err)
-	// 	}
-	// }
 	scriptFile, err := os.Create(fileName)
 	if err != nil {
 		return fmt.Errorf("error while generating %v script : %v", scriptName, err)

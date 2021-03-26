@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -37,7 +38,7 @@ func GetEmbedFS(staticType staticType) embed.FS {
 func OpenFileFromStaticFS(staticType staticType, filename string) (fs.File, error) {
 	filePath := filename
 	if !strings.Contains(filename, string(ResourceType)) {
-		filePath = string(staticType) + "/" + filename
+		filePath = filepath.Join(string(staticType), filename)
 	}
 	file, err := Resources.Open(filePath)
 	if err != nil {
@@ -47,7 +48,7 @@ func OpenFileFromStaticFS(staticType staticType, filename string) (fs.File, erro
 }
 
 func Walk(staticType staticType, dir string, fn fs.WalkDirFunc) error {
-	return fs.WalkDir(GetEmbedFS(staticType), string(staticType)+"/"+dir, fn)
+	return fs.WalkDir(GetEmbedFS(staticType), filepath.Join(string(staticType), dir), fn)
 }
 
 //GetActualDirName gets actual dir name from inside a dir
