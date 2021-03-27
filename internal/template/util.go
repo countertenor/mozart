@@ -62,11 +62,15 @@ func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstan
 			return err
 		}
 		if !info.IsDir() {
+			scriptRelativePath, err := static.GetRelativePath(path, templateDir)
+			if err != nil {
+				return err
+			}
 			fileName := info.Name()
 			fileExt := filepath.Ext(fileName)
 			templateInstance := templateInstance{
 				scriptName:       strings.TrimSuffix(fileName, fileExt),
-				scriptFileName:   strings.Join(strings.Split(path, "/")[2:], "/"),
+				scriptFileName:   scriptRelativePath,
 				templateFileName: path,
 			}
 			templates = append(templates, templateInstance)

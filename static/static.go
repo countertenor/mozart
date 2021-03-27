@@ -83,8 +83,10 @@ func GetActualDirName(staticType staticType, dirToGenerateFrom, dirToLookIn stri
 		if info.IsDir() {
 			// fmt.Println("info : ", path)
 			if r.MatchString(path) {
-				// fullDirPath = strings.TrimPrefix(fullDirPath, dirToLookIn)
-				fullDirPath = strings.Join(strings.Split(path, "/")[2:], "/")
+				fullDirPath, err = GetRelativePath(path, dirToLookIn)
+				if err != nil {
+					return err
+				}
 				// fmt.Println("match : ", fullDirPath)
 				return io.EOF //return a known error, to exit out of walk
 			}
@@ -95,4 +97,13 @@ func GetActualDirName(staticType staticType, dirToGenerateFrom, dirToLookIn stri
 		return "", fmt.Errorf("error getting static files : %v", err)
 	}
 	return fullDirPath, nil
+}
+
+func GetRelativePath(path, dir string) (string, error) {
+	base := filepath.Join(string(ResourceType), dir)
+	relativePath, err := filepath.Rel(base, path)
+	if err != nil {
+		return "", fmt.Errorf("unable to remove prefix from %v, err :%v", path, err)
+	}
+	return relativePath, nil
 }
