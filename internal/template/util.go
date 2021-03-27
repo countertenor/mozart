@@ -16,9 +16,9 @@ import (
 )
 
 type templateInstance struct {
-	scriptName       string
-	scriptFileName   string
-	templateFileName string
+	scriptName             string
+	scriptFileRelativePath string
+	templateFilePath       string
 }
 
 //Generate conf files based on input yaml
@@ -35,7 +35,7 @@ func Generate(conf map[string]interface{}, dirToGenerate, templateDir, generated
 	for _, template := range templatesToGenerate {
 		wg.Add(1)
 		go func(template templateInstance) {
-			err := generateTemplate(template.scriptName, template.scriptFileName, template.templateFileName, generatedDir, conf)
+			err := generateTemplate(template.scriptName, template.scriptFileRelativePath, template.templateFilePath, generatedDir, conf)
 			if err != nil {
 				errorCh <- err
 			}
@@ -69,9 +69,9 @@ func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstan
 			fileName := info.Name()
 			fileExt := filepath.Ext(fileName)
 			templateInstance := templateInstance{
-				scriptName:       strings.TrimSuffix(fileName, fileExt),
-				scriptFileName:   scriptRelativePath,
-				templateFileName: path,
+				scriptName:             strings.TrimSuffix(fileName, fileExt),
+				scriptFileRelativePath: scriptRelativePath,
+				templateFilePath:       path,
 			}
 			templates = append(templates, templateInstance)
 		}
@@ -84,21 +84,21 @@ func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstan
 	return templates, nil
 }
 
-func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir string, config map[string]interface{}) error {
+func generateTemplate(scriptName, scriptFileRelativePath, templateFilePath, generatedDir string, config map[string]interface{}) error {
 
-	templateFile, err := static.OpenFileFromStaticFS(static.ResourceType, templateFileName)
+	templateFile, err := static.OpenFileFromStaticFS(static.ResourceType, templateFilePath)
 	if err != nil {
 		return err
 	}
 	defer templateFile.Close()
 	templateFileContents, err := ioutil.ReadAll(templateFile)
 	if err != nil {
-		return fmt.Errorf("error reading content from file %v err: %v", templateFileName, err)
+		return fmt.Errorf("error reading content from file %v err: %v", templateFilePath, err)
 	}
 
 	//create script file
-	fileName := filepath.Join(generatedDir, scriptFileName)
-	dirToCreate := filepath.Dir(fileName)
+	fullFilePath := filepath.Join(generatedDir, scriptFileRelativePath)
+	dirToCreate := filepath.Dir(fullFilePath)
 	// fmt.Println("dirToCreate : ", dirToCreate)
 
 	if _, err := os.Stat(dirToCreate); os.IsNotExist(err) {
@@ -109,7 +109,7 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 	}
 
 	//create script file
-	scriptFile, err := os.Create(fileName)
+	scriptFile, err := os.Create(fullFilePath)
 	if err != nil {
 		return fmt.Errorf("error while generating %v script : %v", scriptName, err)
 	}
@@ -118,7 +118,7 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 	//make script executable
 	err = scriptFile.Chmod(0755)
 	if err != nil {
-		log.Fatalf("could not make %v file executable, err : %v", fileName, err)
+		log.Fatalf("could not make %v file executable, err : %v", fullFilePath, err)
 	}
 
 	delims := []string{"{{", "}}"}
@@ -137,7 +137,7 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 			return fmt.Errorf("could not parse delims in config file")
 		}
 	}
-	t := template.Must(template.New(templateFileName).
+	t := template.Must(template.New(templateFilePath).
 		Funcs(sprig.TxtFuncMap()).
 		Funcs(getLastStringSplit()).
 		Funcs(excludeFirstHost()).
@@ -147,11 +147,11 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 
 	err = t.Execute(scriptFile, config)
 	if err != nil {
-		os.Remove(fileName)
+		os.Remove(fullFilePath)
 		return fmt.Errorf("error while generating %v script : %v", scriptName, err)
 	}
 
-	fmt.Printf("generated script %-40v location: %v\n", scriptName, fileName)
+	fmt.Printf("generated script %-40v location: %v\n", scriptName, fullFilePath)
 	return nil
 
 }
