@@ -63,11 +63,9 @@ func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstan
 		}
 		if !info.IsDir() {
 			fileName := info.Name()
-			// fileExt := fileName[strings.LastIndex(fileName, "."):]
 			fileExt := filepath.Ext(fileName)
 			templateInstance := templateInstance{
-				scriptName: strings.TrimSuffix(fileName, fileExt),
-				// scriptFileName:   strings.TrimPrefix(path, templateDir),
+				scriptName:       strings.TrimSuffix(fileName, fileExt),
 				scriptFileName:   strings.Join(strings.Split(path, "/")[2:], "/"),
 				templateFileName: path,
 			}
@@ -84,7 +82,6 @@ func getTemplatesToGenerate(dirToGenerate, templateDir string) ([]templateInstan
 
 func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir string, config map[string]interface{}) error {
 
-	// templateFile, err := statik.OpenFileFromStaticFS(statik.Template, templateFileName)
 	templateFile, err := static.OpenFileFromStaticFS(static.ResourceType, templateFileName)
 	if err != nil {
 		return err
@@ -97,8 +94,7 @@ func generateTemplate(scriptName, scriptFileName, templateFileName, generatedDir
 
 	//create script file
 	fileName := filepath.Join(generatedDir, scriptFileName)
-	splitVal := strings.Split(fileName, "/")
-	dirToCreate := strings.Join(splitVal[0:len(splitVal)-1], "/")
+	dirToCreate := filepath.Dir(fileName)
 	// fmt.Println("dirToCreate : ", dirToCreate)
 
 	if _, err := os.Stat(dirToCreate); os.IsNotExist(err) {
