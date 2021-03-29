@@ -6,10 +6,10 @@ import (
 	"embed"
 )
 
-const webappBuildType staticType = "webapp/build"
+var webappBuildType staticType = "webapp/build"
 
 //go:embed webapp/build
-const webapp embed.FS
+var webapp embed.FS
 
 func init() {
 	Webapp = webapp

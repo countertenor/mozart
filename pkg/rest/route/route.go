@@ -1,7 +1,7 @@
 package route
 
 import (
-	"fmt"
+	"errors"
 	"io/fs"
 	"net/http"
 
@@ -23,7 +23,7 @@ type routes []route
 func UIRouter() (*mux.Router, error) {
 	router := mux.NewRouter()
 	if static.WebappBuildType == "" {
-		return nil, fmt.Errorf("this build does not contain the UI. If you want to include the UI, build using '-tags=ui'")
+		return nil, errors.New("ui not included")
 	}
 	fsys := fs.FS(static.GetEmbedFS(static.WebappBuildType))
 	contentStatic, _ := fs.Sub(fsys, string(static.WebappBuildType))
