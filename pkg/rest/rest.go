@@ -57,6 +57,8 @@ func StartServer() {
 			wg.Done()
 		}()
 		fmt.Printf("Started UI server at port %v ... \n", uiPort)
+	} else {
+		fmt.Println(("(UI is not included in this build. If you want to include the UI, build using '-tags=ui')"))
 	}
 
 	//start REST server
@@ -66,9 +68,6 @@ func StartServer() {
 		wg.Done()
 	}()
 	fmt.Printf("Started REST server at port %v ... \n", restPort)
-	if !doIncludeUI {
-		fmt.Println(("(UI is not included in this build. If you want to include the UI, build using '-tags=ui')"))
-	}
 
 	wg.Wait()
 }
