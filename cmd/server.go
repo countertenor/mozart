@@ -10,8 +10,12 @@ var serverCmd = &cobra.Command{
 	Use:   "server",
 	Short: "Start REST server",
 	Long:  `Start the REST server`,
-	Run: func(cmd *cobra.Command, args []string) {
-		rest.StartServer()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		err := rest.StartServer()
+		if err != nil {
+			return err
+		}
+		return nil
 	},
 }
 

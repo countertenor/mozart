@@ -12,16 +12,13 @@ import (
 
 type staticType string
 
-const (
-	ResourceType    staticType = "resources"
-	WebappBuildType staticType = "webapp/build"
-)
+//embedding from web_static using conditional build tags
+var WebappBuildType staticType
+var Webapp embed.FS
 
 //go:embed resources
 var Resources embed.FS
-
-//go:embed webapp/build
-var Webapp embed.FS
+var ResourceType staticType = "resources"
 
 func GetEmbedFS(staticType staticType) embed.FS {
 	switch staticType {
