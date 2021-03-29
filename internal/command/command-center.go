@@ -153,7 +153,7 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 			return i
 		}
 	}
-	fmt.Println("configDir : ", configDir)
+	// fmt.Println("configDir : ", configDir)
 	i.ConfigDir = configDir
 	if !noGenerate {
 		//cleaning up all scripts in dir if it exists
