@@ -14,7 +14,6 @@ import (
 func CreateSampleConfigFile(sampleFileName string) error {
 
 	//Read sample file
-	// sampleFile, err := static.Resources.Open(string(static.ResourceType) + sampleFileName)
 	sampleFile, err := static.OpenFileFromStaticFS(static.ResourceType, sampleFileName)
 	if err != nil {
 		return err
