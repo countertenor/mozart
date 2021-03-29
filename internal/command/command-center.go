@@ -110,12 +110,6 @@ func (i *Instance) ParseConfig() *Instance {
 		i.Error = err
 		return i
 	}
-	//common yaml file
-	err = yaml.ParseFileFromStatic(i.Config, commonConfigFileName)
-	if err != nil {
-		i.Error = fmt.Errorf("error while parsing %v YAML file: %v", commonConfigFileName, err)
-		return i
-	}
 	//common folder files
 	err = yaml.ParseCommonFolder(i.Config, commonDirName)
 	if err != nil {

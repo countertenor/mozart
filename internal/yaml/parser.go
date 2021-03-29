@@ -29,25 +29,6 @@ func ParseFile(config map[string]interface{}, filename string) error {
 	return nil
 }
 
-//ParseFileFromStatic parses file from static into config
-func ParseFileFromStatic(config map[string]interface{}, filename string) error {
-	staticFile, err := static.OpenFileFromStaticFS(static.ResourceType, filename)
-	if err != nil {
-		return err
-	}
-	defer staticFile.Close()
-
-	fileData, err := ioutil.ReadAll(staticFile)
-	if err != nil {
-		return fmt.Errorf("could not read file %v err: %v", filename, err)
-	}
-	err = yaml.Unmarshal(fileData, &config)
-	if err != nil {
-		return fmt.Errorf("error while unmarshalling yaml %v: %v", filename, err)
-	}
-	return nil
-}
-
 func ParseCommonFolder(config map[string]interface{}, dirName string) error {
 	err := static.Walk(static.ResourceType, dirName, func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
