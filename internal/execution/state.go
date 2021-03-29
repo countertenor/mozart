@@ -3,10 +3,11 @@ package execution
 import (
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/countertenor/mozart/internal/state"
-	"github.com/countertenor/mozart/statik"
+	"github.com/countertenor/mozart/static"
 )
 
 //State is the main struct to hold state object
@@ -37,7 +38,7 @@ func (i *Instance) DeleteState(directory string) *Instance {
 
 	if directory != "" {
 		if !strings.Contains(directory, i.GeneratedDir) {
-			actualDir, err := statik.GetActualDirName(statik.Template, directory, i.TemplateDir)
+			actualDir, err := static.GetActualDirName(static.ResourceType, directory, i.TemplateDir)
 			if err != nil {
 				i.Error = fmt.Errorf("unable to get actual dir for %v. err : %v", directory, err)
 				return i
@@ -47,7 +48,7 @@ func (i *Instance) DeleteState(directory string) *Instance {
 				return i
 			}
 
-			directory = i.GeneratedDir + actualDir
+			directory = filepath.Join(i.GeneratedDir, actualDir)
 		}
 		// fmt.Println("dir : ", directory)
 		if statusMap[directory] == nil {
@@ -118,7 +119,7 @@ func parseState(directory, templateDir, generatedDir string) (DirExecStatusMap, 
 
 	//Marshal
 	if directory != "" {
-		actualDir, err := statik.GetActualDirName(statik.Template, directory, templateDir)
+		actualDir, err := static.GetActualDirName(static.ResourceType, directory, templateDir)
 		if err != nil {
 			return nil, fmt.Errorf("unable to get actual dir for %v. err : %v", directory, err)
 		}
@@ -127,7 +128,7 @@ func parseState(directory, templateDir, generatedDir string) (DirExecStatusMap, 
 			return stateMapToReturn, nil
 		}
 
-		directory = generatedDir + actualDir
+		directory = filepath.Join(generatedDir, actualDir)
 		// fmt.Println("dir : ", directory)
 		if statusMap[directory] == nil {
 			var keys []string

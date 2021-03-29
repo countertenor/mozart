@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/countertenor/mozart/statik"
+	"github.com/countertenor/mozart/static"
 	"gopkg.in/yaml.v2"
 )
 
@@ -14,10 +14,11 @@ import (
 func CreateSampleConfigFile(sampleFileName string) error {
 
 	//Read sample file
-	sampleFile, err := statik.OpenFileFromStaticFS(statik.Template, "/"+sampleFileName)
+	sampleFile, err := static.OpenFileFromStaticFS(static.ResourceType, sampleFileName)
 	if err != nil {
 		return err
 	}
+
 	defer sampleFile.Close()
 	fileData, err := ioutil.ReadAll(sampleFile)
 	if err != nil {
