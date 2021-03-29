@@ -227,15 +227,15 @@ func (i *Instance) createLogFile(fileMetadata fileMetadata) (*os.File, string, e
 }
 
 func (i *Instance) getSource(filename string) (fileExt, source string) {
-	fileExt = filename[strings.LastIndex(filename, ".")+1:]
+	fileExt = filepath.Ext(filename)
 	if val, exists := i.ExecutionSource[fileExt]; exists {
 		source = val
 		return
 	}
 	switch fileExt {
-	case "sh":
+	case ".sh":
 		source = "/bin/bash"
-	case "py":
+	case ".py":
 		source = "/usr/bin/python"
 	}
 	return

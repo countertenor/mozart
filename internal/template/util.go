@@ -139,9 +139,7 @@ func generateTemplate(scriptName, scriptFileRelativePath, templateFilePath, gene
 	}
 	t := template.Must(template.New(templateFilePath).
 		Funcs(sprig.TxtFuncMap()).
-		Funcs(getLastStringSplit()).
-		Funcs(excludeFirstHost()).
-		Funcs(getFirstHost()).
+		Funcs(writeFile()).
 		Delims(delims[0], delims[1]).
 		Parse(string(templateFileContents)))
 
@@ -156,31 +154,15 @@ func generateTemplate(scriptName, scriptFileRelativePath, templateFilePath, gene
 
 }
 
-//send the first host
-func getFirstHost() map[string]interface{} {
+//write contents to file
+func writeFile() map[string]interface{} {
 	funcMap := template.FuncMap{
-		"getFirstHost": func(s string) string {
-			return strings.Split(s, " ")[0]
-		},
-	}
-	return funcMap
-}
-
-//sends the list of hosts excluding the first one
-func excludeFirstHost() map[string]interface{} {
-	funcMap := template.FuncMap{
-		"excludeFirstHost": func(s string) string {
-			return strings.Join(strings.Split(s, " ")[1:], " ")
-		},
-	}
-	return funcMap
-}
-
-func getLastStringSplit() map[string]interface{} {
-	funcMap := template.FuncMap{
-		"split": func(s string) string {
-			splitStrings := strings.Split(s, "/")
-			return splitStrings[len(splitStrings)-1]
+		"writeContentToFile": func(fileContent, filename string) (string, error) {
+			err := ioutil.WriteFile(filename, []byte(fileContent), 0777)
+			if err != nil {
+				return "", fmt.Errorf("could not write to file %v, err : %v", filename, err)
+			}
+			return "", nil
 		},
 	}
 	return funcMap
