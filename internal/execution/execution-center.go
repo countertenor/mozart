@@ -24,7 +24,6 @@ func (i *Instance) Init() {
 	i.DirExecStatusMap = makeStatusMap()
 	i.ExecutionSource = make(map[string]string)
 	i.initState()
-	i.Interrupter = i.configureInterrupter()
 }
 
 //RunScriptsInDir handles running of script files inside a directory
@@ -33,7 +32,19 @@ func (i *Instance) RunScriptsInDir(fullDirPath string) {
 	if i.Error != nil {
 		return
 	}
-	i.handleRunScripts(fullDirPath)
+
+	if i.DryRunEnabled {
+		i.handleRunScripts(fullDirPath)
+		fmt.Println("Skipping all files since dry-run was selected")
+	} else {
+		i.configureInterrupter()
+		defer i.disableInterrupter()
+		//skip execution the first time to populate state obj
+		i.DryRunEnabled = true
+		i.handleRunScripts(fullDirPath)
+		i.DryRunEnabled = false
+		i.handleRunScripts(fullDirPath)
+	}
 	if i.DoRunParallel {
 		i.WaitGroup.Wait()
 	}
@@ -140,7 +151,6 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		} else {
 			i.updateErrorState(fileMetadata)
 		}
-		signal.Stop(i.Interrupter)
 		return fmt.Errorf("error while running script %v, %v, err: %v", filename, errMessage, err)
 	}
 	i.PrintSeparator()
@@ -149,18 +159,27 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	return nil
 }
 
-func (i *Instance) configureInterrupter() chan os.Signal {
-	c := make(chan os.Signal)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		select {
-		case m := <-c:
-			fmt.Println("canceling due to : ", m)
-			i.StopRunningCmd()
-			signal.Stop(c)
-		}
-	}()
-	return c
+func (i *Instance) configureInterrupter() {
+	if i.Interrupter == nil {
+		c := make(chan os.Signal)
+		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+		go func() {
+			select {
+			case m := <-c:
+				fmt.Printf("Program %v \n", m)
+				i.StopRunningCmd()
+				signal.Stop(c)
+			}
+		}()
+		i.Interrupter = c
+	}
+}
+
+func (i *Instance) disableInterrupter() {
+	if i.Interrupter != nil {
+		i.Interrupter <- syscall.SIGQUIT
+		signal.Stop(i.Interrupter)
+	}
 }
 
 //StopRunningCmd stops currently running command
