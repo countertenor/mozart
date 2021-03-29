@@ -12,7 +12,6 @@ import (
 	"github.com/countertenor/mozart/internal/template"
 	"github.com/countertenor/mozart/internal/yaml"
 	"github.com/countertenor/mozart/static"
-	"github.com/countertenor/mozart/statik"
 
 	"github.com/spf13/pflag"
 )
@@ -252,7 +251,7 @@ func (i *Instance) StopRunningCommand() *Instance {
 
 //GetAllDirsInsideTmpl gets all directories inside template folder
 func GetAllDirsInsideTmpl() ([]string, error) {
-	dirs, err := statik.GetAllDirsInDir(statik.Template, templateDir)
+	dirs, err := static.GetAllDirsInDir(static.ResourceType, templateDir)
 	if err != nil {
 		return nil, err
 	}

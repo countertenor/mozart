@@ -16,11 +16,8 @@ npm-install:
 	(cd static/webapp; npm install)
 ui: npm-install
 	(cd static/webapp; npm run build)
-install: add-static clean
+install: clean
 	go install
-add-static: #add static code to binary. if error: do 'go get github.com/rakyll/statik'
-	statik -src static/resources -ns template -dest=statik/tmpl -f
-	statik -src static/webapp/build -ns webapp -dest=statik/web -f
 run-server: install
 	mozart server
 server-live: # go get -u github.com/cosmtrek/air

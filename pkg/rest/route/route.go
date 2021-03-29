@@ -21,19 +21,9 @@ type routes []route
 //UIRouter creates a router for the UI
 func UIRouter() *mux.Router {
 	router := mux.NewRouter()
-	// statikFS, err := statik.GetStaticFS(statik.Webapp)
-	// if err != nil {
-	// 	log.Fatalf("could not get static files for UI, err : %v", err)
-	// }
-	// sub, _ := fs.Sub(static.Webapp, "static")
-	// router.PathPrefix("/").Handler(http.FileServer(http.FS(sub)))
-
 	fsys := fs.FS(static.GetEmbedFS(static.WebappBuildType))
 	contentStatic, _ := fs.Sub(fsys, string(static.WebappBuildType))
-
 	router.PathPrefix("/").Handler(http.FileServer(http.FS(contentStatic)))
-	// router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.FS(static.Webapp))))
-	// http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(static.Webapp))))
 	return router
 }
 
