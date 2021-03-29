@@ -12,7 +12,7 @@ import (
 	"github.com/countertenor/mozart/internal/flag"
 	"github.com/countertenor/mozart/internal/template"
 	"github.com/countertenor/mozart/internal/yaml"
-	"github.com/countertenor/mozart/statik"
+	"github.com/countertenor/mozart/static"
 
 	"github.com/spf13/pflag"
 )
@@ -30,7 +30,7 @@ const (
 	stateFileDefaultName  = "mozart-state.db"
 
 	generatedDir = "mozart-generated"
-	templateDir  = "/templates"
+	templateDir  = "templates"
 )
 
 func init() {
@@ -152,7 +152,7 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 	var configDir string
 	var err error
 	if dirToGenerateFrom != "" {
-		configDir, err = statik.GetActualDirName(statik.Template, dirToGenerateFrom, templateDir)
+		configDir, err = static.GetActualDirName(static.ResourceType, dirToGenerateFrom, templateDir)
 		if err != nil {
 			i.Error = fmt.Errorf("could not get ActualDirName for dir %v, err : %v ", dirToGenerateFrom, err)
 			return i
@@ -162,7 +162,7 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 			return i
 		}
 	}
-	//fmt.Println("actual dir : ", configDir)
+	// fmt.Println("configDir : ", configDir)
 	i.ConfigDir = configDir
 	if !noGenerate {
 		//cleaning up all scripts in dir if it exists
@@ -194,7 +194,7 @@ func (i *Instance) RunScripts() *Instance {
 	if i.Error != nil {
 		return i
 	}
-	fullPath := generatedDir + i.ConfigDir
+	fullPath := filepath.Join(generatedDir, i.ConfigDir)
 	// fmt.Println("fullPath : ", fullPath)
 
 	if i.DryRunEnabled {
@@ -260,7 +260,7 @@ func (i *Instance) StopRunningCommand() *Instance {
 
 //GetAllDirsInsideTmpl gets all directories inside template folder
 func GetAllDirsInsideTmpl() ([]string, error) {
-	dirs, err := statik.GetAllDirsInDir(statik.Template, templateDir)
+	dirs, err := static.GetAllDirsInDir(static.ResourceType, templateDir)
 	if err != nil {
 		return nil, err
 	}

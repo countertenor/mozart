@@ -8,9 +8,6 @@ logs/
 #DS Store
 .DS_Store
 
-#statik
-statik.go
-
 # generated files
 mozart-generated/*
 !generated/*.md

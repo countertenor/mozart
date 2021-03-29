@@ -48,7 +48,7 @@ func (i *Instance) handleRunScripts(fullDirPath string) {
 	}
 	for _, file := range filesInDir {
 		if file.IsDir() { //recursion into dir
-			i.handleRunScripts(fullDirPath + "/" + file.Name())
+			i.handleRunScripts(filepath.Join(fullDirPath, file.Name()))
 		} else {
 			if i.DoRunParallel {
 				i.WaitGroup.Add(1)
@@ -96,8 +96,8 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		return nil
 	}
 	i.PrintSeparator()
-	fmt.Printf("\nRunning file : %v\n\n", fullDirPath+"/"+filename)
-	args := []string{fullDirPath + "/" + filename}
+	fmt.Printf("\nRunning file : %v\n\n", filepath.Join(fullDirPath, filename))
+	args := []string{filepath.Join(fullDirPath, filename)}
 	ctx, cancelFunc := context.WithTimeout(context.Background(), i.TimeoutInterval)
 	defer cancelFunc()
 	cancelRunningCommandFunc = cancelFunc

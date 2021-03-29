@@ -6,8 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/countertenor/mozart/statik"
-	"github.com/rakyll/statik/fs"
+	"github.com/countertenor/mozart/static"
 	"gopkg.in/yaml.v2"
 )
 
@@ -30,7 +29,7 @@ func ParseFile(config map[string]interface{}, filename string) error {
 
 //ParseFileFromStatic parses file from static into config
 func ParseFileFromStatic(config map[string]interface{}, filename string) error {
-	staticFile, err := statik.OpenFileFromStaticFS(statik.Template, "/"+filename)
+	staticFile, err := static.OpenFileFromStaticFS(static.ResourceType, filename)
 	if err != nil {
 		return err
 	}
