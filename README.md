@@ -143,7 +143,6 @@ There is already a sample module present called `test-module` under `resources/t
 1. Install go - https://golang.org/doc/install
 1. Clone repo - https://github.com/countertenor/mozart
 1. Run the command `export PATH=$PATH:$(go env GOPATH)/bin`) (_Please note_ - to make it persistent, you will have to add the command to your .bashrc)
-1. Run `go get github.com/rakyll/statik`
 1. Create a new directory inside `resources/templates`. This will be the base module under which all your modules will exist.
 1. (Optional) Delete the existing `test-module` inside `resources/templates` if you want a clean slate. That folder is only for reference. Leaving that folder as it is will not do any harm.
 
@@ -496,3 +495,5 @@ Developed by @toshakamath
 
 - https://github.com/rakyll/statik/pull/101/files
 - https://github.com/golang/go/issues/41191
+- https://blog.carlmjohnson.net/post/2021/how-to-use-go-embed/
+- https://github.com/akmittal/go-embed (example for react app)

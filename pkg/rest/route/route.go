@@ -1,11 +1,11 @@
 package route
 
 import (
-	"log"
+	"io/fs"
 	"net/http"
 
 	"github.com/countertenor/mozart/pkg/rest/handler"
-	"github.com/countertenor/mozart/statik"
+	"github.com/countertenor/mozart/static"
 	"github.com/gorilla/mux"
 )
 
@@ -21,11 +21,9 @@ type routes []route
 //UIRouter creates a router for the UI
 func UIRouter() *mux.Router {
 	router := mux.NewRouter()
-	statikFS, err := statik.GetStaticFS(statik.Webapp)
-	if err != nil {
-		log.Fatalf("could not get static files for UI, err : %v", err)
-	}
-	router.PathPrefix("/").Handler(http.FileServer(statikFS))
+	fsys := fs.FS(static.GetEmbedFS(static.WebappBuildType))
+	contentStatic, _ := fs.Sub(fsys, string(static.WebappBuildType))
+	router.PathPrefix("/").Handler(http.FileServer(http.FS(contentStatic)))
 	return router
 }
 
