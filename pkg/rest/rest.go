@@ -37,8 +37,7 @@ func StartServer() {
 	uiRouter, err := route.UIRouter()
 	if err != nil {
 		doIncludeUI = false
-	}
-	if doIncludeUI {
+	} else {
 		uiServer = &http.Server{
 			Addr:           ":" + uiPort,
 			Handler:        uiRouter,
@@ -49,29 +48,27 @@ func StartServer() {
 	}
 
 	var wg sync.WaitGroup
+
+	//start UI server
 	if doIncludeUI {
-		wg.Add(2)
-	} else {
 		wg.Add(1)
-	}
-
-	go func() {
-		log.Fatal(restServer.ListenAndServe())
-		wg.Done()
-	}()
-
-	if doIncludeUI {
 		go func() {
 			log.Fatal(uiServer.ListenAndServe())
 			wg.Done()
 		}()
+		fmt.Printf("Started UI server at port %v ... \n", uiPort)
 	}
 
+	//start REST server
+	wg.Add(1)
+	go func() {
+		log.Fatal(restServer.ListenAndServe())
+		wg.Done()
+	}()
 	fmt.Printf("Started REST server at port %v ... \n", restPort)
-	if doIncludeUI {
-		fmt.Printf("Started UI server at port %v ... \n", uiPort)
-	} else {
+	if !doIncludeUI {
 		fmt.Println(("(UI is not included in this build. If you want to include the UI, build using '-tags=ui')"))
 	}
+
 	wg.Wait()
 }
