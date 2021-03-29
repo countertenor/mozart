@@ -49,6 +49,14 @@ func StartServer() {
 
 	var wg sync.WaitGroup
 
+	//start REST server
+	wg.Add(1)
+	go func() {
+		log.Fatal(restServer.ListenAndServe())
+		wg.Done()
+	}()
+	fmt.Printf("Started REST server at port %v ... \n", restPort)
+
 	//start UI server
 	if doIncludeUI {
 		wg.Add(1)
@@ -60,14 +68,6 @@ func StartServer() {
 	} else {
 		fmt.Println(("(UI is not included in this build. If you want to include the UI, build using '-tags=ui')"))
 	}
-
-	//start REST server
-	wg.Add(1)
-	go func() {
-		log.Fatal(restServer.ListenAndServe())
-		wg.Done()
-	}()
-	fmt.Printf("Started REST server at port %v ... \n", restPort)
 
 	wg.Wait()
 }
