@@ -23,7 +23,6 @@ var stateDBPathFromEnv string //This will be set through the build command, see 
 //constants needed
 const (
 	sampleConfigFileName = "mozart-sample.yaml"
-	commonConfigFileName = "common.yaml"
 	commonDirName        = "common"
 
 	defaultConfigFileName = "mozart-defaults.yaml"
