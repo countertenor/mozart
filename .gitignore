@@ -20,3 +20,4 @@ dist/
 
 # Sample files
 mozart*.yaml
+!*/resources/mozart*.yaml
