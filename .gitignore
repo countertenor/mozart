@@ -9,7 +9,7 @@ logs/
 .DS_Store
 
 # generated files
-mozart-generated/*
+generated/*
 !generated/*.md
 
 # db

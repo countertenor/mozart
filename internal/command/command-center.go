@@ -28,7 +28,7 @@ const (
 	defaultConfigFileName = "mozart-defaults.yaml"
 	stateFileDefaultName  = "mozart-state.db"
 
-	generatedDir = "mozart-generated"
+	generatedDir = "generated"
 	templateDir  = "templates"
 )
 
