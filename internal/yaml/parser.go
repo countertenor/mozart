@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/countertenor/mozart/internal/template"
 	"github.com/countertenor/mozart/static"
 	"gopkg.in/yaml.v2"
 )
@@ -48,7 +49,20 @@ func ParseCommonFolder(config map[string]interface{}, dirName string) error {
 			if err != nil {
 				return fmt.Errorf("could not read file %v err: %v", fileName, err)
 			}
-			config[strings.TrimSuffix(fileName, filepath.Ext(fileName))] = string(fileData)
+
+			// delims := []string{"{{", "}}"}
+			// t := template.Must(template.New(path).
+			// 	Funcs(sprig.TxtFuncMap()).
+			// 	Delims(delims[0], delims[1]).
+			// 	Parse(string(fileData)))
+
+			// var tpl bytes.Buffer
+			// err = t.Execute(&tpl, config)
+			templatedContents, err := template.Templatize(config, path, fileData)
+			if err != nil {
+				return fmt.Errorf("error while templatizing %v script : %v", fileName, err)
+			}
+			config[strings.TrimSuffix(fileName, filepath.Ext(fileName))] = templatedContents.String()
 		}
 		return nil
 	})
