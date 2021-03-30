@@ -23,6 +23,7 @@ func (i *Instance) Init() {
 	i.WaitGroup = &waitGroup
 	i.DirExecStatusMap = makeStatusMap()
 	i.ExecutionSource = make(map[string]string)
+	i.ArgumentMap = make(map[string][]string)
 	i.initState()
 	i.Interrupter = i.configureInterrupter()
 }
@@ -98,6 +99,7 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 	i.PrintSeparator()
 	fmt.Printf("\nRunning file : %v\n\n", fullDirPath+"/"+filename)
 	args := []string{fullDirPath + "/" + filename}
+	args = append(args, i.ArgumentMap[filename]...)
 	ctx, cancelFunc := context.WithTimeout(context.Background(), i.TimeoutInterval)
 	defer cancelFunc()
 	cancelRunningCommandFunc = cancelFunc

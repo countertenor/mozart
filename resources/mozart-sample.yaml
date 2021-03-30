@@ -1,26 +1,35 @@
-# This is the file that gets generated when you run 
-# ./mozart init
+# This is the file that gets generated when you run ./mozart init
 
-# Optional templating values
+# Example of templating values
 # values:
 #   value1: 
 #   value2:
 
 # Optional configuration params
 # ------------------------------
-# Exec source
+# 1. Exec source
 
-# (file_ext: source)
+# FORMAT: 
+#(file_extension: source)
 
-# Examples:
+# Example:
 # exec_source:
   # py: /usr/bin/python3
   # sh: /bin/bash
 # ------------------------------
-# Log Path - custom directory to store log files
+# 2. Log Path - custom directory to store log files
+
+# Example:
 # log_path: my_dir
 # ------------------------------
-# Delims - change default delimiters (default - "{{", "}}")
+# 3. Delims - change default delimiters (default - "{{", "}}")
 
-# Examples:
+# Example:
 # delims: ["[[", "]]"]
+# ------------------------------
+# 4. Arguments
+# Passes arguments to scripts
+
+# Example:
+# args:
+#   00-step1.sh: ["-s", "hello"]
