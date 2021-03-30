@@ -50,14 +50,6 @@ func ParseCommonFolder(config map[string]interface{}, dirName string) error {
 				return fmt.Errorf("could not read file %v err: %v", fileName, err)
 			}
 
-			// delims := []string{"{{", "}}"}
-			// t := template.Must(template.New(path).
-			// 	Funcs(sprig.TxtFuncMap()).
-			// 	Delims(delims[0], delims[1]).
-			// 	Parse(string(fileData)))
-
-			// var tpl bytes.Buffer
-			// err = t.Execute(&tpl, config)
 			templatedContents, err := template.Templatize(config, path, fileData)
 			if err != nil {
 				return fmt.Errorf("error while templatizing %v script : %v", fileName, err)
