@@ -83,6 +83,10 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		filename:    filename,
 	}
 
+	if strings.HasPrefix(filename, "!") {
+		return nil
+	}
+
 	if i.DoRunParallel {
 		defer i.WaitGroup.Done()
 	}
@@ -90,7 +94,7 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		if time.Since(i.DirExecStatusMap[fullDirPath][filename].StartTime) > i.TimeoutInterval {
 			i.updateTimeoutState(fileMetadata)
 		} else {
-			return fmt.Errorf("Already running")
+			return fmt.Errorf("already running")
 		}
 	}
 	if !i.ReRun && i.DirExecStatusMap[fullDirPath][filename].State == SuccessState {
@@ -189,7 +193,6 @@ func (i *Instance) StopRunningCmd() {
 	} else {
 		i.Error = fmt.Errorf("nothing running at the moment")
 	}
-	return
 }
 
 func (i *Instance) createLogFile(fileMetadata fileMetadata) (*os.File, string, error) {
