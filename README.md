@@ -73,6 +73,8 @@ If you have a bunch of scripts which let you deploy a particular program on some
 - [Mozart yaml file](#mozart-yaml-file)
   - [Templating](#templating)
   - [Using common snippets across scripts](#using-common-snippets-across-scripts)
+    - [More info](#more-info)
+    - [Gotchas](#gotchas)
   - [Optional configuration parameters](#optional-configuration-parameters)
     - [Log sub-directory](#log-sub-directory)
     - [Exec source](#exec-source)
@@ -237,7 +239,7 @@ Mozart will substitute these values at runtime.
 
 There might be a scenario in which some scripts have a lot of common code. It is never a good idea to duplicate logic across scripts (DRY principle).
 
-To tackle this, you can make use of the `common.yaml` file that is present in the `resources` folder. This file has one purpose and one purpose only - to hold common snippets of information that will be needed by more than one script.
+To tackle this, you can make use of the `common` folder that is present under the `resources` folder. This folder has one purpose and one purpose only - to hold common snippets of information that will be needed by more than one script.
 
 You can take a look at the `resources/templates/test-module/10-python-module/00-module1/python-1.py` file for an example.
 
@@ -246,25 +248,43 @@ You can take a look at the `resources/templates/test-module/10-python-module/00-
 Suppose if you have a function that you want in more than one script, say
 
     def my_func(str):
-    print(f'inside funct {str}')
+    print('inside funct - ' + str)
 
-Instead of having this function be duplicated across scripts, you add this function in the `common.yaml` file:
+Instead of having this function be duplicated across scripts, you add this function as its own file under the `common` folder:
 
-    my_func: >
+    ╰$ cat static/resources/common/python/my_func
+
     def my_func(str):
-        print(f'inside funct {str}')
+    print('inside funct - ' + str)
 
-The `key` is `my_func`, and the value is the function itself.
+Once the templating engine parses the files, it creates a mapping:
 
-You can then access this function in any script, using
+    "key" - the filename ("my_func" in this case)
+    "value" - the content of the file itself
+
+You can then substitute this function in any script using the key:
 
     {{.my_func}}
 
-**Note 1:** Sometimes you might want to add indentation to the above substituted lines of code (It is essential in python scripts). You can do so by using `nindent` (courtesy of [sprig functions](http://masterminds.github.io/sprig/strings.html))
+This will substitute the contents of the file.
 
-    {{.my_func | nindent 4}}
+#### More info
 
-**Note 2:** The only difference between the `common.yaml` and the main `yaml` file for Mozart config is that the `common.yaml` is more for compile time deduplication, whereas the main `yaml` file is for runtime changes. For example, functions that are duplicated will never need to be changed at runtime (common.yaml), whereas username and password should never be saved at compile time, instead should be provided at runtime.
+1.  The files added under the `common` folder are also passes through the templating engine, so **you can use templating in the files added to the `common` folder as well**, something like this:
+
+        echo "{{.values.value1}} {{.values.value2}}"
+
+    These values will be parsed through the `yaml` file provided at runtime.
+
+1.  Sometimes you might want to **add indentation to the above substituted lines of code** (It is essential in python scripts). You can do so by using `nindent` (courtesy of [sprig functions](http://masterminds.github.io/sprig/strings.html))
+
+        {{.my_func | nindent 4}}
+
+#### Gotchas
+
+1.  If you add a file under the `common` folder with an extension, for example, `my_func.py`, the key still remains `my_func`. That is because the templating engine gets confused when you try to access a key with a `.` So **in cases where the file has an extension, the engine strips off the extension for the "key" value**.
+
+1.  Names with `-` are not permitted to be used in go templating, therefore **filenames with `-` in them are not permitted**.
 
 ### Optional configuration parameters
 
