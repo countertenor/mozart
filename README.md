@@ -77,6 +77,7 @@ If you have a bunch of scripts which let you deploy a particular program on some
     - [Log sub-directory](#log-sub-directory)
     - [Exec source](#exec-source)
     - [Delims](#delims)
+    - [Arguments](#arguments)
 - [CLI](#cli)
   - [Mozart commands](#mozart-commands)
   - [Executing modules](#executing-modules)
@@ -317,6 +318,19 @@ Adding this line in the `yaml` file changes the delimiters to `[[ ]]`. So after 
 Adding this line in the `yaml` file changes the delimiters to `<< >> `. So after this, you can use templating like:
 
     echo "<<.values.value1>> <<.values.value2>>"
+
+#### Arguments
+
+This lets you pass arguments to the scripts themselves when they are being executed.
+
+**Example:**
+
+```
+args:
+  00-step1.sh: ["-s", "hello"]
+```
+
+This makes sure that whenever the `00-step1.sh` file is being executed by Mozart, the `-s` and `hello` arguments are passed to the file at runtime.
 
 ## CLI
 
