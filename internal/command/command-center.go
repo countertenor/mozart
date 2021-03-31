@@ -294,11 +294,6 @@ func parsePath(path string) string {
 }
 
 func (i *Instance) printConfig() error {
-	// fmt.Printf("Config: \n\n")
-	// for key, val := range i.Config {
-	// 	fmt.Printf("%v: %v \n\n", key, val)
-	// }
-	// fmt.Println("")
 	jsonData, err := json.MarshalIndent(i.Config, "", "  ")
 	if err != nil {
 		return fmt.Errorf("unable to parse version, err : %v", err)
