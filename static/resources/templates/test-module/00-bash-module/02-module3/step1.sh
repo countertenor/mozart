@@ -3,5 +3,8 @@
 for i in {1..5}	
 do	
     echo "printing $i"	
-    sleep 2	
+    sleep 1
 done
+
+DIR={{.get_current_dir}}
+bash $DIR/!ref.sh
