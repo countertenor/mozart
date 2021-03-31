@@ -79,6 +79,7 @@ If you have a bunch of scripts which let you deploy a particular program on some
     - [Log sub-directory](#log-sub-directory)
     - [Exec source](#exec-source)
     - [Delims](#delims)
+  - [Adding custom resources](#adding-custom-resources)
 - [CLI](#cli)
   - [Mozart commands](#mozart-commands)
   - [Executing modules](#executing-modules)
@@ -230,8 +231,8 @@ In the file `step1.sh`, you see this:
 The values in the brackets are the values that will be fetched from the `yaml` at runtime. So if you want to substitute some values at runtime, you replace the values with the `{{ }}` notation as you see above, and in the `yaml` file, add:
 
     values:
-    value1: hello
-    value2: world
+      value1: hello
+      value2: world
 
 Mozart will substitute these values at runtime.
 
@@ -311,8 +312,8 @@ The format is `file_ext: source`
 **Example:**
 
     exec_source:
-    py: /usr/bin/python
-    sh: /bin/bash
+      py: /usr/bin/python
+      sh: /bin/bash
 
 This lets Mozart know that if you place any file with the extension of `.sh`, then run it using `/bin/bash`. If you place any file with the extension `.py`, then run it using `/usr/bin/python`.
 
@@ -337,6 +338,28 @@ Adding this line in the `yaml` file changes the delimiters to `[[ ]]`. So after 
 Adding this line in the `yaml` file changes the delimiters to `<< >> `. So after this, you can use templating like:
 
     echo "<<.values.value1>> <<.values.value2>>"
+
+### Adding custom resources
+
+Sometimes you might want to add files which you don't want mozart to execute automatically, but these files will be used by your scripts. In such cases, you can prefix `!` to these files.
+
+**Example:**
+
+    ls static/resources/templates/test-module/00-bash-module/02-module3
+
+    !ref.sh
+    step1.sh
+
+As you see here, there's a file present with the name `!ref.sh`. Since this file is prefixed with a `!`, this won't be executed by mozart when you run the `module3` module.
+
+If your script wants to execute this file, you can do so by adding these lines:
+
+    cat static/resources/templates/test-module/00-bash-module/02-module3/step1.sh
+
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P )"
+    bash $DIR/!ref.sh
+
+**Note:** The DIR command is needed since the execution directory for the script is not where the script resides. So unfortunately you cannot run a script that's present in the same folder using something like `./script_name`, since `.` assumes current execution directory.
 
 ## CLI
 
