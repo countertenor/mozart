@@ -1,6 +1,7 @@
 package template
 
 import (
+	"bytes"
 	"fmt"
 	"io/fs"
 	"io/ioutil"
@@ -121,7 +122,27 @@ func generateTemplate(scriptName, scriptFileRelativePath, templateFilePath, gene
 		log.Fatalf("could not make %v file executable, err : %v", fullFilePath, err)
 	}
 
+	templatedContents, err := Templatize(config, templateFilePath, templateFileContents)
+	if err != nil {
+		return fmt.Errorf("error while templatizing %v script : %v", scriptName, err)
+	}
+
+	_, err = scriptFile.Write(templatedContents.Bytes())
+	if err != nil {
+		os.Remove(fullFilePath)
+		return fmt.Errorf("error while writing to %v script : %v", scriptName, err)
+	}
+
+	fmt.Printf("generated script %-40v location: %v\n", scriptName, fullFilePath)
+	return nil
+
+}
+
+//Templatize parses the file contents into a bytes.Buffer
+// while applying templating changes
+func Templatize(config map[string]interface{}, templateFilePath string, templateFileContents []byte) (bytes.Buffer, error) {
 	delims := []string{"{{", "}}"}
+
 	if config["delims"] != nil {
 		delimsParsed, parseOk := config["delims"].([]interface{})
 		if parseOk && len(delimsParsed) == 2 {
@@ -131,56 +152,36 @@ func generateTemplate(scriptName, scriptFileRelativePath, templateFilePath, gene
 				delims[0] = delims0
 				delims[1] = delims1
 			} else {
-				return fmt.Errorf("could not parse delims in config file")
+				return bytes.Buffer{}, fmt.Errorf("could not parse delims in config file")
 			}
 		} else {
-			return fmt.Errorf("could not parse delims in config file")
+			return bytes.Buffer{}, fmt.Errorf("could not parse delims in config file")
 		}
 	}
+
 	t := template.Must(template.New(templateFilePath).
 		Funcs(sprig.TxtFuncMap()).
-		Funcs(getLastStringSplit()).
-		Funcs(excludeFirstHost()).
-		Funcs(getFirstHost()).
+		Funcs(writeFile()).
 		Delims(delims[0], delims[1]).
 		Parse(string(templateFileContents)))
 
-	err = t.Execute(scriptFile, config)
+	var templatedContent bytes.Buffer
+	err := t.Execute(&templatedContent, config)
 	if err != nil {
-		os.Remove(fullFilePath)
-		return fmt.Errorf("error while generating %v script : %v", scriptName, err)
+		return bytes.Buffer{}, err
 	}
-
-	fmt.Printf("generated script %-40v location: %v\n", scriptName, fullFilePath)
-	return nil
-
+	return templatedContent, nil
 }
 
-//send the first host
-func getFirstHost() map[string]interface{} {
+//write contents to file
+func writeFile() map[string]interface{} {
 	funcMap := template.FuncMap{
-		"getFirstHost": func(s string) string {
-			return strings.Split(s, " ")[0]
-		},
-	}
-	return funcMap
-}
-
-//sends the list of hosts excluding the first one
-func excludeFirstHost() map[string]interface{} {
-	funcMap := template.FuncMap{
-		"excludeFirstHost": func(s string) string {
-			return strings.Join(strings.Split(s, " ")[1:], " ")
-		},
-	}
-	return funcMap
-}
-
-func getLastStringSplit() map[string]interface{} {
-	funcMap := template.FuncMap{
-		"split": func(s string) string {
-			splitStrings := strings.Split(s, "/")
-			return splitStrings[len(splitStrings)-1]
+		"writeContentToFile": func(fileContent, filename string) (string, error) {
+			err := ioutil.WriteFile(filename, []byte(fileContent), 0777)
+			if err != nil {
+				return "", fmt.Errorf("could not write to file %v, err : %v", filename, err)
+			}
+			return "", nil
 		},
 	}
 	return funcMap

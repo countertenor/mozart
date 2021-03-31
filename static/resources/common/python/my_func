@@ -1,0 +1,2 @@
+def my_func(str):
+    print('inside funct - ' + str)

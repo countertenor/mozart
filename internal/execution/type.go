@@ -45,6 +45,7 @@ type Instance struct {
 	ReRun           bool
 	LogDir          string
 	ExecutionSource map[string]string
+	ArgumentMap     map[string][]string
 	GeneratedDir    string
 	TemplateDir     string
 	Error           error

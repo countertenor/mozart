@@ -1,6 +1,7 @@
 package command
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -22,7 +23,7 @@ var stateDBPathFromEnv string //This will be set through the build command, see 
 //constants needed
 const (
 	sampleConfigFileName = "mozart-sample.yaml"
-	commonConfigFileName = "common.yaml"
+	commonDirName        = "common"
 
 	defaultConfigFileName = "mozart-defaults.yaml"
 	stateFileDefaultName  = "mozart-state.db"
@@ -108,14 +109,14 @@ func (i *Instance) ParseConfig() *Instance {
 		i.Error = err
 		return i
 	}
-	err = yaml.ParseFileFromStatic(i.Config, commonConfigFileName)
+	//common folder files
+	err = yaml.ParseCommonFolder(i.Config, commonDirName)
 	if err != nil {
-		i.Error = fmt.Errorf("error while parsing %v YAML file: %v", commonConfigFileName, err)
+		i.Error = fmt.Errorf("error while parsing %v common dir: %v", commonDirName, err)
 		return i
 	}
-
 	if getBoolFlagValue(i.Flags, flag.Verbose) {
-		fmt.Println("config : ", i.Config)
+		i.printConfig()
 	}
 	return i
 }
@@ -187,17 +188,8 @@ func (i *Instance) RunScripts() *Instance {
 	}
 	fullPath := filepath.Join(generatedDir, i.ConfigDir)
 	// fmt.Println("fullPath : ", fullPath)
+	i.RunScriptsInDir(fullPath)
 
-	if i.DryRunEnabled {
-		i.RunScriptsInDir(fullPath)
-		fmt.Println("Skipping all files since dry-run was selected")
-	} else {
-		//skip execution the first time to populate state obj
-		i.DryRunEnabled = true
-		i.RunScriptsInDir(fullPath)
-		i.DryRunEnabled = false
-		i.RunScriptsInDir(fullPath)
-	}
 	i.Error = i.Instance.Error
 	i.PrintSeparator()
 	return i
@@ -301,6 +293,15 @@ func parsePath(path string) string {
 	return path
 }
 
+func (i *Instance) printConfig() error {
+	jsonData, err := json.MarshalIndent(i.Config, "", "  ")
+	if err != nil {
+		return fmt.Errorf("unable to parse version, err : %v", err)
+	}
+	fmt.Printf("\nConfig %s\n", jsonData)
+	return nil
+}
+
 func (i *Instance) parseConfigParams() error {
 	if i.Config["log_path"] != nil {
 		logPath, parseOk := i.Config["log_path"].(string)
@@ -331,6 +332,33 @@ func (i *Instance) parseConfigParams() error {
 		} else {
 			return fmt.Errorf(errorMsg)
 		}
+	}
+
+	if i.Config["args"] != nil {
+		errorMsg := "could not parse args in config file"
+		argumentMapInterface, parseOk := i.Config["args"].(map[interface{}]interface{})
+		if !parseOk {
+			return fmt.Errorf(errorMsg)
+		}
+		for key, val := range argumentMapInterface {
+			argArr := []string{}
+			keyStr, parseKey := key.(string)
+			valInterfaceArr, parseVal := val.([]interface{})
+			if parseKey && parseVal {
+				for _, s := range valInterfaceArr {
+					argStr, parseArgStr := s.(string)
+					if parseArgStr {
+						argArr = append(argArr, argStr)
+					} else {
+						return fmt.Errorf(errorMsg)
+					}
+				}
+			} else {
+				return fmt.Errorf(errorMsg)
+			}
+			i.ArgumentMap[keyStr] = argArr
+		}
+		// fmt.Println("argumentMap : ", argumentMap)
 	}
 	return nil
 }
