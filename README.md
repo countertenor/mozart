@@ -72,14 +72,15 @@ If you have a bunch of scripts which let you deploy a particular program on some
     - [4. Build the binary](#4-build-the-binary)
 - [Mozart yaml file](#mozart-yaml-file)
   - [Templating](#templating)
-  - [Using common snippets across scripts](#using-common-snippets-across-scripts)
-    - [More info](#more-info)
-    - [Gotchas](#gotchas)
   - [Optional configuration parameters](#optional-configuration-parameters)
     - [Log sub-directory](#log-sub-directory)
     - [Exec source](#exec-source)
     - [Delims](#delims)
-  - [Adding custom resources](#adding-custom-resources)
+    - [Arguments](#arguments)
+- [Using common snippets across scripts](#using-common-snippets-across-scripts)
+  - [More info](#more-info)
+  - [Gotchas](#gotchas)
+- [Adding custom resources](#adding-custom-resources)
 - [CLI](#cli)
   - [Mozart commands](#mozart-commands)
   - [Executing modules](#executing-modules)
@@ -236,57 +237,6 @@ The values in the brackets are the values that will be fetched from the `yaml` a
 
 Mozart will substitute these values at runtime.
 
-### Using common snippets across scripts
-
-There might be a scenario in which some scripts have a lot of common code. It is never a good idea to duplicate logic across scripts (DRY principle).
-
-To tackle this, you can make use of the `common` folder that is present under the `resources` folder. This folder has one purpose and one purpose only - to hold common snippets of information that will be needed by more than one script.
-
-You can take a look at the `resources/templates/test-module/10-python-module/00-module1/python-1.py` file for an example.
-
-**Example:**
-
-Suppose if you have a function that you want in more than one script, say
-
-    def my_func(str):
-    print('inside funct - ' + str)
-
-Instead of having this function be duplicated across scripts, you add this function as its own file under the `common` folder:
-
-    ╰$ cat static/resources/common/python/my_func
-
-    def my_func(str):
-    print('inside funct - ' + str)
-
-Once the templating engine parses the files, it creates a mapping:
-
-    "key" - the filename ("my_func" in this case)
-    "value" - the content of the file itself
-
-You can then substitute this function in any script using the key:
-
-    {{.my_func}}
-
-This will substitute the contents of the file.
-
-#### More info
-
-1.  The files added under the `common` folder are also passes through the templating engine, so **you can use templating in the files added to the `common` folder as well**, something like this:
-
-        echo "{{.values.value1}} {{.values.value2}}"
-
-    These values will be parsed through the `yaml` file provided at runtime.
-
-1.  Sometimes you might want to **add indentation to the above substituted lines of code** (It is essential in python scripts). You can do so by using `nindent` (courtesy of [sprig functions](http://masterminds.github.io/sprig/strings.html))
-
-        {{.my_func | nindent 4}}
-
-#### Gotchas
-
-1.  If you add a file under the `common` folder with an extension, for example, `my_func.py`, the key still remains `my_func`. That is because the templating engine gets confused when you try to access a key with a `.` So **in cases where the file has an extension, the engine strips off the extension for the "key" value**.
-
-1.  Names with `-` are not permitted to be used in go templating, therefore **filenames with `-` in them are not permitted**.
-
 ### Optional configuration parameters
 
 There are certain configuration parameters also that you can change using the same `yaml` file as above.
@@ -339,7 +289,71 @@ Adding this line in the `yaml` file changes the delimiters to `<< >> `. So after
 
     echo "<<.values.value1>> <<.values.value2>>"
 
-### Adding custom resources
+#### Arguments
+
+This lets you pass arguments to the scripts themselves when they are being executed.
+
+**Example:**
+
+```
+args:
+  00-step1.sh: ["-s", "hello"]
+```
+
+This makes sure that whenever the `00-step1.sh` file is being executed by Mozart, the `-s` and `hello` arguments are passed to the file at runtime.
+
+## Using common snippets across scripts
+
+There might be a scenario in which some scripts have a lot of common code. It is never a good idea to duplicate logic across scripts (DRY principle).
+
+To tackle this, you can make use of the `common` folder that is present under the `resources` folder. This folder has one purpose and one purpose only - to hold common snippets of information that will be needed by more than one script.
+
+You can take a look at the `resources/templates/test-module/10-python-module/00-module1/python-1.py` file for an example.
+
+**Example:**
+
+Suppose if you have a function that you want in more than one script, say
+
+    def my_func(str):
+    print('inside funct - ' + str)
+
+Instead of having this function be duplicated across scripts, you add this function as its own file under the `common` folder:
+
+    ╰$ cat static/resources/common/python/my_func
+
+    def my_func(str):
+    print('inside funct - ' + str)
+
+Once the templating engine parses the files, it creates a mapping:
+
+    "key" - the filename ("my_func" in this case)
+    "value" - the content of the file itself
+
+You can then substitute this function in any script using the key:
+
+    {{.my_func}}
+
+This will substitute the contents of the file.
+
+### More info
+
+1.  The files added under the `common` folder are also passes through the templating engine, so **you can use templating in the files added to the `common` folder as well**, something like this:
+
+        echo "{{.values.value1}} {{.values.value2}}"
+
+    These values will be parsed through the `yaml` file provided at runtime.
+
+1.  Sometimes you might want to **add indentation to the above substituted lines of code** (It is essential in python scripts). You can do so by using `nindent` (courtesy of [sprig functions](http://masterminds.github.io/sprig/strings.html))
+
+        {{.my_func | nindent 4}}
+
+### Gotchas
+
+1.  If you add a file under the `common` folder with an extension, for example, `my_func.py`, the key still remains `my_func`. That is because the templating engine gets confused when you try to access a key with a `.` So **in cases where the file has an extension, the engine strips off the extension for the "key" value**.
+
+1.  Names with `-` are not permitted to be used in go templating, therefore **filenames with `-` in them are not permitted**.
+
+## Adding custom resources
 
 Sometimes you might want to add files which you don't want mozart to execute automatically, but these files will be used by your scripts. In such cases, you can prefix `!` to these files.
 

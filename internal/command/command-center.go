@@ -333,5 +333,32 @@ func (i *Instance) parseConfigParams() error {
 			return fmt.Errorf(errorMsg)
 		}
 	}
+
+	if i.Config["args"] != nil {
+		errorMsg := "could not parse args in config file"
+		argumentMapInterface, parseOk := i.Config["args"].(map[interface{}]interface{})
+		if !parseOk {
+			return fmt.Errorf(errorMsg)
+		}
+		for key, val := range argumentMapInterface {
+			argArr := []string{}
+			keyStr, parseKey := key.(string)
+			valInterfaceArr, parseVal := val.([]interface{})
+			if parseKey && parseVal {
+				for _, s := range valInterfaceArr {
+					argStr, parseArgStr := s.(string)
+					if parseArgStr {
+						argArr = append(argArr, argStr)
+					} else {
+						return fmt.Errorf(errorMsg)
+					}
+				}
+			} else {
+				return fmt.Errorf(errorMsg)
+			}
+			i.ArgumentMap[keyStr] = argArr
+		}
+		// fmt.Println("argumentMap : ", argumentMap)
+	}
 	return nil
 }
