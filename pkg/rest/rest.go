@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -16,6 +17,10 @@ const uiPort = "8081"
 
 //StartServer starts the REST and UI server
 func StartServer() {
+
+	doIncludeUI := true
+	var uiServer *http.Server
+
 	restRouter := route.RestRouter()
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:" + uiPort, "http://localhost:3000"},
@@ -29,29 +34,40 @@ func StartServer() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	uiRouter := route.UIRouter()
-	uiServer := &http.Server{
-		Addr:           ":" + uiPort,
-		Handler:        uiRouter,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
+	uiRouter, err := route.UIRouter()
+	if err != nil {
+		doIncludeUI = false
+	} else {
+		uiServer = &http.Server{
+			Addr:           ":" + uiPort,
+			Handler:        uiRouter,
+			ReadTimeout:    10 * time.Second,
+			WriteTimeout:   10 * time.Second,
+			MaxHeaderBytes: 1 << 20,
+		}
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(2)
 
+	//start REST server
+	wg.Add(1)
 	go func() {
 		log.Fatal(restServer.ListenAndServe())
 		wg.Done()
 	}()
+	fmt.Printf("Started REST server at port %v ... \n", restPort)
 
-	go func() {
-		log.Fatal(uiServer.ListenAndServe())
-		wg.Done()
-	}()
+	//start UI server
+	if doIncludeUI {
+		wg.Add(1)
+		go func() {
+			log.Fatal(uiServer.ListenAndServe())
+			wg.Done()
+		}()
+		fmt.Printf("Started UI server at port %v ... \n", uiPort)
+	} else {
+		fmt.Println(("(UI is not included in this build. If you want to include the UI, build using '-tags=ui')"))
+	}
 
-	log.Printf("Started REST server at port %v ... \n", restPort)
-	log.Printf("Started UI server at port %v ... \n", uiPort)
 	wg.Wait()
 }

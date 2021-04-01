@@ -1,6 +1,7 @@
 package route
 
 import (
+	"errors"
 	"io/fs"
 	"net/http"
 	"net/http/pprof"
@@ -20,13 +21,16 @@ type route struct {
 type routes []route
 
 //UIRouter creates a router for the UI
-func UIRouter() *mux.Router {
+func UIRouter() (*mux.Router, error) {
 	router := mux.NewRouter()
+	if static.WebappBuildType == "" {
+		return nil, errors.New("ui not included")
+	}
 	attachProfiler(router)
 	fsys := fs.FS(static.GetEmbedFS(static.WebappBuildType))
 	contentStatic, _ := fs.Sub(fsys, string(static.WebappBuildType))
 	router.PathPrefix("/").Handler(http.FileServer(http.FS(contentStatic)))
-	return router
+	return router, nil
 }
 
 //RestRouter creates a new mux router for application

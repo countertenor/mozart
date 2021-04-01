@@ -96,6 +96,7 @@ If you have a bunch of scripts which let you deploy a particular program on some
   - [Command execution](#command-execution)
   - [Error stack](#error-stack)
   - [Embedding static content](#embedding-static-content)
+  - [Go build tools](#go-build-tools)
 
 <!-- /code_chunk_output -->
 
@@ -554,3 +555,10 @@ Developed by @toshakamath
 - https://github.com/golang/go/issues/41191
 - https://blog.carlmjohnson.net/post/2021/how-to-use-go-embed/
 - https://github.com/akmittal/go-embed (example for react app)
+
+### Go build tools
+
+- https://blog.carlmjohnson.net/post/2021/how-to-use-go-embed/
+- https://dave.cheney.net/2013/10/12/how-to-use-conditional-compilation-with-the-go-build-tool
+- https://www.digitalocean.com/community/tutorials/customizing-go-binaries-with-build-tags
+- List all go files: `go list -tags ui -f '{{.GoFiles}}' ./...`
