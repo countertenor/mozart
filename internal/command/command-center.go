@@ -87,6 +87,7 @@ func (i *Instance) CreateSampleConfigFile() *Instance {
 	err := yaml.CreateSampleConfigFile(sampleConfigFileName)
 	if err != nil {
 		i.Error = err
+		return i
 	}
 	fmt.Println("\nGenerated sample file : ", sampleConfigFileName)
 	return i

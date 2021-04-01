@@ -13,6 +13,17 @@ import (
 //CreateSampleConfigFile creates sample config file
 func CreateSampleConfigFile(sampleFileName string) error {
 
+	//check if file exists already
+	filesInDir, err := ioutil.ReadDir(".")
+	if err != nil {
+		return fmt.Errorf("error while reading current dir, err : %v", err)
+	}
+	for _, file := range filesInDir {
+		if file.Name() == sampleFileName {
+			return fmt.Errorf("sample file already exists in the current directory. Kindly delete it then run command again")
+		}
+	}
+
 	//Read sample file
 	sampleFile, err := static.OpenFileFromStaticFS(static.ResourceType, sampleFileName)
 	if err != nil {
