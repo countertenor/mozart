@@ -1,18 +1,22 @@
 BINARY_NAME=mybinary
 BINARY_UNIX=$(BINARY_NAME)_unix
 
-GIT_ADD=github.com/countertenor/mozart/cmd.gitCommitHash=`git rev-parse HEAD` -X github.com/countertenor/mozart/cmd.buildTime=`date -u '+%Y-%m-%d--%H:%M:%S%p'` -X github.com/countertenor/mozart/cmd.gitBranch=`git branch --show-current`
+VERSION_INFO=github.com/countertenor/mozart/cmd.gitCommitHash=`git rev-parse HEAD` -X github.com/countertenor/mozart/cmd.buildTime=`date -u '+%Y-%m-%d--%H:%M:%S%p'` -X github.com/countertenor/mozart/cmd.gitBranch=`git branch --show-current`
 DB_PATH=github.com/countertenor/mozart/internal/command.stateDBPathFromEnv
 LOG_PATH=github.com/countertenor/mozart/internal/command.logDirPathFromEnv
+GO_BUILD=go build -tags $(BUILD_TAGS)
 
-build-all: ui build-all-binary
+build-all: ui 
+	$(MAKE) BUILD_TAGS=ui build-all-binary
+build-all-no-ui:
+	$(MAKE) BUILD_TAGS=none build-all-binary
 build-all-binary: build-darwin build-linux build-centos
 build-darwin: clean
-	go build -ldflags "-X $(GIT_ADD)" -o bin/darwin/mozart main.go
+	$(GO_BUILD) -ldflags "-X $(VERSION_INFO)" -o bin/darwin/mozart main.go
 build-linux: clean
-	env GOOS=linux GOARCH=amd64 go build -ldflags "-X $(DB_PATH)=/tmp -X $(LOG_PATH)=/var/log/mozart -X $(GIT_ADD)" -o bin/linux/mozart main.go
+	env GOOS=linux GOARCH=amd64 $(GO_BUILD) -ldflags "-X $(DB_PATH)=/tmp -X $(LOG_PATH)=/var/log/mozart -X $(VERSION_INFO)" -o bin/linux/mozart main.go
 build-centos: clean
-	env GOOS=linux GOARCH=ppc64le go build -ldflags "-X $(DB_PATH)=/tmp -X $(LOG_PATH)=/var/log/mozart -X $(GIT_ADD)" -o bin/centos/mozart main.go
+	env GOOS=linux GOARCH=ppc64le $(GO_BUILD) -ldflags "-X $(DB_PATH)=/tmp -X $(LOG_PATH)=/var/log/mozart -X $(VERSION_INFO)" -o bin/centos/mozart main.go
 clean:
 	rm -f bin/*.*
 	rm -rf generated
