@@ -1,9 +1,9 @@
 # This is the file that gets generated when you run ./mozart init
 
 # Example of templating values
-values:
-  value1: hello
-  value2: world
+# values:
+#   value1: hello
+#   value2: world
 
 # Optional configuration params
 # ------------------------------
@@ -31,6 +31,6 @@ values:
 # Passes arguments to scripts
 
 # Example:
-args:
-  00-step1.sh: ["hello"]
-  10-step2.sh: ["world"]
+# args:
+#   00-step1.sh: ["hello"]
+#   10-step2.sh: ["world"]
