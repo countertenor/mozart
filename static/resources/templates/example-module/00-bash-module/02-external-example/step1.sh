@@ -7,4 +7,4 @@ do
 done
 
 DIR={{.get_current_dir}}
-bash $DIR/!ref.sh
+bash $DIR/!external_file.sh
