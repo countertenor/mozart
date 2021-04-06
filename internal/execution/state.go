@@ -21,7 +21,7 @@ type State struct {
 }
 
 func (i *Instance) initState() {
-	state.InitiateFileTypeInstance(i.StateFilePath + i.StateFileDefaultname)
+	state.InitiateFileTypeInstance(filepath.Join(i.StateFilePath, i.StateFileDefaultname))
 }
 
 //DeleteState deletes state

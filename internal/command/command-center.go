@@ -17,8 +17,9 @@ import (
 	"github.com/spf13/pflag"
 )
 
-var logDirPathFromEnv string  //This will be set through the build command, see Makefile
-var stateDBPathFromEnv string //This will be set through the build command, see Makefile
+var logDirPathFromEnv string       //This will be set through the build command, see Makefile
+var stateDBPathFromEnv string      //This will be set through the build command, see Makefile
+var generatedDirPathFromEnv string //This will be set through the build command, see Makefile
 
 //constants needed
 const (
@@ -28,11 +29,28 @@ const (
 	defaultConfigFileName = "mozart-defaults.yaml"
 	stateFileDefaultName  = "mozart-state.db"
 
-	generatedDir = "generated"
-	templateDir  = "templates"
+	templateDir = "templates"
+)
+
+var (
+	stateFilePath = "."
+	logDir        = "logs"
+	generatedDir  = "generated"
 )
 
 func init() {
+	if stateDBPathFromEnv != "" {
+		stateFilePath = stateDBPathFromEnv
+	}
+
+	if logDirPathFromEnv != "" {
+		logDir = logDirPathFromEnv
+	}
+
+	if generatedDirPathFromEnv != "" {
+		generatedDir = filepath.Join(generatedDirPathFromEnv, generatedDir)
+	}
+
 	if _, err := os.Stat(generatedDir); os.IsNotExist(err) {
 		// fmt.Printf("\n%v directory does not exist, creating ...\n\n", generatedDir)
 		err := os.Mkdir(generatedDir, 0755)
@@ -44,18 +62,6 @@ func init() {
 
 //New creates a new instance for command execution
 func New(flags *pflag.FlagSet) *Instance {
-	stateFilePath := "./"
-	if stateDBPathFromEnv != "" {
-		stateDBPathFromEnv = parsePath(stateDBPathFromEnv)
-		stateFilePath = stateDBPathFromEnv
-	}
-
-	logDir := "logs/"
-	if logDirPathFromEnv != "" {
-		logDirPathFromEnv = parsePath(logDirPathFromEnv)
-		logDir = logDirPathFromEnv
-	}
-
 	executionInstance := &execution.Instance{
 		LogDir:          logDir,
 		GeneratedDir:    generatedDir,
@@ -285,15 +291,6 @@ func getStringFlagValue(flags *pflag.FlagSet, flagname string) string {
 	return ""
 }
 
-func parsePath(path string) string {
-	lastChar := path[len(path)-1:]
-
-	if lastChar != "/" {
-		path += "/"
-	}
-	return path
-}
-
 func (i *Instance) printConfig() error {
 	jsonData, err := json.MarshalIndent(i.Config, "", "  ")
 	if err != nil {
@@ -307,7 +304,7 @@ func (i *Instance) parseConfigParams() error {
 	if i.Config["log_path"] != nil {
 		logPath, parseOk := i.Config["log_path"].(string)
 		if parseOk {
-			i.LogDir = i.LogDir + parsePath(logPath)
+			i.LogDir = filepath.Join(i.LogDir, logPath)
 		} else {
 			return fmt.Errorf("could not parse log file path in config file")
 		}
