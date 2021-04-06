@@ -309,7 +309,7 @@ There might be a scenario in which some scripts have a lot of common code. It is
 
 To tackle this, you can make use of the `common` folder that is present under the `resources` folder. This folder has one purpose and one purpose only - to hold common snippets of information that will be needed by more than one script.
 
-You can take a look at the `resources/templates/test-module/10-python-module/00-module1/python-1.py` file for an example.
+You can take a look at the `static/resources/templates/example-module/10-python-module/00-common-example/python-1.py` file for an example.
 
 **Example:**
 
@@ -360,19 +360,19 @@ Sometimes you might want to add files which you don't want mozart to execute aut
 
 **Example:**
 
-    ls static/resources/templates/test-module/00-bash-module/02-module3
+    ls static/resources/templates/example-module/00-bash-module/02-external-example
 
-    !ref.sh
+    !external_file.sh
     step1.sh
 
-As you see here, there's a file present with the name `!ref.sh`. Since this file is prefixed with a `!`, this won't be executed by mozart when you run the `module3` module.
+As you see here, there's a file present with the name `!external_file.sh`. Since this file is prefixed with a `!`, this won't be executed by mozart when you run the `module3` module.
 
 If your script wants to execute this file, you can do so by adding these lines:
 
-    cat static/resources/templates/test-module/00-bash-module/02-module3/step1.sh
+    cat static/resources/templates/example-module/00-bash-module/02-external-example/step1.sh
 
     DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P )"
-    bash $DIR/!ref.sh
+    bash $DIR/!external_file.sh
 
 **Note:** The DIR command is needed since the execution directory for the script is not where the script resides. So unfortunately you cannot run a script that's present in the same folder using something like `./script_name`, since `.` assumes current execution directory.
 
