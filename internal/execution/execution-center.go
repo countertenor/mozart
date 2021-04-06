@@ -206,7 +206,7 @@ func (i *Instance) createLogFile(fileMetadata fileMetadata) (*os.File, string, e
 		startSplit = 1
 	}
 	dirToCreate := strings.Join(splitVal[startSplit:], "/")
-	logfilePath := i.LogDir + dirToCreate
+	logfilePath := filepath.Join(i.LogDir, dirToCreate)
 	// fmt.Println("logfilePath : ", logfilePath)
 
 	if _, err := os.Stat(logfilePath); os.IsNotExist(err) {
