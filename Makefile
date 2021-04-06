@@ -4,6 +4,7 @@ BINARY_UNIX=$(BINARY_NAME)_unix
 VERSION_INFO=github.com/countertenor/mozart/cmd.gitCommitHash=`git rev-parse HEAD` -X github.com/countertenor/mozart/cmd.buildTime=`date -u '+%Y-%m-%d--%H:%M:%S%p'` -X github.com/countertenor/mozart/cmd.gitBranch=`git branch --show-current`
 DB_PATH=github.com/countertenor/mozart/internal/command.stateDBPathFromEnv
 LOG_PATH=github.com/countertenor/mozart/internal/command.logDirPathFromEnv
+BUILD_TAGS=none
 GO_BUILD=go build -tags $(BUILD_TAGS)
 
 build-all: ui 
@@ -18,7 +19,7 @@ build-linux: clean
 build-centos: clean
 	env GOOS=linux GOARCH=ppc64le $(GO_BUILD) -ldflags "-X $(DB_PATH)=/tmp -X $(LOG_PATH)=/var/log/mozart -X $(VERSION_INFO)" -o bin/centos/mozart main.go
 clean:
-	rm -f bin/*.*
+	rm -rf bin
 	rm -rf generated
 	rm -rf logs
 	rm -f *.db
