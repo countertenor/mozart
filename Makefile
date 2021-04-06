@@ -14,7 +14,7 @@ build-all-no-ui:
 	$(MAKE) BUILD_TAGS=none build-all-binary
 build-all-binary: build-darwin build-linux build-centos
 build-darwin: clean
-	$(GO_BUILD) -ldflags "-X $(GENERATED_DIR_PATH)=/tmp -X $(VERSION_INFO)" -o bin/darwin/mozart main.go
+	$(GO_BUILD) -ldflags "-X $(GENERATED_DIR_PATH)=. -X $(VERSION_INFO)" -o bin/darwin/mozart main.go
 build-linux: clean
 	env GOOS=linux GOARCH=amd64 $(GO_BUILD) -ldflags "-X $(GENERATED_DIR_PATH)=. -X $(DB_PATH)=/tmp -X $(LOG_PATH)=/var/log/mozart -X $(VERSION_INFO)" -o bin/linux/mozart main.go
 build-centos: clean
