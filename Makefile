@@ -49,3 +49,9 @@ upload: add-tag install build-linux #make upload tag=v0.x.x, install --> brew in
 	goreleaser --rm-dist
 test:
 	go test -v ./...
+
+vet:
+	go vet ./...
+
+lint:
+	go list ./... | grep -v vendor | xargs -L1 golint -set_exit_status

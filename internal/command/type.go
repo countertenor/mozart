@@ -14,5 +14,5 @@ type Instance struct {
 	Flags     *pflag.FlagSet
 	StartTime time.Time
 	ConfigDir string
-	execution.Instance
+	*execution.Instance
 }

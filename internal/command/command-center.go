@@ -56,7 +56,7 @@ func New(flags *pflag.FlagSet) *Instance {
 		logDir = logDirPathFromEnv
 	}
 
-	executionInstance := execution.Instance{
+	executionInstance := &execution.Instance{
 		LogDir:          logDir,
 		GeneratedDir:    generatedDir,
 		TemplateDir:     templateDir,

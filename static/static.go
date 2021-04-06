@@ -12,7 +12,7 @@ import (
 
 type staticType string
 
-//embedding from web_static using conditional build tags
+//WebappBuildType - embedding from web_static using conditional build tags
 var WebappBuildType staticType
 var Webapp embed.FS
 
@@ -20,6 +20,7 @@ var Webapp embed.FS
 var Resources embed.FS
 var ResourceType staticType = "resources"
 
+//GetEmbedFS gets the embedded FS based on type
 func GetEmbedFS(staticType staticType) embed.FS {
 	switch staticType {
 	case ResourceType:
@@ -32,6 +33,7 @@ func GetEmbedFS(staticType staticType) embed.FS {
 	}
 }
 
+//OpenFileFromStaticFS returns file from static FS
 func OpenFileFromStaticFS(staticType staticType, filename string) (fs.File, error) {
 	filePath := filename
 	if !strings.Contains(filename, string(ResourceType)) {
@@ -44,6 +46,7 @@ func OpenFileFromStaticFS(staticType staticType, filename string) (fs.File, erro
 	return file, nil
 }
 
+//Walk the embedded FS
 func Walk(staticType staticType, dir string, fn fs.WalkDirFunc) error {
 	return fs.WalkDir(GetEmbedFS(staticType), filepath.Join(string(staticType), dir), fn)
 }
@@ -127,6 +130,7 @@ func GetAllDirsInDir(staticType staticType, dirToLookIn string) ([]string, error
 	return dirs, nil
 }
 
+//GetRelativePath gets relative path
 func GetRelativePath(path, dir string) (string, error) {
 	base := filepath.Join(string(ResourceType), dir)
 	relativePath, err := filepath.Rel(base, path)
