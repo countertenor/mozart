@@ -99,7 +99,9 @@ func (i *Instance) runScript(fullDirPath, filename string) error {
 		}
 	}
 	if !i.ReRun && i.DirExecStatusMap[fullDirPath][filename].State == SuccessState {
-		fmt.Printf("Skipping %v since it ran successfully in last execution.\n", filename)
+		if !i.DryRunEnabled {
+			fmt.Printf("Skipping %v since it ran successfully in last execution.\n", filename)
+		}
 		return nil
 	}
 	if i.DryRunEnabled {
@@ -170,12 +172,10 @@ func (i *Instance) configureInterrupter() {
 		c := make(chan os.Signal)
 		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 		go func() {
-			select {
-			case m := <-c:
-				fmt.Printf("Program %v \n", m)
-				i.StopRunningCmd()
-				signal.Stop(c)
-			}
+			m := <-c
+			fmt.Printf("Program %v \n", m)
+			i.StopRunningCmd()
+			signal.Stop(c)
 		}()
 		i.Interrupter = c
 	}
@@ -192,9 +192,12 @@ func (i *Instance) disableInterrupter() {
 func (i *Instance) StopRunningCmd() {
 	if cancelRunningCommandFunc != nil {
 		cancelRunningCommandFunc()
-	} else {
-		i.Error = fmt.Errorf("nothing running at the moment")
 	}
+	//will need to uncomment for UI to receive an error
+	//commenting because it throws error if execution was successful in last run
+	// } else {
+	// 	i.Error = fmt.Errorf("nothing running at the moment")
+	// }
 }
 
 func (i *Instance) createLogFile(fileMetadata fileMetadata) (*os.File, string, error) {

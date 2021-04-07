@@ -20,7 +20,7 @@ build-linux: clean
 build-centos: clean
 	env GOOS=linux GOARCH=ppc64le $(GO_BUILD) -ldflags "-X $(GENERATED_DIR_PATH)=. -X $(DB_PATH)=/tmp -X $(LOG_PATH)=/var/log/mozart -X $(VERSION_INFO)" -o bin/centos/mozart main.go
 clean:
-	rm -f bin/*.*
+	rm -rf bin
 	rm -rf generated
 	rm -rf logs
 	rm -f *.db
@@ -51,3 +51,9 @@ upload: add-tag install build-linux #make upload tag=v0.x.x, install --> brew in
 	goreleaser --rm-dist
 test:
 	go test -v ./...
+
+vet:
+	go vet ./...
+
+lint:
+	go list ./... | grep -v vendor | xargs -L1 golint -set_exit_status

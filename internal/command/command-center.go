@@ -62,7 +62,7 @@ func init() {
 
 //New creates a new instance for command execution
 func New(flags *pflag.FlagSet) *Instance {
-	executionInstance := execution.Instance{
+	executionInstance := &execution.Instance{
 		LogDir:          logDir,
 		GeneratedDir:    generatedDir,
 		TemplateDir:     templateDir,

@@ -30,6 +30,7 @@ func ParseFile(config map[string]interface{}, filename string) error {
 	return nil
 }
 
+//ParseCommonFolder parses common folder for common snippets
 func ParseCommonFolder(config map[string]interface{}, dirName string) error {
 	err := static.Walk(static.ResourceType, dirName, func(path string, info fs.DirEntry, err error) error {
 		if err != nil {
