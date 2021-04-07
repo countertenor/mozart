@@ -29,7 +29,8 @@ const (
 	defaultConfigFileName = "mozart-defaults.yaml"
 	stateFileDefaultName  = "mozart-state.db"
 
-	templateDir = "templates"
+	templateDir    = "templates"
+	ignoreIfPrefix = "!"
 )
 
 var (
@@ -69,6 +70,7 @@ func New(flags *pflag.FlagSet) *Instance {
 		DoRunParallel:   getBoolFlagValue(flags, flag.DoRunParallel),
 		DryRunEnabled:   getBoolFlagValue(flags, flag.DryRun),
 		ReRun:           getBoolFlagValue(flags, flag.ReRun),
+		IgnoreIfPrefix:  ignoreIfPrefix,
 		TimeoutInterval: time.Minute * 15, //change later
 		State: execution.State{
 			StateFilePath:        stateFilePath,
@@ -250,7 +252,7 @@ func (i *Instance) StopRunningCommand() *Instance {
 
 //GetAllDirsInsideTmpl gets all directories inside template folder
 func GetAllDirsInsideTmpl() ([]string, error) {
-	dirs, err := static.GetAllDirsInDir(static.ResourceType, templateDir)
+	dirs, err := static.GetAllDirsInDir(static.ResourceType, templateDir, ignoreIfPrefix)
 	if err != nil {
 		return nil, err
 	}

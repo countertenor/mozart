@@ -100,7 +100,7 @@ func GetActualDirName(staticType staticType, dirToGenerateFrom, dirToLookIn stri
 }
 
 //GetAllDirsInDir gets all dirs inside a directory
-func GetAllDirsInDir(staticType staticType, dirToLookIn string) ([]string, error) {
+func GetAllDirsInDir(staticType staticType, dirToLookIn, ignoreIfPrefix string) ([]string, error) {
 	var dirs []string
 	if dirToLookIn == "" {
 		return dirs, nil
@@ -110,7 +110,7 @@ func GetAllDirsInDir(staticType staticType, dirToLookIn string) ([]string, error
 		if err != nil {
 			return err
 		}
-		if info.IsDir() {
+		if info.IsDir() && !strings.HasPrefix(info.Name(), ignoreIfPrefix) {
 			dirToReturn, err := GetRelativePath(path, dirToLookIn)
 			if err != nil {
 				return err

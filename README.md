@@ -356,7 +356,9 @@ This will substitute the contents of the file.
 
 ## Adding custom resources
 
-Sometimes you might want to add files which you don't want mozart to execute automatically, but these files will be used by your scripts. In such cases, you can prefix `!` to these files.
+Sometimes you might want to add files under certain modules which you don't want mozart to execute along with the module, instead these files will be used by your scripts.
+
+In such cases, you can prefix `!` to the file names (or prefix `!` to an entire directory, in which case all files inside that directory will not be executed)
 
 **Example:**
 
@@ -367,12 +369,18 @@ Sometimes you might want to add files which you don't want mozart to execute aut
 
 As you see here, there's a file present with the name `!external_file.sh`. Since this file is prefixed with a `!`, this won't be executed by mozart when you run the `module3` module.
 
-If your script wants to execute this file, you can do so by adding these lines:
-
-    cat static/resources/templates/example-module/00-bash-module/02-external-example/step1.sh
+If your script wants to execute this file, you can do so by adding these lines (example code in `static/resources/templates/example-module/00-bash-module/02-external-example/step1.sh`):
 
     DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P )"
     bash $DIR/!external_file.sh
+
+_OR_
+
+You can write this file to a custom location and execute it:
+
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P )"
+    cat $DIR/!external_file.sh > /your/location/file.sh
+    bash /your/location/file.sh
 
 **Note:** The DIR command is needed since the execution directory for the script is not where the script resides. So unfortunately you cannot run a script that's present in the same folder using something like `./script_name`, since `.` assumes current execution directory.
 

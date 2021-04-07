@@ -59,7 +59,7 @@ func (i *Instance) handleRunScripts(fullDirPath string) {
 		return
 	}
 	for _, file := range filesInDir {
-		if file.IsDir() { //recursion into dir
+		if file.IsDir() && !strings.HasPrefix(file.Name(), i.IgnoreIfPrefix) { //recursion into dir
 			i.handleRunScripts(filepath.Join(fullDirPath, file.Name()))
 		} else {
 			if i.DoRunParallel {
