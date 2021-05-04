@@ -2,8 +2,8 @@
 
 # Example of templating values
 # values:
-#   value1: 
-#   value2:
+#   value1: hello
+#   value2: world
 
 # Optional configuration params
 # ------------------------------
@@ -32,4 +32,5 @@
 
 # Example:
 # args:
-#   00-step1.sh: ["-s", "hello"]
+#   00-step1.sh: ["hello"]
+#   10-step2.sh: ["world"]

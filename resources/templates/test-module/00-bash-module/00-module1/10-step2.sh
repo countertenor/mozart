@@ -1,5 +1,0 @@
-#!/bin/bash	
-
-echo "hello world 1.5"	
-
-sleep 2

@@ -1,6 +1,7 @@
 package command
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -11,27 +12,46 @@ import (
 	"github.com/countertenor/mozart/internal/flag"
 	"github.com/countertenor/mozart/internal/template"
 	"github.com/countertenor/mozart/internal/yaml"
-	"github.com/countertenor/mozart/statik"
+	"github.com/countertenor/mozart/static"
 
 	"github.com/spf13/pflag"
 )
 
-var logDirPathFromEnv string  //This will be set through the build command, see Makefile
-var stateDBPathFromEnv string //This will be set through the build command, see Makefile
+var logDirPathFromEnv string       //This will be set through the build command, see Makefile
+var stateDBPathFromEnv string      //This will be set through the build command, see Makefile
+var generatedDirPathFromEnv string //This will be set through the build command, see Makefile
 
 //constants needed
 const (
 	sampleConfigFileName = "mozart-sample.yaml"
-	commonConfigFileName = "common.yaml"
+	commonDirName        = "common"
 
 	defaultConfigFileName = "mozart-defaults.yaml"
 	stateFileDefaultName  = "mozart-state.db"
 
-	generatedDir = "generated"
-	templateDir  = "/templates"
+	templateDir    = "templates"
+	ignoreIfPrefix = "!"
+)
+
+var (
+	stateFilePath = "."
+	logDir        = "logs"
+	generatedDir  = "generated"
 )
 
 func init() {
+	if stateDBPathFromEnv != "" {
+		stateFilePath = stateDBPathFromEnv
+	}
+
+	if logDirPathFromEnv != "" {
+		logDir = logDirPathFromEnv
+	}
+
+	if generatedDirPathFromEnv != "" {
+		generatedDir = filepath.Join(generatedDirPathFromEnv, generatedDir)
+	}
+
 	if _, err := os.Stat(generatedDir); os.IsNotExist(err) {
 		// fmt.Printf("\n%v directory does not exist, creating ...\n\n", generatedDir)
 		err := os.Mkdir(generatedDir, 0755)
@@ -43,25 +63,14 @@ func init() {
 
 //New creates a new instance for command execution
 func New(flags *pflag.FlagSet) *Instance {
-	stateFilePath := "./"
-	if stateDBPathFromEnv != "" {
-		stateDBPathFromEnv = parsePath(stateDBPathFromEnv)
-		stateFilePath = stateDBPathFromEnv
-	}
-
-	logDir := "logs/"
-	if logDirPathFromEnv != "" {
-		logDirPathFromEnv = parsePath(logDirPathFromEnv)
-		logDir = logDirPathFromEnv
-	}
-
-	executionInstance := execution.Instance{
+	executionInstance := &execution.Instance{
 		LogDir:          logDir,
 		GeneratedDir:    generatedDir,
 		TemplateDir:     templateDir,
 		DoRunParallel:   getBoolFlagValue(flags, flag.DoRunParallel),
 		DryRunEnabled:   getBoolFlagValue(flags, flag.DryRun),
 		ReRun:           getBoolFlagValue(flags, flag.ReRun),
+		IgnoreIfPrefix:  ignoreIfPrefix,
 		TimeoutInterval: time.Minute * 15, //change later
 		State: execution.State{
 			StateFilePath:        stateFilePath,
@@ -86,6 +95,7 @@ func (i *Instance) CreateSampleConfigFile() *Instance {
 	err := yaml.CreateSampleConfigFile(sampleConfigFileName)
 	if err != nil {
 		i.Error = err
+		return i
 	}
 	fmt.Println("\nGenerated sample file : ", sampleConfigFileName)
 	return i
@@ -108,14 +118,14 @@ func (i *Instance) ParseConfig() *Instance {
 		i.Error = err
 		return i
 	}
-	err = yaml.ParseFileFromStatic(i.Config, commonConfigFileName)
+	//common folder files
+	err = yaml.ParseCommonFolder(i.Config, commonDirName)
 	if err != nil {
-		i.Error = fmt.Errorf("error while parsing %v YAML file: %v", commonConfigFileName, err)
+		i.Error = fmt.Errorf("error while parsing %v common dir: %v", commonDirName, err)
 		return i
 	}
-
 	if getBoolFlagValue(i.Flags, flag.Verbose) {
-		fmt.Println("config : ", i.Config)
+		i.printConfig()
 	}
 	return i
 }
@@ -143,7 +153,7 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 	var configDir string
 	var err error
 	if dirToGenerateFrom != "" {
-		configDir, err = statik.GetActualDirName(statik.Template, dirToGenerateFrom, templateDir)
+		configDir, err = static.GetActualDirName(static.ResourceType, dirToGenerateFrom, templateDir)
 		if err != nil {
 			i.Error = fmt.Errorf("could not get ActualDirName for dir %v, err : %v ", dirToGenerateFrom, err)
 			return i
@@ -153,7 +163,7 @@ func (i *Instance) GenerateConfigFilesFromDir(dirToGenerateFrom string) *Instanc
 			return i
 		}
 	}
-	//fmt.Println("actual dir : ", configDir)
+	// fmt.Println("configDir : ", configDir)
 	i.ConfigDir = configDir
 	if !noGenerate {
 		//cleaning up all scripts in dir if it exists
@@ -185,19 +195,10 @@ func (i *Instance) RunScripts() *Instance {
 	if i.Error != nil {
 		return i
 	}
-	fullPath := generatedDir + i.ConfigDir
+	fullPath := filepath.Join(generatedDir, i.ConfigDir)
 	// fmt.Println("fullPath : ", fullPath)
+	i.RunScriptsInDir(fullPath)
 
-	if i.DryRunEnabled {
-		i.RunScriptsInDir(fullPath)
-		fmt.Println("Skipping all files since dry-run was selected")
-	} else {
-		//skip execution the first time to populate state obj
-		i.DryRunEnabled = true
-		i.RunScriptsInDir(fullPath)
-		i.DryRunEnabled = false
-		i.RunScriptsInDir(fullPath)
-	}
 	i.Error = i.Instance.Error
 	i.PrintSeparator()
 	return i
@@ -251,7 +252,7 @@ func (i *Instance) StopRunningCommand() *Instance {
 
 //GetAllDirsInsideTmpl gets all directories inside template folder
 func GetAllDirsInsideTmpl() ([]string, error) {
-	dirs, err := statik.GetAllDirsInDir(statik.Template, templateDir)
+	dirs, err := static.GetAllDirsInDir(static.ResourceType, templateDir, ignoreIfPrefix)
 	if err != nil {
 		return nil, err
 	}
@@ -292,20 +293,20 @@ func getStringFlagValue(flags *pflag.FlagSet, flagname string) string {
 	return ""
 }
 
-func parsePath(path string) string {
-	lastChar := path[len(path)-1:]
-
-	if lastChar != "/" {
-		path += "/"
+func (i *Instance) printConfig() error {
+	jsonData, err := json.MarshalIndent(i.Config, "", "  ")
+	if err != nil {
+		return fmt.Errorf("unable to parse version, err : %v", err)
 	}
-	return path
+	fmt.Printf("\nConfig %s\n", jsonData)
+	return nil
 }
 
 func (i *Instance) parseConfigParams() error {
 	if i.Config["log_path"] != nil {
 		logPath, parseOk := i.Config["log_path"].(string)
 		if parseOk {
-			i.LogDir = i.LogDir + parsePath(logPath)
+			i.LogDir = filepath.Join(i.LogDir, logPath)
 		} else {
 			return fmt.Errorf("could not parse log file path in config file")
 		}

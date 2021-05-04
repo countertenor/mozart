@@ -72,12 +72,15 @@ If you have a bunch of scripts which let you deploy a particular program on some
     - [4. Build the binary](#4-build-the-binary)
 - [Mozart yaml file](#mozart-yaml-file)
   - [Templating](#templating)
-  - [Using common snippets across scripts](#using-common-snippets-across-scripts)
   - [Optional configuration parameters](#optional-configuration-parameters)
     - [Log sub-directory](#log-sub-directory)
     - [Exec source](#exec-source)
     - [Delims](#delims)
     - [Arguments](#arguments)
+- [Using common snippets across scripts](#using-common-snippets-across-scripts)
+  - [More info](#more-info)
+  - [Gotchas](#gotchas)
+- [Adding custom resources](#adding-custom-resources)
 - [CLI](#cli)
   - [Mozart commands](#mozart-commands)
   - [Executing modules](#executing-modules)
@@ -93,6 +96,7 @@ If you have a bunch of scripts which let you deploy a particular program on some
   - [Command execution](#command-execution)
   - [Error stack](#error-stack)
   - [Embedding static content](#embedding-static-content)
+  - [Go build tools](#go-build-tools)
 
 <!-- /code_chunk_output -->
 
@@ -144,7 +148,6 @@ There is already a sample module present called `test-module` under `resources/t
 1. Install go - https://golang.org/doc/install
 1. Clone repo - https://github.com/countertenor/mozart
 1. Run the command `export PATH=$PATH:$(go env GOPATH)/bin`) (_Please note_ - to make it persistent, you will have to add the command to your .bashrc)
-1. Run `go get github.com/rakyll/statik`
 1. Create a new directory inside `resources/templates`. This will be the base module under which all your modules will exist.
 1. (Optional) Delete the existing `test-module` inside `resources/templates` if you want a clean slate. That folder is only for reference. Leaving that folder as it is will not do any harm.
 
@@ -230,43 +233,10 @@ In the file `step1.sh`, you see this:
 The values in the brackets are the values that will be fetched from the `yaml` at runtime. So if you want to substitute some values at runtime, you replace the values with the `{{ }}` notation as you see above, and in the `yaml` file, add:
 
     values:
-    value1: hello
-    value2: world
+      value1: hello
+      value2: world
 
 Mozart will substitute these values at runtime.
-
-### Using common snippets across scripts
-
-There might be a scenario in which some scripts have a lot of common code. It is never a good idea to duplicate logic across scripts (DRY principle).
-
-To tackle this, you can make use of the `common.yaml` file that is present in the `resources` folder. This file has one purpose and one purpose only - to hold common snippets of information that will be needed by more than one script.
-
-You can take a look at the `resources/templates/test-module/10-python-module/00-module1/python-1.py` file for an example.
-
-**Example:**
-
-Suppose if you have a function that you want in more than one script, say
-
-    def my_func(str):
-    print(f'inside funct {str}')
-
-Instead of having this function be duplicated across scripts, you add this function in the `common.yaml` file:
-
-    my_func: >
-    def my_func(str):
-        print(f'inside funct {str}')
-
-The `key` is `my_func`, and the value is the function itself.
-
-You can then access this function in any script, using
-
-    {{.my_func}}
-
-**Note 1:** Sometimes you might want to add indentation to the above substituted lines of code (It is essential in python scripts). You can do so by using `nindent` (courtesy of [sprig functions](http://masterminds.github.io/sprig/strings.html))
-
-    {{.my_func | nindent 4}}
-
-**Note 2:** The only difference between the `common.yaml` and the main `yaml` file for Mozart config is that the `common.yaml` is more for compile time deduplication, whereas the main `yaml` file is for runtime changes. For example, functions that are duplicated will never need to be changed at runtime (common.yaml), whereas username and password should never be saved at compile time, instead should be provided at runtime.
 
 ### Optional configuration parameters
 
@@ -293,8 +263,8 @@ The format is `file_ext: source`
 **Example:**
 
     exec_source:
-    py: /usr/bin/python
-    sh: /bin/bash
+      py: /usr/bin/python
+      sh: /bin/bash
 
 This lets Mozart know that if you place any file with the extension of `.sh`, then run it using `/bin/bash`. If you place any file with the extension `.py`, then run it using `/usr/bin/python`.
 
@@ -332,6 +302,87 @@ args:
 ```
 
 This makes sure that whenever the `00-step1.sh` file is being executed by Mozart, the `-s` and `hello` arguments are passed to the file at runtime.
+
+## Using common snippets across scripts
+
+There might be a scenario in which some scripts have a lot of common code. It is never a good idea to duplicate logic across scripts (DRY principle).
+
+To tackle this, you can make use of the `common` folder that is present under the `resources` folder. This folder has one purpose and one purpose only - to hold common snippets of information that will be needed by more than one script.
+
+You can take a look at the `static/resources/templates/example-module/10-python-module/00-common-example/python-1.py` file for an example.
+
+**Example:**
+
+Suppose if you have a function that you want in more than one script, say
+
+    def my_func(str):
+    print('inside funct - ' + str)
+
+Instead of having this function be duplicated across scripts, you add this function as its own file under the `common` folder:
+
+    ╰$ cat static/resources/common/python/my_func
+
+    def my_func(str):
+    print('inside funct - ' + str)
+
+Once the templating engine parses the files, it creates a mapping:
+
+    "key" - the filename ("my_func" in this case)
+    "value" - the content of the file itself
+
+You can then substitute this function in any script using the key:
+
+    {{.my_func}}
+
+This will substitute the contents of the file.
+
+### More info
+
+1.  The files added under the `common` folder are also passes through the templating engine, so **you can use templating in the files added to the `common` folder as well**, something like this:
+
+        echo "{{.values.value1}} {{.values.value2}}"
+
+    These values will be parsed through the `yaml` file provided at runtime.
+
+1.  Sometimes you might want to **add indentation to the above substituted lines of code** (It is essential in python scripts). You can do so by using `nindent` (courtesy of [sprig functions](http://masterminds.github.io/sprig/strings.html))
+
+        {{.my_func | nindent 4}}
+
+### Gotchas
+
+1.  If you add a file under the `common` folder with an extension, for example, `my_func.py`, the key still remains `my_func`. That is because the templating engine gets confused when you try to access a key with a `.` So **in cases where the file has an extension, the engine strips off the extension for the "key" value**.
+
+1.  Names with `-` are not permitted to be used in go templating, therefore **filenames with `-` in them are not permitted**.
+
+## Adding custom resources
+
+Sometimes you might want to add files under certain modules which you don't want mozart to execute along with the module, instead these files will be used by your scripts.
+
+In such cases, you can prefix `!` to the file names (or prefix `!` to an entire directory, in which case all files inside that directory will not be executed)
+
+**Example:**
+
+    ls static/resources/templates/example-module/00-bash-module/02-external-example
+
+    !external_file.sh
+    step1.sh
+
+As you see here, there's a file present with the name `!external_file.sh`. Since this file is prefixed with a `!`, this won't be executed by mozart when you run the `module3` module.
+
+If your script wants to execute this file, you can do so by adding these lines (example code in `static/resources/templates/example-module/00-bash-module/02-external-example/step1.sh`):
+
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P )"
+    bash $DIR/!external_file.sh
+
+_OR_
+
+You can write this file to a custom location and execute it:
+
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P )"
+    cat $DIR/!external_file.sh > /your/location/file.sh
+    bash /your/location/file.sh
+
+**Note:** The DIR command is needed since the execution directory for the script is not where the script resides. So unfortunately you cannot run a script that's present in the same folder using something like `./script_name`, since `.` assumes current execution directory.
 
 ## CLI
 
@@ -510,3 +561,12 @@ Developed by @toshakamath
 
 - https://github.com/rakyll/statik/pull/101/files
 - https://github.com/golang/go/issues/41191
+- https://blog.carlmjohnson.net/post/2021/how-to-use-go-embed/
+- https://github.com/akmittal/go-embed (example for react app)
+
+### Go build tools
+
+- https://blog.carlmjohnson.net/post/2021/how-to-use-go-embed/
+- https://dave.cheney.net/2013/10/12/how-to-use-conditional-compilation-with-the-go-build-tool
+- https://www.digitalocean.com/community/tutorials/customizing-go-binaries-with-build-tags
+- List all go files: `go list -tags ui -f '{{.GoFiles}}' ./...`

@@ -8,9 +8,6 @@ logs/
 #DS Store
 .DS_Store
 
-#statik
-statik.go
-
 # generated files
 generated/*
 !generated/*.md
@@ -23,3 +20,4 @@ dist/
 
 # Sample files
 mozart*.yaml
+!*/resources/mozart*.yaml

@@ -53,7 +53,7 @@ func printCommandsToRun() string {
 	allCommands.WriteString("\n")
 	allCommands.WriteString("\n")
 	for _, command := range commands {
-		allCommands.WriteString("mozart execute ")
+		allCommands.WriteString("./mozart execute ")
 		allCommands.WriteString(command)
 		allCommands.WriteString("\n")
 	}

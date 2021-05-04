@@ -52,6 +52,7 @@ type Instance struct {
 	DoRunParallel   bool
 	Interrupter     chan os.Signal
 	WaitGroup       *sync.WaitGroup
+	IgnoreIfPrefix  string
 	Mutex           sync.RWMutex
 	TimeoutInterval time.Duration
 	State
