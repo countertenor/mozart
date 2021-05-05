@@ -46,7 +46,7 @@ Mozart is a simple drop-in (no go-coding required) utility to **orchestrate** an
 
 ## What is an orchestrator?
 
-> What Kubernetes is to Docker containers, Mozart is to scripts.
+> What Docker compose is to Docker containers, Mozart is to scripts.
 
 - Manages packaging and distribution of scripts
 - Manages modularization – breaking down of big scripts into smaller scripts
@@ -57,14 +57,17 @@ Mozart is a simple drop-in (no go-coding required) utility to **orchestrate** an
 - Manages execution of all scripts – rerun/dry-run
 - Provides a CLI, a UI, a REST interface to interact with the scripts
 
-## What mozart is not
+## How mozart differs from Ansible
 
-Mozart is **NOT** a replacement for tools like Ansible or Chef, it is not that mature (yet). Instead, think of Mozart as a simple utility to manage a bunch of scripts.
-
-If you have a bunch of scripts lying about which you use to test out a particular component - think of Mozart.
-
-If you have a bunch of scripts which let you deploy a particular program on some remote server - think of Mozart.
-
+|Mozart  |Ansible   |
+|---|---|
+| Easy learning curve  | Tough learning curve|
+| No new software needed (only clone this repo)  | Initial setup required  |
+| Very less changes to existing scripts (simple drag and drop capability)  | More effort in making ansible modules  |
+|Working orchestrator within minutes | Takes time to create playbooks|
+|Provides single file packaging for all scripts| Doesn't provide packaging (AFAIK?)|
+|Useful for quick POC, testing, etc. | Suitable for heavy duty production deployments|
+|Simpler to use for single host (multiple hosts requires some changes)| Suitable for multiple hosts from start|
 **Table of Contents**
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
@@ -74,7 +77,7 @@ If you have a bunch of scripts which let you deploy a particular program on some
 - [Mozart](#mozart)
   - [What is mozart?](#what-is-mozart)
   - [What is an orchestrator?](#what-is-an-orchestrator)
-  - [What mozart is not](#what-mozart-is-not)
+  - [How mozart differs from Ansible](#how-mozart-differs-from-ansible)
   - [What exactly does an orchestrator do?](#what-exactly-does-an-orchestrator-do)
     - [Life without an orchestrator](#life-without-an-orchestrator)
     - [Benefits of using Mozart](#benefits-of-using-mozart)
